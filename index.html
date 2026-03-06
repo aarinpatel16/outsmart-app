@@ -1,0 +1,2009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>OUTSMART THE SYSTEM</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c10;
+    --surface: #0d1219;
+    --surface2: #111820;
+    --border: #1e2d3d;
+    --border2: #243040;
+    --accent: #00e5ff;
+    --accent2: #ff6b35;
+    --accent3: #39ff14;
+    --text: #e8f4f8;
+    --text2: #7a9bb5;
+    --text3: #3d5a70;
+    --fin: #00e5ff;
+    --eq: #b44fff;
+    --lead: #ff6b35;
+    --din: #39ff14;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: #0d1520;
+    color: #e2eaf4;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ========== SCREENS ========== */
+  .screen { display: none !important; min-height: 100vh; flex-direction: column; }
+  .screen.active { display: flex !important; }
+
+  /* ========== LOGIN — WARM FRIENDLY REDESIGN ========== */
+  #screen-login {
+    flex-direction: column;
+    min-height: 100vh;
+    background: #0f1923;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Soft ambient blobs */
+  #screen-login::before {
+    content: '';
+    position: fixed;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(99,179,237,0.08) 0%, transparent 70%);
+    top: -100px; right: -150px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  #screen-login::after {
+    content: '';
+    position: fixed;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(154,117,234,0.07) 0%, transparent 70%);
+    bottom: 0px; left: -100px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Hero banner top section */
+  .login-hero {
+    position: relative;
+    z-index: 1;
+    padding: 52px 28px 36px;
+    text-align: center;
+  }
+
+  .login-icon-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .login-icon-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 50px;
+    padding: 7px 14px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.6);
+    backdrop-filter: blur(10px);
+    animation: pillFloat 3s ease-in-out infinite;
+  }
+  .login-icon-pill:nth-child(2) { animation-delay: 0.4s; }
+  .login-icon-pill:nth-child(3) { animation-delay: 0.8s; }
+
+  @keyframes pillFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+
+  .login-wordmark {
+    margin-bottom: 10px;
+  }
+
+  .login-wordmark .tagline {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #63b3ed;
+    margin-bottom: 10px;
+  }
+
+  .login-wordmark h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 42px;
+    font-weight: 400;
+    line-height: 1.05;
+    color: #f0f8ff;
+    letter-spacing: -0.5px;
+  }
+
+  .login-wordmark h1 em {
+    font-style: italic;
+    color: #90cdf4;
+  }
+
+  .login-wordmark .subtitle {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.45);
+    margin-top: 10px;
+    line-height: 1.5;
+    max-width: 260px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Stat chips row */
+  .login-stats {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+
+  .login-stat-chip {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 10px 16px;
+    text-align: center;
+    min-width: 80px;
+  }
+
+  .login-stat-chip .num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: #63b3ed;
+    line-height: 1;
+  }
+
+  .login-stat-chip .lbl {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.35);
+    margin-top: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Card section */
+  .login-card {
+    position: relative;
+    z-index: 1;
+    margin: 0 16px 32px;
+    background: #16212e;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 28px 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  /* Mode selector pills */
+  .login-mode-selector {
+    display: flex;
+    background: rgba(0,0,0,0.3);
+    border-radius: 12px;
+    padding: 4px;
+    gap: 2px;
+    margin-bottom: 28px;
+  }
+
+  .login-mode-btn {
+    flex: 1;
+    padding: 9px 6px;
+    border-radius: 9px;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.4);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .login-mode-btn.active {
+    background: #1e3a5f;
+    color: #90cdf4;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  /* Friendly form labels */
+  .fl-label {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 7px;
+    display: block;
+  }
+
+  .fl-label .optional {
+    font-weight: 400;
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    margin-left: 4px;
+  }
+
+  /* Friendly inputs */
+  .fl-input {
+    width: 100%;
+    background: rgba(0,0,0,0.25);
+    border: 1.5px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    color: #f0f8ff;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 13px 16px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    margin-bottom: 16px;
+  }
+
+  .fl-input::placeholder { color: rgba(255,255,255,0.2); }
+
+  .fl-input:focus {
+    border-color: #63b3ed;
+    background: rgba(99,179,237,0.06);
+    box-shadow: 0 0 0 3px rgba(99,179,237,0.1);
+  }
+
+  /* Parent email special field */
+  .parent-field-wrap {
+    background: linear-gradient(135deg, rgba(154,117,234,0.08), rgba(99,179,237,0.08));
+    border: 1.5px solid rgba(154,117,234,0.2);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+
+  .parent-field-wrap .parent-field-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .parent-field-wrap .parent-icon {
+    width: 28px; height: 28px;
+    background: rgba(154,117,234,0.2);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+
+  .parent-field-wrap .parent-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #c4a0f5;
+  }
+
+  .parent-field-wrap .parent-desc {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+
+  .parent-field-wrap .fl-input {
+    margin-bottom: 0;
+    background: rgba(0,0,0,0.2);
+    border-color: rgba(154,117,234,0.25);
+  }
+
+  .parent-field-wrap .fl-input:focus {
+    border-color: #c4a0f5;
+    box-shadow: 0 0 0 3px rgba(154,117,234,0.12);
+  }
+
+  /* CTA Buttons */
+  .fl-btn {
+    width: 100%;
+    border: none;
+    border-radius: 14px;
+    padding: 16px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.3px;
+    margin-top: 4px;
+  }
+
+  .fl-btn-primary {
+    background: linear-gradient(135deg, #2b6cb0, #4299e1);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(66,153,225,0.3);
+  }
+
+  .fl-btn-primary:hover { box-shadow: 0 6px 28px rgba(66,153,225,0.45); transform: translateY(-1px); }
+  .fl-btn-primary:active { transform: scale(0.98); }
+
+  .fl-btn-create {
+    background: linear-gradient(135deg, #2d3748, #3d5a80);
+    color: #90cdf4;
+    border: 1.5px solid rgba(99,179,237,0.25);
+  }
+
+  .fl-btn-create:hover { background: linear-gradient(135deg, #3d4f6b, #4a7aaa); transform: translateY(-1px); }
+  .fl-btn-create:active { transform: scale(0.98); }
+
+  .fl-btn-parent {
+    background: linear-gradient(135deg, #3b2f6b, #5b4a9e);
+    color: #c4a0f5;
+    box-shadow: 0 4px 20px rgba(154,117,234,0.2);
+  }
+
+  .fl-btn-parent:hover { box-shadow: 0 6px 28px rgba(154,117,234,0.35); transform: translateY(-1px); }
+  .fl-btn-parent:active { transform: scale(0.98); }
+
+  /* Switch link */
+  .fl-switch {
+    text-align: center;
+    margin-top: 18px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    color: rgba(255,255,255,0.35);
+  }
+
+  .fl-switch a {
+    color: #63b3ed;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  /* parent login hint */
+  .fl-hint {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px;
+    color: rgba(255,255,255,0.25);
+    margin-top: -10px;
+    margin-bottom: 16px;
+    padding: 0 2px;
+    line-height: 1.4;
+  }
+
+  /* ===== ROLE TOGGLE ===== */
+  .role-toggle {
+    width: 52px; height: 28px;
+    background: rgba(255,255,255,0.08);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 99px;
+    position: relative; cursor: pointer;
+    transition: background 0.3s, border-color 0.3s;
+    flex-shrink: 0;
+  }
+  .role-toggle.parent-mode {
+    background: rgba(167,139,250,0.2);
+    border-color: rgba(167,139,250,0.4);
+  }
+  .role-knob {
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 20px; height: 20px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 50%;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.3s;
+  }
+  .role-toggle.parent-mode .role-knob {
+    transform: translateX(24px);
+    background: #c4a0f5;
+  }
+
+  /* Trust badges */
+  .trust-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 0 24px 28px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .trust-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px;
+    color: rgba(255,255,255,0.25);
+  }
+
+  /* ========== APP SHARED STYLES ========== */
+  .field-label {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 7px;
+    display: block;
+  }
+
+  .field-input {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    color: #f0f8ff;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 13px 16px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    margin-bottom: 16px;
+  }
+  .field-input::placeholder { color: rgba(255,255,255,0.2); }
+  .field-input:focus {
+    border-color: #63b3ed;
+    box-shadow: 0 0 0 3px rgba(99,179,237,0.12);
+  }
+
+  .login-tabs { display: none; }
+  .login-tab { display: none; }
+
+  .btn-primary {
+    width: 100%;
+    background: linear-gradient(135deg, #2b6cb0, #4299e1);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 16px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(66,153,225,0.3);
+    letter-spacing: 0.3px;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(66,153,225,0.45); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary.orange { background: linear-gradient(135deg, #c05621, #ed8936); box-shadow: 0 4px 20px rgba(237,137,54,0.3); }
+  .btn-primary.green  { background: linear-gradient(135deg, #276749, #48bb78); color: #fff; box-shadow: 0 4px 20px rgba(72,187,120,0.3); }
+
+  .demo-hint {
+    margin-top: 14px;
+    text-align: center;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+  }
+  .demo-hint span { color: #63b3ed; cursor: pointer; font-weight: 600; }
+
+  /* ========== HEADER ========== */
+  .app-header {
+    background: #111c28;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-brand {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: #f0f8ff;
+    letter-spacing: -0.3px;
+  }
+  .header-brand span { color: #63b3ed; font-style: italic; }
+
+  .header-user { display: flex; align-items: center; gap: 10px; }
+
+  .avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2b6cb0, #63b3ed);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700; font-size: 13px; color: #fff;
+    box-shadow: 0 2px 10px rgba(99,179,237,0.3);
+  }
+
+  .level-badge {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px; font-weight: 600;
+    color: rgba(255,255,255,0.4);
+  }
+  .level-badge strong { color: #68d391; }
+
+  /* ========== NAV ========== */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: #111c28;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    display: flex; z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; padding: 11px 8px 9px;
+    cursor: pointer; color: rgba(255,255,255,0.3);
+    transition: color 0.2s; gap: 4px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 10px; font-weight: 600;
+  }
+  .nav-item.active { color: #63b3ed; }
+  .nav-item svg { width: 20px; height: 20px; }
+
+  /* ========== DASHBOARD ========== */
+  #screen-dashboard { background: #0d1520; padding-bottom: 80px; }
+
+  .dash-hero {
+    padding: 24px 20px 22px;
+    background: linear-gradient(160deg, #111c2e 0%, #0d1520 100%);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .dash-greeting {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px; font-weight: 500;
+    color: rgba(255,255,255,0.4); margin-bottom: 2px;
+  }
+
+  .dash-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 30px; color: #f0f8ff;
+    letter-spacing: -0.5px; margin-bottom: 20px;
+  }
+
+  .system-status {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px; padding: 18px;
+  }
+
+  .status-row {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 12px;
+  }
+
+  .status-label {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px; font-weight: 500;
+    color: rgba(255,255,255,0.5);
+  }
+
+  .status-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px; color: #63b3ed;
+  }
+
+  .progress-track {
+    width: 100%; height: 8px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 99px; overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #2b6cb0, #63b3ed, #68d391);
+    border-radius: 99px;
+    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+    position: relative;
+  }
+
+  .progress-fill::after {
+    content: ''; position: absolute;
+    right: 0; top: 0; width: 30px; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5));
+    border-radius: 99px;
+    animation: shimmer 1.8s infinite;
+  }
+  @keyframes shimmer { 0%,100%{opacity:0} 50%{opacity:1} }
+
+  /* Category Cards */
+  .categories-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; padding: 20px;
+  }
+
+  .cat-card {
+    background: #131e2c;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px; padding: 18px 16px;
+    position: relative; overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.3s;
+  }
+  .cat-card:active { transform: scale(0.96); }
+  .cat-card:hover  { transform: translateY(-2px); }
+
+  .cat-fin.cleared  { border-color: rgba(99,179,237,0.5);  box-shadow: 0 4px 24px rgba(99,179,237,0.15); }
+  .cat-eq.cleared   { border-color: rgba(183,148,244,0.5); box-shadow: 0 4px 24px rgba(183,148,244,0.15); }
+  .cat-lead.cleared { border-color: rgba(252,129,74,0.5);  box-shadow: 0 4px 24px rgba(252,129,74,0.15); }
+  .cat-din.cleared  { border-color: rgba(104,211,145,0.5); box-shadow: 0 4px 24px rgba(104,211,145,0.15); }
+
+  .cat-card .cat-icon { font-size: 26px; margin-bottom: 10px; display: block; }
+  .cat-card .cat-name {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px; font-weight: 700;
+    color: #e2eaf4; line-height: 1.2; margin-bottom: 6px;
+  }
+  .cat-card .cat-count {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px; font-weight: 500;
+    color: rgba(255,255,255,0.3);
+  }
+  .cat-card .cat-check {
+    position: absolute; top: 12px; right: 12px;
+    width: 20px; height: 20px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.08);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .cat-card.cleared .cat-check { opacity: 1; }
+  .cat-fin.cleared  .cat-check { background: #63b3ed; }
+  .cat-eq.cleared   .cat-check { background: #b794f4; }
+  .cat-lead.cleared .cat-check { background: #fc814a; }
+  .cat-din.cleared  .cat-check { background: #68d391; }
+  .cat-card.cleared .cat-check::after { content: '✓'; color: #fff; font-weight: 800; font-size: 11px; font-family: 'Plus Jakarta Sans', sans-serif; }
+  .cat-card .cat-glow { display: none; }
+
+  .cat-fin  { color: #63b3ed; }
+  .cat-eq   { color: #b794f4; }
+  .cat-lead { color: #fc814a; }
+  .cat-din  { color: #68d391; }
+
+  /* Log Button */
+  .log-btn-wrap { padding: 0 20px 20px; }
+
+  .btn-log {
+    width: 100%;
+    background: linear-gradient(135deg, #2b6cb0, #4299e1);
+    color: #fff; border: none; border-radius: 16px;
+    padding: 18px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 17px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center;
+    justify-content: center; gap: 10px;
+    box-shadow: 0 6px 24px rgba(66,153,225,0.35);
+  }
+  .btn-log::before, .btn-log::after { display: none; }
+  .btn-log:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(66,153,225,0.5); }
+  .btn-log:active { transform: scale(0.98); }
+
+  /* Section Headers */
+  .section-header {
+    padding: 4px 20px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .section-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px; font-weight: 700;
+    color: rgba(255,255,255,0.7);
+  }
+  .section-count {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px; font-weight: 600; color: #63b3ed;
+  }
+
+  /* Log Items */
+  .log-item {
+    margin: 0 20px 10px;
+    background: #131e2c;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-left: 3px solid; border-radius: 12px;
+    padding: 14px 16px;
+    animation: fadeSlideIn 0.3s ease-out;
+  }
+  @keyframes fadeSlideIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+  .log-item-top {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 8px;
+  }
+  .log-cat-tag {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 10px; font-weight: 700;
+    padding: 3px 10px; border-radius: 99px;
+    background: rgba(255,255,255,0.07);
+  }
+  .log-date {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 10px; font-weight: 500;
+    color: rgba(255,255,255,0.3);
+  }
+  .log-intel {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px; font-weight: 600;
+    color: #e2eaf4; margin-bottom: 5px; line-height: 1.4;
+  }
+  .log-action {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px; font-weight: 400;
+    color: rgba(255,255,255,0.4); line-height: 1.5;
+  }
+
+  /* ========== LOG FORM ========== */
+  #screen-log { background: #0d1520; padding-bottom: 100px; }
+
+  .form-header {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    background: linear-gradient(160deg, #111c2e 0%, #0d1520 100%);
+  }
+  .form-header .eyebrow {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px; font-weight: 600; color: #63b3ed;
+    text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px;
+  }
+  .form-header h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px; color: #f0f8ff; letter-spacing: -0.3px;
+  }
+
+  .form-body { padding: 24px 20px; }
+  .form-group { margin-bottom: 24px; }
+
+  .cat-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .cat-option {
+    background: #131e2c;
+    border: 1.5px solid rgba(255,255,255,0.07);
+    border-radius: 14px; padding: 14px 12px;
+    cursor: pointer; display: flex; align-items: center;
+    gap: 10px; transition: all 0.2s; position: relative;
+  }
+  .cat-option:hover { background: #192638; }
+  .cat-option.selected { border-color: currentColor; background: rgba(0,0,0,0.3); }
+  .cat-option.selected::before {
+    content: ''; position: absolute; inset: 0;
+    border-radius: 13px; background: currentColor; opacity: 0.07;
+  }
+  .cat-option-icon { font-size: 20px; }
+  .cat-option-text {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px; font-weight: 700; color: #d4e5f7; line-height: 1.2;
+  }
+
+  .field-textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.08);
+    border-radius: 14px; color: #f0f8ff;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px; font-weight: 400;
+    padding: 14px 16px; outline: none;
+    resize: none; transition: border-color 0.2s, box-shadow 0.2s;
+    line-height: 1.6;
+  }
+  .field-textarea::placeholder { color: rgba(255,255,255,0.2); }
+  .field-textarea:focus {
+    border-color: #63b3ed;
+    box-shadow: 0 0 0 3px rgba(99,179,237,0.1);
+  }
+
+  .field-hint {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px; font-weight: 500;
+    color: rgba(255,255,255,0.25); margin-top: 7px; line-height: 1.4;
+  }
+
+  .date-display {
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.08);
+    border-radius: 12px; padding: 13px 16px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px; font-weight: 500;
+    color: rgba(255,255,255,0.5);
+  }
+
+  /* ========== PARENT PORTAL ========== */
+  #screen-parent { background: #0d1520; padding-bottom: 80px; }
+
+  .portal-header {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    background: linear-gradient(160deg, #131e2e 0%, #0d1520 100%);
+  }
+  .portal-header .eyebrow {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px; font-weight: 600; color: #68d391;
+    text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px;
+  }
+  .portal-header h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px; color: #f0f8ff; letter-spacing: -0.3px;
+  }
+
+  .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; padding: 20px; }
+
+  .stat-box {
+    background: #131e2c;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px; padding: 16px 12px; text-align: center;
+  }
+  .stat-num { font-family: 'DM Serif Display', serif; font-size: 34px; color: #63b3ed; line-height: 1; }
+  .stat-label {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 10px; font-weight: 600;
+    color: rgba(255,255,255,0.3); letter-spacing: 0.5px;
+    margin-top: 5px; text-transform: uppercase;
+  }
+
+  .filter-bar { padding: 0 20px 14px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+  .filter-chip {
+    flex-shrink: 0; padding: 7px 16px;
+    background: #131e2c; border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 99px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px; font-weight: 600;
+    cursor: pointer; color: rgba(255,255,255,0.4); transition: all 0.15s;
+  }
+  .filter-chip.active {
+    background: rgba(99,179,237,0.15);
+    color: #63b3ed; border-color: rgba(99,179,237,0.4);
+  }
+
+  /* ========== MODALS ========== */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+    z-index: 200; align-items: center; justify-content: center; padding: 24px;
+  }
+  .modal-overlay.show { display: flex; }
+
+  .modal-box {
+    background: #16212e;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px; padding: 40px 32px;
+    text-align: center; width: 100%; max-width: 360px;
+    position: relative;
+    animation: modalPop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+  }
+  .modal-box::before, .modal-box::after { display: none; }
+
+  @keyframes modalPop { from{opacity:0;transform:scale(0.7)} to{opacity:1;transform:scale(1)} }
+
+  .modal-icon { font-size: 56px; margin-bottom: 16px; animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+
+  .modal-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 30px; color: #68d391;
+    margin-bottom: 8px; letter-spacing: -0.3px;
+  }
+  .modal-sub {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px; font-weight: 400;
+    color: rgba(255,255,255,0.5); margin-bottom: 28px; line-height: 1.6;
+  }
+  .modal-close {
+    background: linear-gradient(135deg, #276749, #48bb78);
+    color: #fff; border: none; border-radius: 14px;
+    padding: 15px 36px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px; font-weight: 700; cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 16px rgba(72,187,120,0.3);
+  }
+  .modal-close:hover { transform: translateY(-1px); }
+  .modal-close:active { transform: scale(0.97); }
+
+  .modal-box.success-log .modal-title { color: #63b3ed; }
+  .modal-box.success-log .modal-close {
+    background: linear-gradient(135deg, #2b6cb0, #4299e1);
+    box-shadow: 0 4px 16px rgba(66,153,225,0.3);
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 96px; left: 50%;
+    transform: translateX(-50%) translateY(16px);
+    background: #1a2d45; border: 1px solid rgba(99,179,237,0.3);
+    color: #90cdf4; padding: 11px 22px; border-radius: 99px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px; font-weight: 600;
+    opacity: 0; transition: all 0.3s; white-space: nowrap;
+    z-index: 150; pointer-events: none;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .glitch { color: #68d391; }
+
+  #confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 199; display: none; }
+
+  .parent-tab-content { display: none; }
+  .parent-tab-content.active { display: block; }
+  .log-list { padding-bottom: 10px; }
+
+  .empty-state { text-align: center; padding: 48px 20px; }
+  .empty-state .icon { font-size: 40px; margin-bottom: 14px; opacity: 0.2; }
+  .empty-state p {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.25);
+  }
+
+  @media (min-width: 480px) {
+    .categories-grid { grid-template-columns: repeat(4, 1fr); }
+    .cat-picker { grid-template-columns: repeat(4, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<!-- ========== SCREEN: LOGIN ========== -->
+<div class="screen active" id="screen-login">
+
+  <!-- Hero Section -->
+  <div class="login-hero">
+    <div class="login-icon-row">
+      <div class="login-icon-pill">💰 Finance</div>
+      <div class="login-icon-pill">🧠 Mindset</div>
+      <div class="login-icon-pill">⚡ Leadership</div>
+    </div>
+
+    <div class="login-wordmark">
+      <div class="tagline">Strategy Log</div>
+      <h1>Outsmart<br><em>the System</em></h1>
+      <div class="subtitle">Log your wins. Track your growth. Level up your life.</div>
+    </div>
+
+    <div class="login-stats">
+      <div class="login-stat-chip">
+        <div class="num">4</div>
+        <div class="lbl">Skills</div>
+      </div>
+      <div class="login-stat-chip">
+        <div class="num">∞</div>
+        <div class="lbl">Growth</div>
+      </div>
+      <div class="login-stat-chip">
+        <div class="num">1</div>
+        <div class="lbl">You</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auth Card -->
+  <div class="login-card">
+
+  
+
+    <!-- STUDENT AREA -->
+    <div id="student-area">
+      <!-- Mode Switcher -->
+      <div class="login-mode-selector" style="margin-bottom:24px;">
+        <button class="login-mode-btn active" id="tab-signin" onclick="switchLoginMode('signin')">Sign In</button>
+        <button class="login-mode-btn" id="tab-create" onclick="switchLoginMode('create')">Join</button>
+      </div>
+
+      <!-- STUDENT SIGN IN -->
+      <div id="mode-signin">
+        <label class="fl-label">Email Address</label>
+        <input class="fl-input" id="si-email" type="email" placeholder="you@email.com" autocomplete="email">
+        <label class="fl-label">Password</label>
+        <input class="fl-input" id="si-pass" type="password" placeholder="Your password">
+        <button class="fl-btn fl-btn-primary" onclick="signIn()">Sign In →</button>
+        <div class="fl-switch">New here? <a onclick="switchLoginMode('create')">Create your account</a></div>
+      </div>
+
+      <!-- STUDENT CREATE ACCOUNT -->
+      <div id="mode-create" style="display:none;">
+        <label class="fl-label">Your name</label>
+        <input class="fl-input" id="ca-name" type="text" placeholder="What should we call you?" autocomplete="off">
+        <label class="fl-label">Email</label>
+        <input class="fl-input" id="ca-email" type="email" placeholder="you@email.com">
+        <label class="fl-label">Create a password</label>
+        <input class="fl-input" id="ca-pass" type="password" placeholder="Min 4 characters">
+
+        
+
+  
+
+  <!-- Trust Row -->
+  <div class="trust-row">
+    <div class="trust-item">🔒 Private</div>
+    <div class="trust-item">📱 Mobile-first</div>
+    <div class="trust-item">🏆 Gamified</div>
+  </div>
+
+</div>
+
+<!-- ========== SCREEN: DASHBOARD ========== -->
+<div class="screen" id="screen-dashboard">
+  <div class="app-header">
+    <div class="header-brand">Outsmart <span>the System</span></div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="theme-btn" onclick="openThemePicker()">🎨 Theme</button>
+      <div class="header-user">
+        <div class="level-badge">Level <strong id="h-level">0</strong></div>
+        <div class="avatar" id="h-avatar">?</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-hero">
+    <div class="dash-greeting">Good to see you,</div>
+    <div class="dash-name" id="dash-name">—</div>
+    <div id="dash-rank" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:rgba(246,201,14,0.7);margin-bottom:20px;margin-top:-10px;"></div>
+    <div class="system-status">
+      <div class="status-row">
+      <div class="status-label">Skills Unlocked</div>
+        <div class="status-value"><span id="cats-cleared">0</span>/4</div>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="categories-grid">
+    <div class="cat-card cat-fin" id="card-fin" onclick="goLogCat('fin')">
+      <div class="cat-glow"></div>
+      <div class="cat-icon">💰</div>
+      <div class="cat-name">Financial Literacy</div>
+      <div class="cat-count" id="count-fin">0 logs</div>
+      <div class="cat-check"></div>
+    </div>
+    <div class="cat-card cat-eq" id="card-eq" onclick="goLogCat('eq')">
+      <div class="cat-glow"></div>
+      <div class="cat-icon">🧠</div>
+      <div class="cat-name">Emotional Intel</div>
+      <div class="cat-count" id="count-eq">0 logs</div>
+      <div class="cat-check"></div>
+    </div>
+    <div class="cat-card cat-lead" id="card-lead" onclick="goLogCat('lead')">
+      <div class="cat-glow"></div>
+      <div class="cat-icon">⚡</div>
+      <div class="cat-name">Leadership</div>
+      <div class="cat-count" id="count-lead">0 logs</div>
+      <div class="cat-check"></div>
+    </div>
+    <div class="cat-card cat-din" id="card-din" onclick="goLogCat('din')">
+      <div class="cat-glow"></div>
+      <div class="cat-icon">🗣️</div>
+      <div class="cat-name">Dinner Talk</div>
+      <div class="cat-count" id="count-din">0 logs</div>
+      <div class="cat-check"></div>
+    </div>
+  </div>
+
+  <div class="log-btn-wrap">
+    <button class="btn-log" onclick="showScreen('screen-log')">
+      ✏️ Log a New Lesson
+    </button>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">Recent Entries</div>
+    <div class="section-count" id="total-count">0 entries</div>
+  </div>
+  <div class="log-list" id="recent-logs">
+    <div class="empty-state">
+      <div class="icon">📂</div>
+      <p>Nothing here yet.</p>
+      <p style="margin-top:8px;font-size:9px;">Tap the button below to add your first entry.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ========== SCREEN: LOG FORM ========== -->
+<div class="screen" id="screen-log">
+  <div class="app-header">
+    <div onclick="showScreen('screen-dashboard')" style="cursor:pointer;display:flex;align-items:center;gap:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,0.5);">
+      ← Back
+    </div>
+    <div class="header-brand">Outsmart <span>the System</span></div>
+    <div style="width:60px"></div>
+  </div>
+
+  <div class="form-header">
+    <div class="eyebrow">New Entry</div>
+    <h2>Log a Lesson</h2>
+  </div>
+
+  <div class="form-body">
+    <div class="form-group">
+      <div class="field-label">Choose a Category</div>
+      <div class="cat-picker">
+        <div class="cat-option cat-fin" id="opt-fin" onclick="selectCat('fin')">
+          <span class="cat-option-icon">💰</span>
+          <span class="cat-option-text">Financial</span>
+        </div>
+        <div class="cat-option cat-eq" id="opt-eq" onclick="selectCat('eq')">
+          <span class="cat-option-icon">🧠</span>
+          <span class="cat-option-text">Emotional</span>
+        </div>
+        <div class="cat-option cat-lead" id="opt-lead" onclick="selectCat('lead')">
+          <span class="cat-option-icon">⚡</span>
+          <span class="cat-option-text">Leadership</span>
+        </div>
+        <div class="cat-option cat-din" id="opt-din" onclick="selectCat('din')">
+          <span class="cat-option-icon">🗣️</span>
+          <span class="cat-option-text">Dinner Talk</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="field-label">Date</div>
+      <div class="date-display" id="form-date">—</div>
+    </div>
+
+    <div class="form-group">
+      <div class="field-label">What did you learn?</div>
+      <textarea class="field-textarea" id="form-intel" rows="4" placeholder="Drop the knowledge bomb here..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <div class="field-label">How did you apply it?</div>
+      <textarea class="field-textarea" id="form-action" rows="4" placeholder="How did you actually use this in real life?"></textarea>
+      <div class="field-hint">This is the most important field — describe real-life application.</div>
+    </div>
+
+    <button class="btn-primary" style="font-size:22px;letter-spacing:3px;padding:18px;" onclick="submitLog()">
+      Save Entry
+    </button>
+  </div>
+</div>
+
+<!-- ========== SCREEN: PARENT PORTAL ========== -->
+<div class="screen" id="screen-parent">
+  <div class="app-header">
+    <div class="header-brand">Parent <span>Portal</span></div>
+    <div onclick="logoutAll()" style="cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;color:rgba(255,255,255,0.4);">
+      Logout
+    </div>
+  </div>
+
+  <!-- Child selector tabs (shown when parent has multiple linked children) -->
+  <div id="parent-child-tabs" style="display:none;padding:16px 20px 0;gap:8px;overflow-x:auto;scrollbar-width:none;display:flex;"></div>
+
+  <div class="portal-header">
+    <div class="eyebrow">Parent View</div>
+    <h2 id="p-child-display-name">Progress Report</h2>
+    <div id="p-parent-email-info" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;color:rgba(255,255,255,0.35);margin-top:4px;"></div>
+  </div>
+
+  <!-- Welcome / no children state -->
+  <div id="parent-no-children" style="display:none;padding:40px 20px;text-align:center;">
+    <div style="font-size:48px;margin-bottom:16px;">👨‍👩‍👧</div>
+    <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#f0f8ff;margin-bottom:8px;">No children linked yet</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:rgba(255,255,255,0.4);line-height:1.5;max-width:280px;margin:0 auto;">Ask your child to add your email (<strong id="p-account-email" style="color:rgba(167,139,250,0.8);"></strong>) when creating their account.</div>
+  </div>
+
+  <!-- Stats row -->
+  <div class="stats-row" id="parent-stats-row">
+    <div class="stat-box">
+      <div class="stat-num" id="p-total">0</div>
+      <div class="stat-label">Total Logs</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="p-cats">0</div>
+      <div class="stat-label">Skills</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="p-level">0</div>
+      <div class="stat-label">Level</div>
+    </div>
+  </div>
+
+  <!-- Rank display -->
+  <div id="p-rank-display" style="margin:0 20px 16px;background:rgba(246,201,14,0.06);border:1px solid rgba(246,201,14,0.15);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
+    <div id="p-rank-icon" style="font-size:28px;">🌱</div>
+    <div>
+      <div id="p-rank-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;color:#f6c90e;"></div>
+      <div id="p-rank-desc" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;line-height:1.4;"></div>
+    </div>
+  </div>
+
+  <!-- Section header with manage toggle -->
+  <div class="section-header" style="padding-bottom:8px;">
+    <div class="section-title">Activity Log</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:600;color:rgba(255,255,255,0.3);" id="p-manage-label">Manage</div>
+      <div class="parent-manage-toggle" id="parent-manage-toggle" onclick="toggleParentManage()">
+        <div class="parent-manage-knob" id="parent-manage-knob"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manage mode info banner -->
+  <div id="parent-manage-banner" style="display:none;margin:0 20px 12px;background:rgba(252,129,129,0.08);border:1px solid rgba(252,129,129,0.2);border-radius:12px;padding:11px 14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;color:rgba(252,129,129,0.8);line-height:1.4;">
+    🛡️ <strong>Manage mode on.</strong> You can delete entries. This action is permanent.
+  </div>
+
+  <div class="filter-bar" id="parent-filters">
+    <div class="filter-chip active" onclick="filterLogs('all', this)">All</div>
+    <div class="filter-chip" onclick="filterLogs('fin', this)">💰 Finance</div>
+    <div class="filter-chip" onclick="filterLogs('eq', this)">🧠 Emotional</div>
+    <div class="filter-chip" onclick="filterLogs('lead', this)">⚡ Leadership</div>
+    <div class="filter-chip" onclick="filterLogs('din', this)">🗣️ Dinner Talk</div>
+  </div>
+
+  <div class="log-list" id="parent-logs" style="padding-bottom:40px;"></div>
+</div>
+
+<!-- ========== SCREEN: BADGES ========== -->
+<div class="screen" id="screen-badges">
+  <div class="app-header">
+    <div class="header-brand">My <span>Badges</span></div>
+    <div onclick="logoutAll()" style="cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;color:rgba(255,255,255,0.4);">Logout</div>
+  </div>
+  <div style="padding:24px 20px 12px;">
+    <div style="font-family:'DM Serif Display',serif;font-size:26px;color:#f0f8ff;margin-bottom:4px;">Achievements</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:rgba(255,255,255,0.4);">Unlock badges by reaching milestones</div>
+  </div>
+  <div id="badges-grid" style="padding:0 20px 100px;display:grid;grid-template-columns:1fr 1fr;gap:12px;"></div>
+</div>
+
+<!-- ========== BOTTOM NAV ========== -->
+<div class="bottom-nav" id="bottom-nav" style="display:none;">
+  <div class="nav-item active" id="nav-dash" onclick="showScreen('screen-dashboard')">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    Home
+  </div>
+  <div class="nav-item" id="nav-log" onclick="showScreen('screen-log')">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+    Log
+  </div>
+  <div class="nav-item" id="nav-badges" onclick="showScreen('screen-badges')">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M8 14l-4 8 8-4 8 4-4-8"/></svg>
+    Badges
+  </div>
+  <div class="nav-item" id="nav-parent" onclick="showScreen('screen-parent')">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Parent
+  </div>
+</div>
+
+<!-- ========== THEME PICKER MODAL ========== -->
+<div class="modal-overlay" id="modal-theme">
+  <div class="modal-box" style="padding:32px 28px;">
+    <div style="font-family:'DM Serif Display',serif;font-size:24px;color:#f0f8ff;margin-bottom:6px;">Customize Theme</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:24px;">Choose a background that fits your vibe</div>
+    <div id="theme-swatches" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:24px;"></div>
+    <button class="modal-close" style="background:linear-gradient(135deg,#2b6cb0,#4299e1);width:100%;" onclick="closeThemePicker()">Done</button>
+  </div>
+</div>
+
+<!-- ========== BADGE UNLOCK MODAL ========== -->
+<div class="modal-overlay" id="modal-badge">
+  <div class="modal-box">
+    <div class="modal-icon" id="badge-modal-icon">🏅</div>
+    <div class="modal-title" style="color:#f6c90e;">Badge Unlocked!</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:700;color:#f0f8ff;margin-bottom:8px;" id="badge-modal-name"></div>
+    <div class="modal-sub" id="badge-modal-desc"></div>
+    <button class="modal-close" style="background:linear-gradient(135deg,#b7791f,#f6c90e);color:#000;" onclick="closeBadgeModal()">Claim It 🎉</button>
+  </div>
+</div>
+
+<!-- ========== LEVEL UP MODAL ========== -->
+<div class="modal-overlay" id="modal-levelup">
+  <div class="modal-box">
+    <div class="modal-icon">🏆</div>
+    <div class="modal-title glitch">Level Up!</div>
+    <div class="modal-sub" id="levelup-sub">You've logged in all 4 categories. Keep going!</div>
+    <button class="modal-close" onclick="closeLevelUp()">Keep Going</button>
+  </div>
+</div>
+
+<!-- ========== LOG SUCCESS MODAL ========== -->
+<div class="modal-overlay" id="modal-log-success">
+  <div class="modal-box success-log">
+    <div class="modal-icon">✅</div>
+    <div class="modal-title">Saved!</div>
+    <div class="modal-sub" id="modal-success-text">Entry logged to your Strategy Log.</div>
+    <button class="modal-close" onclick="closeLogSuccess()">Continue</button>
+  </div>
+</div>
+
+<!-- ========== DELETE CONFIRM MODAL ========== -->
+<div class="modal-overlay" id="modal-delete">
+  <div class="modal-box" style="padding:32px 28px;">
+    <div class="modal-icon">🗑️</div>
+    <div class="modal-title" style="color:#fc8181;">Delete Entry?</div>
+    <div class="modal-sub">This can't be undone. Are you sure you want to remove this entry?</div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button onclick="cancelDelete()" style="flex:1;padding:14px;border-radius:12px;border:1.5px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">Cancel</button>
+      <button onclick="confirmDelete()" style="flex:1;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,#9b2c2c,#fc8181);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<style>
+  /* ===== THEME SWATCH ===== */
+  .theme-swatch {
+    border-radius: 14px;
+    cursor: pointer;
+    border: 2px solid rgba(255,255,255,0.08);
+    transition: all 0.2s;
+    padding: 4px;
+    background: rgba(255,255,255,0.03);
+  }
+  .theme-swatch.selected {
+    border-color: #63b3ed;
+    box-shadow: 0 0 0 3px rgba(99,179,237,0.2);
+    background: rgba(99,179,237,0.06);
+  }
+  .theme-swatch:hover { transform: scale(1.03); border-color: rgba(255,255,255,0.2); }
+
+  /* ===== BADGE CARD ===== */
+  .badge-card {
+    background: #131e2c;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px; padding: 20px 16px;
+    text-align: center; position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .badge-card.unlocked {
+    border-color: rgba(246,201,14,0.35);
+    box-shadow: 0 4px 20px rgba(246,201,14,0.1);
+  }
+  .badge-card.locked { opacity: 0.45; }
+  .badge-card .badge-icon { font-size: 36px; margin-bottom: 10px; display: block; }
+  .badge-card.locked .badge-icon { filter: grayscale(1); }
+  .badge-card .badge-name {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px; font-weight: 700; color: #e2eaf4; margin-bottom: 5px;
+  }
+  .badge-card .badge-desc {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px; color: rgba(255,255,255,0.35); line-height: 1.4;
+  }
+  .badge-card .badge-unlocked-tag {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(246,201,14,0.2); color: #f6c90e;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 9px; font-weight: 700;
+    padding: 2px 7px; border-radius: 99px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .badge-progress-bar {
+    margin-top: 10px; height: 4px;
+    background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden;
+  }
+  .badge-progress-fill {
+    height: 100%; border-radius: 99px;
+    background: linear-gradient(90deg,#b7791f,#f6c90e);
+    transition: width 0.6s ease;
+  }
+
+  /* ===== PARENT MANAGE TOGGLE ===== */
+  .parent-manage-toggle {
+    width: 38px; height: 22px;
+    background: rgba(255,255,255,0.08);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 99px;
+    position: relative; cursor: pointer;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .parent-manage-toggle.on {
+    background: rgba(252,129,129,0.25);
+    border-color: rgba(252,129,129,0.5);
+  }
+  .parent-manage-knob {
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 16px; height: 16px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 50%;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.3s;
+  }
+  .parent-manage-toggle.on .parent-manage-knob {
+    transform: translateX(16px);
+    background: #fc8181;
+  }
+  .log-delete-btn {
+    background: none; border: none; cursor: pointer;
+    color: rgba(255,255,255,0.2); font-size: 14px;
+    padding: 2px 4px; border-radius: 6px;
+    transition: color 0.15s, background 0.15s;
+    line-height: 1;
+  }
+  .log-delete-btn:hover { color: #fc8181; background: rgba(252,129,129,0.1); }
+
+  /* ===== THEME / CUSTOMIZE button in header ===== */
+  .theme-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 99px; padding: 6px 12px;
+    color: rgba(255,255,255,0.6);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .theme-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+</style>
+
+<script>
+// ============================================================
+// BACKEND API (relative to http://localhost:3000)
+// ============================================================
+
+const API = {
+  _token: null,
+
+  _headers() {
+    const h = { "Content-Type": "application/json" };
+    if (this._token) h["Authorization"] = `Bearer ${this._token}`;
+    return h;
+  },
+
+  async _post(path, body) {
+    const r = await fetch(path, {
+      method: "POST",
+      headers: this._headers(),
+      body: JSON.stringify(body),
+    });
+
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || "Request failed");
+    return data;
+  },
+
+  async _get(path) {
+    const r = await fetch(path, { headers: this._headers() });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || "Request failed");
+    return data;
+  },
+
+  studentRegister(name, email, password, parentEmail) {
+    return this._post("/auth/student/register", { name, email, password, parentEmail });
+  },
+
+  parentRegister(name, email, password, childEmail) {
+    return this._post("/auth/parent/register", { name, email, password, childEmail });
+  },
+
+  login(email, password) {
+    return this._post("/auth/login", { email, password });
+  },
+
+  me() {
+    return this._get("/me");
+  },
+
+  submitLog(category, title, notes) {
+    return this._post("/logs", { category, title, notes });
+  },
+
+  getLogs() {
+    return this._get("/logs");
+  },
+
+  getChildren() {
+    return this._get("/parent/children");
+  },
+
+  getChildLogs(studentId) {
+    return this._get(`/parent/logs?studentId=${studentId}`);
+  },
+};
+
+// ============================================================
+// STATE
+// ============================================================
+
+let currentUser = null;
+let currentStats = null;
+
+let roleMode = "student";        // "student" | "parent"
+let loginMode = "signin";        // "signin" | "create"
+let parentMode = "parent-signin"; // "parent-signin" | "parent-create"
+
+let selectedCatKey = null; // fin | eq | lead | din
+
+// ============================================================
+// UI HELPERS
+// ============================================================
+
+function $(id) { return document.getElementById(id); }
+
+function showToast(msg) {
+  const t = $("toast");
+  if (!t) return alert(msg);
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove("show"), 2500);
+}
+
+function showScreen(screenId) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  const el = $(screenId);
+  if (el) el.classList.add("active");
+
+  // bottom nav visibility
+  const nav = $("bottom-nav");
+  if (nav) {
+    nav.style.display = (screenId === "screen-login") ? "none" : "flex";
+  }
+
+  // update nav active state
+  setNavActive(screenId);
+
+  // screen-specific refresh
+  if (screenId === "screen-dashboard") refreshDashboard();
+  if (screenId === "screen-parent") refreshParentPortal();
+  if (screenId === "screen-log") setFormDateToday();
+}
+
+function setNavActive(screenId) {
+  const map = {
+    "screen-dashboard": "nav-dash",
+    "screen-log": "nav-log",
+    "screen-badges": "nav-badges",
+    "screen-parent": "nav-parent",
+  };
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+  const navId = map[screenId];
+  if (navId && $(navId)) $(navId).classList.add("active");
+}
+
+function openModal(id) {
+  const el = $(id);
+  if (el) el.classList.add("show");
+}
+function closeModal(id) {
+  const el = $(id);
+  if (el) el.classList.remove("show");
+}
+
+function logoutAll() {
+  sessionStorage.removeItem("ots_token");
+  API._token = null;
+  currentUser = null;
+  currentStats = null;
+  showToast("Logged out");
+  showScreen("screen-login");
+}
+
+// ============================================================
+// ROLE TOGGLES (Student/Parent + Signin/Create)
+// ============================================================
+
+function toggleRole() {
+  roleMode = (roleMode === "student") ? "parent" : "student";
+
+  const toggle = $("role-toggle");
+  if (toggle) toggle.classList.toggle("parent-mode", roleMode === "parent");
+
+  const studentArea = $("student-area");
+  const parentArea = $("parent-area");
+  if (studentArea) studentArea.style.display = (roleMode === "student") ? "block" : "none";
+  if (parentArea) parentArea.style.display = (roleMode === "parent") ? "block" : "none";
+}
+
+function switchLoginMode(mode) {
+  loginMode = mode;
+
+  const tabSignin = $("tab-signin");
+  const tabCreate = $("tab-create");
+  if (tabSignin) tabSignin.classList.toggle("active", mode === "signin");
+  if (tabCreate) tabCreate.classList.toggle("active", mode === "create");
+
+  const signIn = $("mode-signin");
+  const create = $("mode-create");
+  if (signIn) signIn.style.display = (mode === "signin") ? "block" : "none";
+  if (create) create.style.display = (mode === "create") ? "block" : "none";
+}
+
+function switchParentMode(mode) {
+  parentMode = mode;
+
+  const tabSignin = $("tab-parent-signin");
+  const tabCreate = $("tab-parent-create");
+  if (tabSignin) tabSignin.classList.toggle("active", mode === "parent-signin");
+  if (tabCreate) tabCreate.classList.toggle("active", mode === "parent-create");
+
+  const signIn = $("mode-parent-signin");
+  const create = $("mode-parent-create");
+  if (signIn) signIn.style.display = (mode === "parent-signin") ? "block" : "none";
+  if (create) create.style.display = (mode === "parent-create") ? "block" : "none";
+}
+
+// ============================================================
+// AUTH (MATCHES YOUR HTML IDS)
+// ============================================================
+
+// STUDENT CREATE
+async function createAccount() {
+  try {
+    const name = $("ca-name")?.value?.trim();
+    const email = $("ca-email")?.value?.trim();
+    const password = $("ca-pass")?.value;
+    const parentEmail = $("ca-parent-email")?.value?.trim() || null;
+
+    if (!name || !email || !password) return showToast("Fill name, email, and password.");
+
+    const { token, user, stats } = await API.studentRegister(name, email, password, parentEmail);
+    API._token = token;
+    sessionStorage.setItem("ots_token", token);
+
+    currentUser = user;
+    currentStats = stats;
+
+    showToast("Account created!");
+    showScreen("screen-dashboard");
+  } catch (e) {
+    showToast(e.message);
+  }
+}
+
+// STUDENT LOGIN
+async function signIn() {
+  try {
+    // Your UI says "Your name" but backend needs email.
+    // Treat this field as EMAIL to avoid changing HTML layout.
+    const email = $("si-name")?.value?.trim();
+    const password = $("si-pass")?.value;
+
+    if (!email || !password) return showToast("Enter email + password.");
+
+    const { token, user, stats } = await API.login(email, password);
+    if (user.role !== "student") return showToast("This is not a student account.");
+
+    API._token = token;
+    sessionStorage.setItem("ots_token", token);
+
+    currentUser = user;
+    currentStats = stats;
+
+    showToast("Signed in!");
+    showScreen("screen-dashboard");
+  } catch (e) {
+    showToast(e.message);
+  }
+}
+
+// PARENT CREATE
+async function createParentAccount() {
+  try {
+    const name = $("pc-name")?.value?.trim();
+    const email = $("pc-email")?.value?.trim();
+    const password = $("pc-pass")?.value;
+
+    if (!name || !email || !password) return showToast("Fill name, email, and password.");
+
+    // Your HTML does NOT include childEmail field, but backend needs it.
+    // We'll ask once via a simple prompt.
+    const childEmail = prompt("Enter your child’s STUDENT email (the email they used to register):");
+    if (!childEmail) return showToast("Parent account requires child email to link.");
+
+    const { token, user } = await API.parentRegister(name, email, password, childEmail);
+
+    API._token = token;
+    sessionStorage.setItem("ots_token", token);
+
+    currentUser = user;
+    currentStats = null;
+
+    showToast("Parent account created!");
+    showScreen("screen-parent");
+  } catch (e) {
+    showToast(e.message);
+  }
+}
+
+// PARENT LOGIN
+async function signInParent() {
+  try {
+    const email = $("ps-email")?.value?.trim();
+    const password = $("ps-pass")?.value;
+
+    if (!email || !password) return showToast("Enter email + password.");
+
+    const { token, user } = await API.login(email, password);
+    if (user.role !== "parent") return showToast("This is not a parent account.");
+
+    API._token = token;
+    sessionStorage.setItem("ots_token", token);
+
+    currentUser = user;
+    currentStats = null;
+
+    showToast("Signed in!");
+    showScreen("screen-parent");
+  } catch (e) {
+    showToast(e.message);
+  }
+}
+
+// RESTORE SESSION
+(async function restoreSession() {
+  const saved = sessionStorage.getItem("ots_token");
+  if (!saved) return;
+  try {
+    API._token = saved;
+    const { user, stats } = await API.me();
+    currentUser = user;
+    currentStats = stats || null;
+
+    if (user.role === "student") showScreen("screen-dashboard");
+    else if (user.role === "parent") showScreen("screen-parent");
+  } catch {
+    sessionStorage.removeItem("ots_token");
+    API._token = null;
+  }
+})();
+
+// ============================================================
+// LOGGING (MATCHES YOUR LOG FORM IDS)
+// ============================================================
+
+function goLogCat(key) {
+  // from dashboard cards -> log screen preselected
+  selectCat(key);
+  showScreen("screen-log");
+}
+
+function selectCat(key) {
+  selectedCatKey = key;
+
+  // UI highlight
+  ["fin", "eq", "lead", "din"].forEach(k => {
+    const opt = $(`opt-${k}`);
+    if (opt) opt.classList.toggle("selected", k === key);
+  });
+}
+
+function setFormDateToday() {
+  const el = $("form-date");
+  if (!el) return;
+  const d = new Date();
+  el.textContent = d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+}
+
+function categoryKeyToValue(key) {
+  // send short key; server normalizes, so either is fine
+  return key;
+}
+
+async function submitLog() {
+  try {
+    if (!currentUser || currentUser.role !== "student") return showToast("Sign in as a student first.");
+
+    if (!selectedCatKey) return showToast("Pick a category first.");
+
+    const title = $("form-intel")?.value?.trim();   // "What did you learn?"
+    const notes = $("form-action")?.value?.trim();  // "How did you apply it?"
+
+    if (!title) return showToast("Write what you learned.");
+
+    const { log, stats } = await API.submitLog(categoryKeyToValue(selectedCatKey), title, notes || "");
+    currentStats = stats;
+
+    // clear form
+    $("form-intel").value = "";
+    $("form-action").value = "";
+    selectedCatKey = null;
+    ["fin","eq","lead","din"].forEach(k => $(`opt-${k}`)?.classList.remove("selected"));
+
+    // show success modal + refresh dashboard
+    openModal("modal-log-success");
+    refreshDashboard();
+  } catch (e) {
+    showToast(e.message);
+  }
+}
+
+function closeLogSuccess() {
+  closeModal("modal-log-success");
+  showScreen("screen-dashboard");
+}
+
+// ============================================================
+// DASHBOARD RENDER (MATCHES YOUR DASHBOARD IDS)
+// ============================================================
+
+function setText(id, value) {
+  const el = $(id);
+  if (el) el.textContent = String(value ?? "");
+}
+
+function initials(name) {
+  const parts = String(name || "?").trim().split(/\s+/);
+  return (parts[0]?.[0] || "?").toUpperCase() + (parts[1]?.[0] || "").toUpperCase();
+}
+
+function catCountFromStats(stats, key) {
+  const map = {
+    fin: "Financial Literacy",
+    eq: "Emotional Intelligence",
+    lead: "Leadership",
+    din: "Dinner Talk",
+  };
+  const cat = map[key];
+  return stats?.category_counts?.[cat] ?? 0;
+}
+
+async function refreshDashboard() {
+  if (!currentUser || currentUser.role !== "student") return;
+
+  try {
+    const { logs, stats } = await API.getLogs();
+    currentStats = stats;
+
+    // header
+    setText("dash-name", currentUser.name || "—");
+    setText("h-level", stats.level || 1);
+    setText("h-avatar", initials(currentUser.name));
+
+    // counts
+    const fin = catCountFromStats(stats, "fin");
+    const eq = catCountFromStats(stats, "eq");
+    const lead = catCountFromStats(stats, "lead");
+    const din = catCountFromStats(stats, "din");
+
+    setText("count-fin", `${fin} logs`);
+    setText("count-eq", `${eq} logs`);
+    setText("count-lead", `${lead} logs`);
+    setText("count-din", `${din} logs`);
+
+    // cleared categories
+    const cleared = [fin, eq, lead, din].filter(n => n > 0).length;
+    setText("cats-cleared", cleared);
+
+    // progress bar
+    const pct = Math.round((cleared / 4) * 100);
+    const fill = $("progress-fill");
+    if (fill) fill.style.width = `${pct}%`;
+
+    // card cleared styles
+    $("card-fin")?.classList.toggle("cleared", fin > 0);
+    $("card-eq")?.classList.toggle("cleared", eq > 0);
+    $("card-lead")?.classList.toggle("cleared", lead > 0);
+    $("card-din")?.classList.toggle("cleared", din > 0);
+
+    // recent logs list
+    const list = $("recent-logs");
+    const total = logs?.length || 0;
+    setText("total-count", `${total} entries`);
+
+    if (list) {
+      if (!total) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">📂</div>
+            <p>Nothing here yet.</p>
+            <p style="margin-top:8px;font-size:9px;">Tap the button below to add your first entry.</p>
+          </div>`;
+      } else {
+        list.innerHTML = logs.slice(0, 10).map(l => {
+          // choose border color by category
+          const c = String(l.category || "").toLowerCase();
+          let color = "#63b3ed";
+          if (c.includes("emotional")) color = "#b794f4";
+          if (c.includes("leader")) color = "#fc814a";
+          if (c.includes("dinner")) color = "#68d391";
+
+          const date = new Date(l.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+          return `
+            <div class="log-item" style="border-left-color:${color}">
+              <div class="log-item-top">
+                <div class="log-cat-tag">${l.category}</div>
+                <div class="log-date">${date}</div>
+              </div>
+              <div class="log-intel">${escapeHtml(l.title)}</div>
+              ${l.notes ? `<div class="log-action">${escapeHtml(l.notes)}</div>` : ""}
+            </div>
+          `;
+        }).join("");
+      }
+    }
+
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function escapeHtml(s) {
+  return String(s ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+// ============================================================
+// PARENT PORTAL (BASIC RENDER)
+// ============================================================
+
+async function refreshParentPortal() {
+  if (!currentUser || currentUser.role !== "parent") return;
+
+  try {
+    const { children } = await API.getChildren();
+
+    const nameEl = $("p-child-display-name");
+    if (nameEl) nameEl.textContent = "Progress Report";
+
+    const emailInfo = $("p-parent-email-info");
+    if (emailInfo) emailInfo.textContent = `Signed in as: ${currentUser.email}`;
+
+    const noKids = $("parent-no-children");
+    const logsWrap = $("parent-logs");
+    const statsRow = $("parent-stats-row");
+
+    if (!children || !children.length) {
+      if (noKids) noKids.style.display = "block";
+      if (statsRow) statsRow.style.display = "none";
+      if (logsWrap) logsWrap.innerHTML = "";
+      return;
+    }
+
+    if (noKids) noKids.style.display = "none";
+    if (statsRow) statsRow.style.display = "grid";
+
+    // show first child’s summary (simple)
+    const child = children[0];
+    const s = child.stats;
+
+    setText("p-total", s.total_logs);
+    setText("p-cats", s.categories_completed);
+    setText("p-level", s.level);
+
+    // load logs for the first child
+    const { logs } = await API.getChildLogs(child.id);
+    if (logsWrap) {
+      logsWrap.innerHTML = logs.slice(0, 30).map(l => `
+        <div class="log-item">
+          <div class="log-item-top">
+            <div class="log-cat-tag">${l.category}</div>
+            <div class="log-date">${new Date(l.created_at).toLocaleDateString()}</div>
+          </div>
+          <div class="log-intel">${escapeHtml(l.title)}</div>
+          ${l.notes ? `<div class="log-action">${escapeHtml(l.notes)}</div>` : ""}
+        </div>
+      `).join("");
+    }
+
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+// ============================================================
+// INIT DEFAULT UI STATE
+// ============================================================
+
+switchLoginMode("signin");
+switchParentMode("parent-signin");
+setFormDateToday();
+
+</script>
+</body>
+</html>
