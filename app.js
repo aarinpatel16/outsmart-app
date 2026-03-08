@@ -24,6 +24,17 @@ const API = {
     if (!r.ok) throw new Error(data.error || "Request failed");
     return data;
   },
+  
+  async _put(path, body) {
+    const r = await fetch(path, {
+      method: "PUT",
+      headers: this._headers(),
+      body: JSON.stringify(body),
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || "Request failed");
+    return data;
+  },
 
   studentRegister(name, email, password) {
     return this._post("/auth/student/register", { name, email, password });
@@ -36,13 +47,33 @@ const API = {
   me() {
     return this._get("/me");
   },
+  
+  saveTheme(theme) {
+    return this._put("/me/theme", { theme });
+  },
 
-  submitLog(category, title, notes) {
-    return this._post("/logs", { category, title, notes });
+  submitLog(category, title, notes, lessonId) {
+    return this._post("/logs", { category, title, notes, lessonId });
   },
 
   getLogs() {
     return this._get("/logs");
+  },
+
+   getAdminTest() {
+    return this._get("/admin/test");
+  },
+
+  getAdminLessons() {
+    return this._get("/admin/lessons");
+  },
+
+  createAdminLesson(name, category) {
+    return this._post("/admin/lessons", { name, category });
+  },
+
+  getLessons() {
+    return this._get("/lessons");
   },
 };
 
@@ -130,10 +161,12 @@ function showScreen(screenId) {
   if (navId && $(navId)) $(navId).classList.add("active");
 
   if (screenId === "screen-dashboard") refreshDashboard();
-  if (screenId === "screen-log") setFormDateToday();
+  if (screenId === "screen-log") {
+  setFormDateToday();
+  loadStudentLessons();
+  }
   if (screenId === "screen-badges") renderBadges();
 }
-
 async function restoreSession() {
   const saved = sessionStorage.getItem("ots_token");
   if (!saved) return;
@@ -144,13 +177,23 @@ async function restoreSession() {
     currentUser = user;
     currentStats = stats || null;
 
-    if (user.role === "student") {
+    if (user.theme) {
+      await applyTheme(user.theme, false);
+    }
+
+    if (user.role === "admin") {
+      showScreen("screen-admin");
+      await loadAdminLessons();
+
+    } else if (user.role === "student") {
       await refreshDashboard();
       showScreen("screen-dashboard");
+
     } else {
       sessionStorage.removeItem("ots_token");
       API._token = null;
     }
+
   } catch {
     sessionStorage.removeItem("ots_token");
     API._token = null;
@@ -164,16 +207,25 @@ async function signIn() {
     if (!email || !password) return showToast("Enter your email and password.");
 
     const { token, user, stats } = await API.login(email, password);
-    if (user.role !== "student") return showToast("No student account found for this email.");
 
     API._token = token;
     sessionStorage.setItem("ots_token", token);
     currentUser = user;
     currentStats = stats;
 
+    if (user.theme) {
+      await applyTheme(user.theme, false);
+    }
+
     showToast("Signed in!");
-    await refreshDashboard();
-    showScreen("screen-dashboard");
+
+    if (user.role === "admin") {
+      showScreen("screen-admin");
+      await loadAdminLessons();
+    } else {
+      await refreshDashboard();
+      showScreen("screen-dashboard");
+    }
   } catch (e) {
     showToast(e.message);
   }
@@ -194,6 +246,10 @@ async function createAccount() {
     currentUser = user;
     currentStats = stats;
 
+    if (user.theme) {
+      await applyTheme(user.theme, false);
+    }
+
     showToast("Account created!");
     await refreshDashboard();
     showScreen("screen-dashboard");
@@ -213,6 +269,8 @@ function selectCat(key) {
     const opt = $(`opt-${k}`);
     if (opt) opt.classList.toggle("selected", k === key);
   });
+
+  loadStudentLessons();
 }
 
 function setFormDateToday() {
@@ -228,12 +286,15 @@ async function submitLog() {
     if (!currentUser) return showToast("Sign in first.");
     if (!selectedCatKey) return showToast("Pick a category.");
 
+    const lessonId = $("student-lesson-dropdown")?.value;
+    if (!lessonId) return showToast("Pick a lesson.");
+
     const title = $("form-intel")?.value?.trim();
     const notes = $("form-action")?.value?.trim() || "";
 
     if (!title) return showToast("Write what you learned.");
 
-    const { stats } = await API.submitLog(selectedCatKey, title, notes);
+    const { stats } = await API.submitLog(selectedCatKey, title, notes, lessonId);
     currentStats = stats;
 
     if ($("form-intel")) $("form-intel").value = "";
@@ -252,6 +313,72 @@ async function submitLog() {
 function closeLogSuccess() {
   closeModal("modal-log-success");
   showScreen("screen-dashboard");
+}
+function toggleLessonDropdown() {
+  const wrap = $("student-lesson-dropdown-wrap");
+  if (!wrap) return;
+  wrap.classList.toggle("open");
+}
+
+async function loadStudentLessons() {
+  try {
+    const { lessons } = await API.getLessons();
+
+    const categoryMap = {
+      fin: "Financial Literacy",
+      eq: "Emotional Intelligence",
+      lead: "Leadership",
+      din: "Dinner Talk",
+    };
+
+    const selectedCategoryName = categoryMap[selectedCatKey];
+
+    const menu = $("student-lesson-menu");
+    const hiddenInput = $("student-lesson-dropdown");
+    const label = $("student-lesson-label");
+    const wrap = $("student-lesson-dropdown-wrap");
+
+    if (!menu || !hiddenInput || !label || !wrap) return;
+
+    hiddenInput.value = "";
+    label.textContent = "Select a lesson";
+    wrap.classList.remove("open");
+
+    menu.innerHTML = "";
+
+    const filteredLessons = lessons.filter(
+      (lesson) => lesson.category === selectedCategoryName
+    );
+
+    if (!filteredLessons.length) {
+      menu.innerHTML = `<div class="custom-dropdown-item empty">No lessons in this category yet</div>`;
+      return;
+    }
+
+    filteredLessons.forEach((lesson) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "custom-dropdown-item";
+      btn.textContent = lesson.name;
+
+      btn.onclick = () => {
+        hiddenInput.value = lesson.id;
+        label.textContent = lesson.name;
+
+        document.querySelectorAll("#student-lesson-menu .custom-dropdown-item").forEach(el => {
+          el.classList.remove("active");
+        });
+        btn.classList.add("active");
+
+        wrap.classList.remove("open");
+      };
+
+      menu.appendChild(btn);
+    });
+  } catch (e) {
+    console.error("Failed to load student lessons:", e);
+    showToast("Could not load lessons.");
+  }
 }
 
 function catCountFromStats(stats, key) {
@@ -396,25 +523,23 @@ function closeLevelUp() {
 }
 
 const THEMES = [
-  { id: "default",  name: "Dark Blue",   bg: "#0d1520", surface: "#111c28" },
-  { id: "midnight", name: "Midnight",    bg: "#080810", surface: "#0f0f1a" },
-  { id: "forest",   name: "Forest",      bg: "#0a1a0f", surface: "#0f1f14" },
-  { id: "ember",    name: "Ember",       bg: "#1a0d08", surface: "#221208" },
-  { id: "slate",    name: "Slate",       bg: "#0d1117", surface: "#161b22" },
-  { id: "violet",   name: "Violet Dusk", bg: "#0f0a1a", surface: "#160f24" },
+  { id: "default",  name: "Outsmart Blue", bg: "#0d1520", surface: "#111c28" },
+  { id: "midnight", name: "Midnight Black", bg: "#07090d", surface: "#131720" },
+  { id: "cyber",    name: "Cyber Neon", bg: "#06141b", surface: "#0d2230" },
+  { id: "gold",     name: "Gold Elite", bg: "#0b0b0c", surface: "#181612" },
 ];
 
 function openThemePicker() {
   const swatches = $("theme-swatches");
   if (!swatches) return;
-  const current = localStorage.getItem("ots_theme") || "default";
+  const current = currentUser?.theme || "default";
   swatches.innerHTML = THEMES.map(t => `
     <div class="theme-swatch ${t.id === current ? "selected" : ""}"
          onclick="applyTheme('${t.id}')"
          style="padding:16px 12px;text-align:center;">
       <div style="width:100%;height:36px;border-radius:8px;margin-bottom:8px;
                   background:${t.bg};border:1px solid rgba(255,255,255,0.08);">
-        <div style="margin:6px auto;width:60%;height:8px;border-radius:4px;background:${t.surface};"></div>
+        <div style="margin:6px auto;width:60%;height:8px;border-radius:4px;background:${t.surface}; box-shadow: 0 0 12px ${t.id === 'gold' ? 'rgba(255,215,90,0.28)' : 'transparent'};""></div>
       </div>
       <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);">${t.name}</div>
     </div>
@@ -422,26 +547,121 @@ function openThemePicker() {
   openModal("modal-theme");
 }
 
-function applyTheme(id) {
+async function applyTheme(id, saveToServer = true) {
   const t = THEMES.find(x => x.id === id);
   if (!t) return;
-  document.body.style.background = t.bg;
+
+  const activeScreen = document.querySelector(".screen.active");
+  const isLoginScreen = activeScreen?.id === "screen-login";
+
+  document.body.style.background = isLoginScreen ? "#0d1520" : t.bg;
+  document.body.setAttribute("data-theme", id);
   document.documentElement.style.setProperty("--bg", t.bg);
   document.documentElement.style.setProperty("--surface", t.surface);
-  localStorage.setItem("ots_theme", id);
+  if (id === "gold") {
+    document.documentElement.style.setProperty("--accent", "#f5c451");
+    document.documentElement.style.setProperty("--accent-soft", "rgba(245,196,81,0.18)");
+  } else {
+    document.documentElement.style.setProperty("--accent", "#63b3ed");
+    document.documentElement.style.setProperty("--accent-soft", "rgba(99,179,237,0.12)");
+  }
+
   document.querySelectorAll(".theme-swatch").forEach(el => el.classList.remove("selected"));
   const target = $("theme-swatches")?.querySelector(`[onclick="applyTheme('${id}')"]`);
   if (target) target.classList.add("selected");
+
+  if (saveToServer && currentUser) {
+    try {
+      await API.saveTheme(id);
+      currentUser.theme = id;
+    } catch (e) {
+      console.error("Failed to save theme:", e);
+    }
+  }
 }
 
 function closeThemePicker() {
   closeModal("modal-theme");
 }
 
-(function() {
-  const saved = localStorage.getItem("ots_theme");
-  if (saved) applyTheme(saved);
-})();
+async function testAdminRoute() {
+  try {
+    const data = await API.getAdminTest();
+    const el = $("admin-test-output");
+    if (el) {
+      el.innerHTML = `
+        <div style="padding:16px;border:1px solid rgba(255,255,255,0.1);border-radius:12px;background:rgba(255,255,255,0.03);">
+          <div><strong>Status:</strong> ${data.ok}</div>
+          <div><strong>Message:</strong> ${escapeHtml(data.message)}</div>
+          <div><strong>User Role:</strong> ${escapeHtml(data.user.role)}</div>
+          <div><strong>User Email:</strong> ${escapeHtml(data.user.email)}</div>
+        </div>
+      `;
+    }
+  } catch (e) {
+    showToast(e.message);
+  }
+}
+
+async function loadAdminLessons() {
+  try {
+    const { lessons } = await API.getAdminLessons();
+    const el = $("admin-lessons-output");
+    if (!el) return;
+
+    if (!lessons.length) {
+      el.innerHTML = `<div style="opacity:.7;">No lessons added yet.</div>`;
+      return;
+    }
+
+    el.innerHTML = lessons.map(lesson => `
+      <div style="padding:12px;border:1px solid rgba(255,255,255,0.1);border-radius:12px;background:rgba(255,255,255,0.03);margin-bottom:10px;">
+        <div><strong>${escapeHtml(lesson.name)}</strong></div>
+        <div style="font-size:13px;opacity:.75;">${escapeHtml(lesson.category)}</div>
+      </div>
+    `).join("");
+  } catch (e) {
+    showToast(e.message);
+  }
+}
+
+async function createAdminLesson() {
+  console.log("createAdminLesson clicked");
+
+  try {
+    const name = $("admin-lesson-name")?.value?.trim();
+    const category = $("admin-lesson-category")?.value;
+
+    console.log("Lesson name:", name);
+    console.log("Category:", category);
+
+    if (!name || !category) {
+      return showToast("Enter a lesson name and category.");
+    }
+
+    console.log("Sending request to server...");
+
+    await API.createAdminLesson(name, category);
+
+    console.log("Server request successful");
+
+    $("admin-lesson-name").value = "";
+    showToast("Lesson added!");
+    await loadAdminLessons();
+
+  } catch (e) {
+    console.error("Lesson creation error:", e);
+    showToast(e.message);
+  }
+}
+document.addEventListener("click", (e) => {
+  const wrap = $("student-lesson-dropdown-wrap");
+  if (!wrap) return;
+
+  if (!wrap.contains(e.target)) {
+    wrap.classList.remove("open");
+  }
+});
 
 switchLoginMode("signin");
 setFormDateToday();

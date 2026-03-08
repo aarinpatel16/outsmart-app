@@ -78,13 +78,6 @@ function auth(req, res, next) {
   }
 }
 
-function adminOnly(req, res, next) {
-  if (!req.user || req.user.role !== "admin") {
-    return res.status(403).json({ error: "Admins only" });
-  }
-  next();
-}
-
 // -------------------- STATS --------------------
 async function computeStats(userId) {
   const { rows: logs } = await pool.query(
@@ -265,7 +258,7 @@ app.post("/auth/student/register", async (req, res, next) => {
     const { rows } = await pool.query(
       `INSERT INTO users (name, email, password_hash, role)
        VALUES ($1, $2, $3, 'student')
-       RETURNING id, name, email, role, theme`,
+       RETURNING id, name, email, role`,
       [name.trim(), email.trim().toLowerCase(), hash]
     );
 
@@ -350,7 +343,7 @@ app.post("/auth/login", async (req, res, next) => {
     if (!email || !password) return res.status(400).json({ error: "email and password required" });
 
     const { rows } = await pool.query(
-      `SELECT id, name, email, role, theme, password_hash
+      `SELECT id, name, email, role, password_hash
        FROM users
        WHERE email = $1`,
       [String(email).trim().toLowerCase()]
@@ -362,7 +355,7 @@ app.post("/auth/login", async (req, res, next) => {
     const ok = await bcrypt.compare(password, u.password_hash);
     if (!ok) return res.status(401).json({ error: "Invalid credentials" });
 
-    const user = { id: u.id, name: u.name, email: u.email, role: u.role, theme: u.theme };
+    const user = { id: u.id, name: u.name, email: u.email, role: u.role };
     const token = signToken(user);
 
     let stats = null;
@@ -378,7 +371,7 @@ app.post("/auth/login", async (req, res, next) => {
 app.get("/me", auth, async (req, res, next) => {
   try {
     const { rows } = await pool.query(
-      `SELECT id, name, email, role, theme FROM users WHERE id = $1`,
+      `SELECT id, name, email, role FROM users WHERE id = $1`,
       [req.user.id]
     );
     const user = rows[0];
@@ -388,82 +381,6 @@ app.get("/me", auth, async (req, res, next) => {
     if (user.role === "student") stats = await computeStats(user.id);
 
     res.json({ user, stats });
-  } catch (e) {
-    next(e);
-  }
-});
-
-app.put("/me/theme", auth, async (req, res, next) => {
-  try {
-    const { theme } = req.body;
-
-    if (!theme) {
-      return res.status(400).json({ error: "Theme is required." });
-    }
-
-    await pool.query(
-      `UPDATE users SET theme = $1 WHERE id = $2`,
-      [theme, req.user.id]
-    );
-
-    res.json({ ok: true });
-  } catch (e) {
-    next(e);
-  }
-});
-
-// -------- ADMIN --------
-app.get("/admin/test", auth, adminOnly, async (req, res) => {
-  res.json({
-    ok: true,
-    message: "Admin mode is working",
-    user: req.user
-  });
-});
-
-app.get("/admin/lessons", auth, adminOnly, async (req, res, next) => {
-  try {
-    const { rows } = await pool.query(
-      `SELECT * FROM lessons ORDER BY category, name`
-    );
-    res.json({ lessons: rows });
-  } catch (e) {
-    next(e);
-  }
-});
-
-app.post("/admin/lessons", auth, adminOnly, async (req, res, next) => {
-  try {
-    const { name, category } = req.body;
-
-    if (!name || !category) {
-      return res.status(400).json({ error: "Lesson name and category are required." });
-    }
-
-    const { rows } = await pool.query(
-      `INSERT INTO lessons (name, category)
-       VALUES ($1, $2)
-       RETURNING *`,
-      [String(name).trim(), String(category).trim()]
-    );
-
-    res.status(201).json({ lesson: rows[0] });
-  } catch (e) {
-    if (e.code === "23505") {
-      return res.status(400).json({ error: "That lesson name already exists." });
-    }
-    next(e);
-  }
-});
-
-app.get("/lessons", auth, async (req, res, next) => {
-  try {
-    const { rows } = await pool.query(
-      `SELECT * FROM lessons
-       WHERE is_active = TRUE
-       ORDER BY category, name`
-    );
-    res.json({ lessons: rows });
   } catch (e) {
     next(e);
   }
@@ -482,17 +399,15 @@ app.post("/logs", auth, async (req, res, next) => {
     const title = (req.body.title || "").trim();
     const notes = (req.body.notes || "").trim();
     const mood = (req.body.mood || "").trim();
-    const lessonId = req.body.lessonId ? Number(req.body.lessonId) : null;
-  
 
     if (!catNorm) return res.status(400).json({ error: "Invalid category" });
     if (!title) return res.status(400).json({ error: "title required" });
 
     const { rows: [log] } = await pool.query(
-      `INSERT INTO lesson_logs (user_id, category, title, notes, mood, lesson_id)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO lesson_logs (user_id, category, title, notes, mood)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
-      [req.user.id, catNorm, title, notes, mood, lessonId]
+      [req.user.id, catNorm, title, notes, mood]
     );
 
     const stats = await computeStats(req.user.id);

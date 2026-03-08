@@ -1,0 +1,526 @@
+<!--
+================================================================
+  JS PATCHES FOR index.html  —  Outsmart the System
+  
+  INSTRUCTIONS:
+  1. Find your existing <script> block in index.html.
+  2. REPLACE the entire <script> block with this one,
+     OR surgically replace each named function.
+  
+  All localStorage calls are gone.
+  All API calls go to the same origin (server.js on port 3000).
+  The UI/screens/modals stay exactly the same.
+================================================================
+-->
+
+<script>
+// ============================================================
+// API LAYER
+// All fetch calls live here. The rest of your app just calls
+// these and gets back plain JS objects.
+// ============================================================
+
+const API = {
+  // Reads the JWT we store in memory (not localStorage)
+  _token: null,
+
+  _headers() {
+    const h = { 'Content-Type': 'application/json' };
+    if (this._token) h['Authorization'] = `Bearer ${this._token}`;
+    return h;
+  },
+
+  async _post(path, body) {
+    const r = await fetch(path, {
+      method: 'POST',
+      headers: this._headers(),
+      body: JSON.stringify(body),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Request failed');
+    return data;
+  },
+
+  async _get(path) {
+    const r = await fetch(path, { headers: this._headers() });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Request failed');
+    return data;
+  },
+
+  async studentRegister(name, email, password, grade, school) {
+    return this._post('/auth/student/register', { name, email, password, grade, school });
+  },
+  async parentRegister(name, email, password, childEmail) {
+    return this._post('/auth/parent/register', { name, email, password, childEmail });
+  },
+  async login(email, password) {
+    return this._post('/auth/login', { email, password });
+  },
+  async me() {
+    return this._get('/me');
+  },
+  async submitLog(category, title, notes) {
+    return this._post('/logs', { category, title, notes });
+  },
+  async getLogs() {
+    return this._get('/logs');
+  },
+  async getChildren() {
+    return this._get('/parent/children');
+  },
+  async getChildLogs(studentId) {
+    return this._get(`/parent/logs?studentId=${studentId}`);
+  },
+};
+
+// ============================================================
+// SESSION  (in-memory, not localStorage)
+// currentUser and currentToken survive the page session only.
+// For "remember me" you could persist token to sessionStorage.
+// ============================================================
+let currentUser  = null;
+let currentStats = null;
+
+// ── Restore session if token is in sessionStorage ────────────
+// (Remove this block if you don't want any persistence)
+(async function restoreSession() {
+  const savedToken = sessionStorage.getItem('ots_token');
+  if (!savedToken) return;
+  try {
+    API._token = savedToken;
+    const { user, stats } = await API.me();
+    currentUser  = user;
+    currentStats = stats;
+    if (user.role === 'student') showScreen('dashboard');
+    else if (user.role === 'parent') showScreen('parentPortal');
+  } catch {
+    sessionStorage.removeItem('ots_token');
+    API._token = null;
+  }
+})();
+
+// ── Save token helper ────────────────────────────────────────
+function saveSession(token, user, stats) {
+  API._token   = token;
+  currentUser  = user;
+  currentStats = stats ?? null;
+  sessionStorage.setItem('ots_token', token);
+}
+
+function clearSession() {
+  API._token   = null;
+  currentUser  = null;
+  currentStats = null;
+  sessionStorage.removeItem('ots_token');
+}
+
+// ============================================================
+// UTILITY  — show/hide UI feedback (keep your existing ones)
+// ============================================================
+function showError(elementId, message) {
+  const el = document.getElementById(elementId);
+  if (el) { el.textContent = message; el.style.display = 'block'; }
+}
+function clearError(elementId) {
+  const el = document.getElementById(elementId);
+  if (el) { el.textContent = ''; el.style.display = 'none'; }
+}
+function setLoading(btnId, loading) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.disabled = loading;
+  btn.dataset.originalText = btn.dataset.originalText || btn.textContent;
+  btn.textContent = loading ? 'Please wait…' : btn.dataset.originalText;
+}
+
+// ============================================================
+// ─── PATCH 1: createAccount() ───────────────────────────────
+// Replaces the localStorage version.
+// Reads from the same form fields your UI already uses.
+// ============================================================
+async function createAccount() {
+  clearError('registerError');
+
+  const name     = document.getElementById('regName')?.value?.trim();
+  const email    = document.getElementById('regEmail')?.value?.trim();
+  const password = document.getElementById('regPassword')?.value;
+  const grade    = document.getElementById('regGrade')?.value?.trim();
+  const school   = document.getElementById('regSchool')?.value?.trim();
+
+  if (!name || !email || !password) {
+    return showError('registerError', 'Name, email, and password are required.');
+  }
+  if (password.length < 6) {
+    return showError('registerError', 'Password must be at least 6 characters.');
+  }
+
+  setLoading('registerBtn', true);
+  try {
+    const { token, user, stats } = await API.studentRegister(name, email, password, grade, school);
+    saveSession(token, user, stats);
+    refreshDashboard();
+    showScreen('dashboard');
+    closeModal('registerModal'); // or whatever your modal close function is
+  } catch (err) {
+    showError('registerError', err.message);
+  } finally {
+    setLoading('registerBtn', false);
+  }
+}
+
+// ============================================================
+// ─── PATCH 2: signIn() ──────────────────────────────────────
+// ============================================================
+async function signIn() {
+  clearError('loginError');
+
+  const email    = document.getElementById('loginEmail')?.value?.trim();
+  const password = document.getElementById('loginPassword')?.value;
+
+  if (!email || !password) {
+    return showError('loginError', 'Email and password are required.');
+  }
+
+  setLoading('loginBtn', true);
+  try {
+    const { token, user, stats } = await API.login(email, password);
+    if (user.role !== 'student') {
+      throw new Error('Please use the parent login for parent accounts.');
+    }
+    saveSession(token, user, stats);
+    refreshDashboard();
+    showScreen('dashboard');
+    closeModal('loginModal');
+  } catch (err) {
+    showError('loginError', err.message);
+  } finally {
+    setLoading('loginBtn', false);
+  }
+}
+
+// ============================================================
+// ─── PATCH 3: createParentAccount() ─────────────────────────
+// ============================================================
+async function createParentAccount() {
+  clearError('parentRegisterError');
+
+  const name       = document.getElementById('parentRegName')?.value?.trim();
+  const email      = document.getElementById('parentRegEmail')?.value?.trim();
+  const password   = document.getElementById('parentRegPassword')?.value;
+  const childEmail = document.getElementById('parentRegChildEmail')?.value?.trim();
+
+  if (!name || !email || !password) {
+    return showError('parentRegisterError', 'Name, email, and password are required.');
+  }
+
+  setLoading('parentRegisterBtn', true);
+  try {
+    const { token, user } = await API.parentRegister(name, email, password, childEmail);
+    saveSession(token, user, null);
+    refreshParentPortal();
+    showScreen('parentPortal');
+    closeModal('parentRegisterModal');
+  } catch (err) {
+    showError('parentRegisterError', err.message);
+  } finally {
+    setLoading('parentRegisterBtn', false);
+  }
+}
+
+// ============================================================
+// ─── PATCH 4: signInParent() ────────────────────────────────
+// ============================================================
+async function signInParent() {
+  clearError('parentLoginError');
+
+  const email    = document.getElementById('parentLoginEmail')?.value?.trim();
+  const password = document.getElementById('parentLoginPassword')?.value;
+
+  if (!email || !password) {
+    return showError('parentLoginError', 'Email and password are required.');
+  }
+
+  setLoading('parentLoginBtn', true);
+  try {
+    const { token, user } = await API.login(email, password);
+    if (user.role !== 'parent') {
+      throw new Error('Please use the student login for student accounts.');
+    }
+    saveSession(token, user, null);
+    refreshParentPortal();
+    showScreen('parentPortal');
+    closeModal('parentLoginModal');
+  } catch (err) {
+    showError('parentLoginError', err.message);
+  } finally {
+    setLoading('parentLoginBtn', false);
+  }
+}
+
+// ============================================================
+// ─── PATCH 5: submitLog() ───────────────────────────────────
+// ============================================================
+async function submitLog() {
+  clearError('logError');
+
+  const category = document.getElementById('logCategory')?.value;
+  const title    = document.getElementById('logTitle')?.value?.trim();
+  const notes    = document.getElementById('logNotes')?.value?.trim();
+
+  if (!category || !title) {
+    return showError('logError', 'Please select a category and enter a title.');
+  }
+
+  setLoading('submitLogBtn', true);
+  try {
+    const { log, stats } = await API.submitLog(category, title, notes);
+
+    // Update in-memory stats
+    currentStats = stats;
+
+    // Refresh the dashboard with new stats
+    refreshDashboard();
+
+    // Show any newly earned badges
+    checkNewBadges(stats);
+
+    // Reset form
+    const form = document.getElementById('logForm');
+    if (form) form.reset();
+
+    closeModal('logModal');
+    showToast('Lesson logged! 🎉');
+  } catch (err) {
+    showError('logError', err.message);
+  } finally {
+    setLoading('submitLogBtn', false);
+  }
+}
+
+// ============================================================
+// ─── PATCH 6: refreshDashboard() ────────────────────────────
+// Fetches fresh logs + stats and re-renders your existing
+// dashboard HTML elements.
+// ============================================================
+async function refreshDashboard() {
+  if (!currentUser || currentUser.role !== 'student') return;
+
+  try {
+    const { logs, stats } = await API.getLogs();
+    currentStats = stats;
+    renderDashboard(logs, stats);
+  } catch (err) {
+    console.error('Dashboard refresh failed:', err.message);
+  }
+}
+
+// renderDashboard — updates the DOM elements your UI already has.
+// Adjust element IDs to match what's actually in your HTML.
+function renderDashboard(logs, stats) {
+  // ── Greeting & basic info ──────────────────────────────────
+  setTextIfExists('dashName',     currentUser?.name ?? '');
+  setTextIfExists('dashEmail',    currentUser?.email ?? '');
+  setTextIfExists('dashLevel',    `Level ${stats.level}`);
+  setTextIfExists('dashStreak',   `${stats.streak_days} day streak`);
+  setTextIfExists('dashTotalLogs', stats.total_logs);
+  setTextIfExists('dashCatsCompleted', `${stats.categories_completed} / 4`);
+
+  // ── Category progress bars / counts ───────────────────────
+  const cats = stats.category_counts;
+  Object.entries(cats).forEach(([cat, count]) => {
+    // e.g. element id "count-Financial Literacy" or "count-financial_literacy"
+    const safeKey = cat.toLowerCase().replace(/\s+/g, '_');
+    setTextIfExists(`count-${safeKey}`, count);
+    setTextIfExists(`count-${cat}`,     count);
+
+    // Progress bars: assumes <div id="bar-financial_literacy" style="width:0%">
+    const bar = document.getElementById(`bar-${safeKey}`) || document.getElementById(`bar-${cat}`);
+    if (bar) bar.style.width = `${Math.min(100, (count / 5) * 100)}%`;
+  });
+
+  // ── Badges ────────────────────────────────────────────────
+  const badgeContainer = document.getElementById('badgeContainer') || document.getElementById('badges');
+  if (badgeContainer && stats.badges) {
+    badgeContainer.innerHTML = stats.badges.length
+      ? stats.badges.map(b => `
+          <div class="badge" title="${b.name}">
+            <span class="badge-emoji">${b.emoji}</span>
+            <span class="badge-name">${b.name}</span>
+          </div>`).join('')
+      : '<p class="muted">Complete your first log to earn badges!</p>';
+  }
+
+  // ── Recent logs list ──────────────────────────────────────
+  const logsList = document.getElementById('logsList') || document.getElementById('recentLogs');
+  if (logsList && logs) {
+    logsList.innerHTML = logs.slice(0, 10).map(l => `
+      <div class="log-item">
+        <div class="log-header">
+          <span class="log-category">${l.category}</span>
+          <span class="log-date">${formatDate(l.created_at)}</span>
+        </div>
+        <div class="log-title">${escHtml(l.title)}</div>
+        ${l.notes ? `<div class="log-notes">${escHtml(l.notes)}</div>` : ''}
+      </div>`).join('');
+  }
+}
+
+// ============================================================
+// ─── PATCH 7: refreshParentPortal() ─────────────────────────
+// ============================================================
+async function refreshParentPortal() {
+  if (!currentUser || currentUser.role !== 'parent') return;
+
+  try {
+    const { children } = await API.getChildren();
+    renderParentPortal(children);
+  } catch (err) {
+    console.error('Parent portal refresh failed:', err.message);
+  }
+}
+
+function renderParentPortal(children) {
+  setTextIfExists('parentName', currentUser?.name ?? '');
+
+  const container = document.getElementById('childrenContainer') || document.getElementById('childrenList');
+  if (!container) return;
+
+  if (!children || !children.length) {
+    container.innerHTML = '<p class="muted">No linked children yet. Register with your child\'s email to link accounts.</p>';
+    return;
+  }
+
+  container.innerHTML = children.map(child => `
+    <div class="child-card" id="child-${child.id}">
+      <div class="child-header">
+        <h3>${escHtml(child.name)}</h3>
+        <span class="level-badge">Level ${child.stats.level}</span>
+      </div>
+      <div class="child-meta">${escHtml(child.email)}${child.grade ? ` · Grade ${child.grade}` : ''}</div>
+
+      <div class="child-stats">
+        <div class="stat"><span class="stat-val">${child.stats.total_logs}</span><span class="stat-lbl">Total Logs</span></div>
+        <div class="stat"><span class="stat-val">${child.stats.categories_completed}/4</span><span class="stat-lbl">Categories</span></div>
+        <div class="stat"><span class="stat-val">${child.stats.streak_days}</span><span class="stat-lbl">Day Streak</span></div>
+      </div>
+
+      <div class="child-cats">
+        ${Object.entries(child.stats.category_counts).map(([cat, n]) => `
+          <div class="cat-row">
+            <span class="cat-name">${cat}</span>
+            <span class="cat-count">${n} log${n !== 1 ? 's' : ''}</span>
+          </div>`).join('')}
+      </div>
+
+      <div class="child-badges">
+        ${child.stats.badges.map(b => `<span class="badge-pill" title="${b.name}">${b.emoji}</span>`).join('')}
+      </div>
+
+      <button class="btn-secondary" onclick="loadChildLogs(${child.id})">
+        View Full Log History
+      </button>
+    </div>`).join('');
+}
+
+// Load and show individual child logs
+async function loadChildLogs(studentId) {
+  try {
+    const { logs, stats } = await API.getChildLogs(studentId);
+    const container = document.getElementById(`childLogs-${studentId}`) 
+                   || document.getElementById('childLogsContainer');
+
+    if (!container) {
+      // Fallback: show in a simple alert-style expanded section
+      showChildLogsModal(logs, stats);
+      return;
+    }
+    container.innerHTML = logs.map(l => `
+      <div class="log-item">
+        <span class="log-category">${l.category}</span>
+        <span class="log-date">${formatDate(l.created_at)}</span>
+        <div class="log-title">${escHtml(l.title)}</div>
+        ${l.notes ? `<div class="log-notes">${escHtml(l.notes)}</div>` : ''}
+      </div>`).join('');
+  } catch (err) {
+    console.error('Failed to load child logs:', err.message);
+  }
+}
+
+// ============================================================
+// SIGN OUT
+// ============================================================
+function signOut() {
+  clearSession();
+  showScreen('home'); // or whatever your landing screen is
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function setTextIfExists(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+
+function escHtml(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+// Badge notification — fires after a new log is submitted
+let _prevBadgeIds = [];
+function checkNewBadges(stats) {
+  if (!stats?.badges) return;
+  const newOnes = stats.badges.filter(b => !_prevBadgeIds.includes(b.id));
+  _prevBadgeIds = stats.badges.map(b => b.id);
+  newOnes.forEach(b => showToast(`🏅 Badge unlocked: ${b.emoji} ${b.name}`));
+}
+
+// Toast notification — keep your existing one, or use this simple fallback
+function showToast(message) {
+  // If you have an existing toast/snackbar function, replace this body with a call to it.
+  let toast = document.getElementById('_ots_toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = '_ots_toast';
+    toast.style.cssText = `
+      position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+      background:#1a1a2e;color:#fff;padding:12px 24px;border-radius:12px;
+      font-size:15px;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);
+      transition:opacity 0.3s;pointer-events:none;`;
+    document.body.appendChild(toast);
+  }
+  toast.textContent  = message;
+  toast.style.opacity = '1';
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => { toast.style.opacity = '0'; }, 3200);
+}
+
+// ── closeModal helper (in case your existing one has a different name) ──
+// If you already have a closeModal function, delete this one.
+function closeModal(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = 'none';
+}
+
+// ── showScreen helper ────────────────────────────────────────
+// Keep your existing showScreen(). If it doesn't exist, use this:
+function showScreen(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+  const target = document.getElementById(screenId);
+  if (target) target.style.display = 'block';
+}
+
+// ============================================================
+// END OF PATCHES
+// ============================================================
+</script>

@@ -202,6 +202,21 @@
     </div>
 
     <div class="form-group">
+      <div class="field-label">Lesson</div>
+
+      <div class="custom-dropdown" id="student-lesson-dropdown-wrap">
+        <button type="button" class="custom-dropdown-trigger" id="student-lesson-trigger" onclick="toggleLessonDropdown()">
+          <span id="student-lesson-label">Select a lesson</span>
+          <span class="custom-dropdown-arrow">▾</span>
+        </button>
+
+        <div class="custom-dropdown-menu" id="student-lesson-menu"></div>
+      </div>
+
+      <input type="hidden" id="student-lesson-dropdown" value="">
+    </div>
+
+    <div class="form-group">
       <div class="field-label">What did you learn?</div>
       <textarea class="field-textarea" id="form-intel" rows="4" placeholder="Drop the knowledge bomb here..."></textarea>
     </div>
@@ -215,6 +230,51 @@
     <button class="btn-primary" style="font-size:22px;letter-spacing:3px;padding:18px;" onclick="submitLog()">
       Save Entry
     </button>
+  </div>
+</div>
+
+<!-- ========== SCREEN: ADMIN ========== -->
+<div class="screen" id="screen-admin">
+  <div class="app-header">
+    <div class="header-brand">Admin <span>Mode</span></div>
+    <div onclick="logoutAll()" style="cursor:pointer;font-size:12px;font-weight:600;color:rgba(255,255,255,0.4);">Logout</div>
+  </div>
+
+  <div style="padding:24px 20px 100px;">
+    <div style="font-family:'DM Serif Display',serif;font-size:26px;color:#f0f8ff;margin-bottom:8px;">
+      Admin Dashboard
+    </div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.5);margin-bottom:20px;">
+      If you see this screen, admin login is working.
+    </div>
+
+    <button class="fl-btn fl-btn-primary" onclick="testAdminRoute()">
+      Test Admin Route
+    </button>
+
+    <div id="admin-test-output" style="margin-top:20px;color:white;"></div>
+  <hr style="margin:24px 0;border-color:rgba(255,255,255,0.08);">
+
+<div style="font-family:'DM Serif Display',serif;font-size:22px;color:#f0f8ff;margin-bottom:12px;">
+  Lesson Manager
+</div>
+
+<label class="fl-label">Lesson Name</label>
+<input class="fl-input" id="admin-lesson-name" type="text" placeholder="Enter lesson name">
+
+<label class="fl-label">Category</label>
+<select class="fl-input" id="admin-lesson-category">
+  <option value="Financial Literacy">Financial Literacy</option>
+  <option value="Emotional Intelligence">Emotional Intelligence</option>
+  <option value="Leadership">Leadership</option>
+  <option value="Dinner Talk">Dinner Talk</option>
+</select>
+
+<button class="fl-btn fl-btn-primary" onclick="createAdminLesson()">
+  Add Lesson
+</button>
+
+<div id="admin-lessons-output" style="margin-top:20px;color:white;"></div>
   </div>
 </div>
 
