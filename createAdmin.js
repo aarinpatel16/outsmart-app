@@ -12,7 +12,7 @@ const pool = new Pool({
 
 async function createAdmin() {
   const name = "Admin";
-  const email = "otsadmin";
+  const email = "OTSadmin";
   const password = "OTS1234";
 
   const hash = await bcrypt.hash(password, 10);
