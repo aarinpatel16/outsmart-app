@@ -206,6 +206,7 @@ async function restoreSession() {
       await loadAdminLessons();
       await loadAdminDinnerTalkQuestions();
       await loadAdminDinnerTalkLessonOptions();
+      await loadAdminStudents();
 
     } else if (user.role === "student") {
       await refreshDashboard();
@@ -246,6 +247,7 @@ async function signIn() {
       await loadAdminLessons();
       await loadAdminDinnerTalkQuestions();
       await loadAdminDinnerTalkLessonOptions();
+      await loadAdminStudents();
     } else {
       await refreshDashboard();
       showScreen("screen-dashboard");
@@ -792,6 +794,88 @@ async function loadAdminLessons() {
         <div style="font-size:13px;opacity:.75;">${escapeHtml(lesson.category)}</div>
       </div>
     `).join("");
+  } catch (e) {
+    showToast(e.message);
+  }
+}
+
+async function loadAdminStudents() {
+  try {
+    const { students } = await API.getAdminStudents();
+    const el = $("admin-students-output");
+    if (!el) return;
+
+    if (!students.length) {
+      el.innerHTML = `<div style="opacity:.7;">No students found yet.</div>`;
+      return;
+    }
+
+    el.innerHTML = students.map(student => {
+      const totalLogs = student.stats?.total_logs ?? 0;
+      const level = student.stats?.level ?? 1;
+      const streak = student.stats?.streak_days ?? 0;
+
+      return `
+        <div onclick="viewAdminStudentLogs(${student.id})"
+             style="padding:14px;border:1px solid rgba(255,255,255,0.1);border-radius:12px;background:rgba(255,255,255,0.03);margin-bottom:10px;cursor:pointer;">
+          <div style="font-weight:700;color:#f0f8ff;">${escapeHtml(student.name)}</div>
+          <div style="font-size:13px;opacity:.75;margin-top:4px;">${escapeHtml(student.email)}</div>
+          <div style="font-size:12px;opacity:.8;margin-top:8px;">
+            Logs: ${totalLogs} | Level: ${level} | Streak: ${streak} days
+          </div>
+        </div>
+      `;
+    }).join("");
+  } catch (e) {
+    showToast(e.message);
+  }
+}
+
+async function viewAdminStudentLogs(studentId) {
+  try {
+    const { student, logs, stats } = await API.getAdminStudentLogs(studentId);
+
+    const summaryEl = $("admin-student-summary");
+    const logsEl = $("admin-student-logs-output");
+
+    if (summaryEl) {
+      summaryEl.innerHTML = `
+        <div style="padding:16px;border:1px solid rgba(255,255,255,0.1);border-radius:12px;background:rgba(255,255,255,0.03);margin-bottom:14px;">
+          <div style="font-size:18px;font-weight:700;color:#f0f8ff;">${escapeHtml(student.name)}</div>
+          <div style="font-size:13px;opacity:.75;margin-top:4px;">${escapeHtml(student.email)}</div>
+          <div style="font-size:12px;opacity:.85;margin-top:10px;">
+            Total Logs: ${stats?.total_logs ?? 0} |
+            Level: ${stats?.level ?? 1} |
+            Streak: ${stats?.streak_days ?? 0} days
+          </div>
+        </div>
+      `;
+    }
+
+    if (!logsEl) return;
+
+    if (!logs.length) {
+      logsEl.innerHTML = `<div style="opacity:.7;">This student has no logs yet.</div>`;
+      return;
+    }
+
+    logsEl.innerHTML = logs.map(log => {
+      const date = new Date(log.created_at).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric"
+      });
+
+      return `
+        <div style="padding:12px;border:1px solid rgba(255,255,255,0.1);border-radius:12px;background:rgba(255,255,255,0.03);margin-bottom:10px;">
+          <div style="font-weight:700;color:#f0f8ff;">${escapeHtml(log.title || "")}</div>
+          <div style="font-size:12px;opacity:.75;margin-top:4px;">
+            ${escapeHtml(log.category || "")} • ${date}
+          </div>
+          ${log.notes ? `<div style="font-size:13px;opacity:.9;margin-top:8px;">${escapeHtml(log.notes)}</div>` : ""}
+        </div>
+      `;
+    }).join("");
   } catch (e) {
     showToast(e.message);
   }
