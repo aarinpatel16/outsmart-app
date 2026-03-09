@@ -159,9 +159,23 @@ async function computeStats(userId) {
   if (total_logs >= 1) push("first_log", "First Entry", "🌱");
   if (total_logs >= 5) push("five_logs", "Getting Started", "⭐");
   if (total_logs >= 10) push("ten_logs", "In the Groove", "🔥");
-  if (categories_completed === 4) push("all_four", "All Four Skills", "🏆");
+  if (total_logs >= 25) push("twenty_five_logs", "Committed", "💪");
+  if (total_logs >= 50) push("fifty_logs", "Machine", "🏆");
+
+  if (categories_completed === 4) push("all_four", "All Four Skills", "🎯");
+
   if (streak_days >= 3) push("streak_3", "3-Day Streak", "⚡");
-  if (level >= 2) push("level_up", "Level Up", "🚀");
+  if (streak_days >= 7) push("streak_7", "Week Streak", "📅");
+  if (streak_days >= 14) push("streak_14", "2-Week Streak", "🚀");
+
+  if ((category_counts["Financial Literacy"] || 0) >= 5) push("finance_5", "Finance Builder", "💰");
+  if ((category_counts["Emotional Intelligence"] || 0) >= 5) push("eq_5", "EQ Builder", "🧠");
+  if ((category_counts["Leadership"] || 0) >= 5) push("lead_5", "Leadership Builder", "⚡");
+  if ((category_counts["Dinner Talk"] || 0) >= 5) push("din_5", "Dinner Talk Builder", "🗣️");
+
+  if (level >= 2) push("level_2", "Level 2", "⬆️");
+  if (level >= 3) push("level_3", "Level 3", "🏅");
+  if (level >= 5) push("level_5", "Level 5", "👑");
 
   return {
     total_logs,
@@ -456,6 +470,131 @@ app.post("/admin/lessons", auth, adminOnly, async (req, res, next) => {
   }
 });
 
+app.get("/admin/students", auth, adminOnly, async (req, res, next) => {
+  try {
+    const { rows: students } = await pool.query(
+      `SELECT id, name, email, created_at
+       FROM users
+       WHERE role = 'student'
+       ORDER BY created_at DESC`
+    );
+
+    const studentsWithStats = await Promise.all(
+      students.map(async (student) => {
+        const stats = await computeStats(student.id);
+        return {
+          ...student,
+          stats,
+        };
+      })
+    );
+
+    res.json({ students: studentsWithStats });
+  } catch (e) {
+    next(e);
+  }
+});
+
+app.get("/admin/students/:id/logs", auth, adminOnly, async (req, res, next) => {
+  try {
+    const studentId = Number(req.params.id);
+
+    if (!studentId) {
+      return res.status(400).json({ error: "Valid student id required" });
+    }
+
+    const { rows: users } = await pool.query(
+      `SELECT id, name, email
+       FROM users
+       WHERE id = $1 AND role = 'student'`,
+      [studentId]
+    );
+
+    const student = users[0];
+    if (!student) {
+      return res.status(404).json({ error: "Student not found" });
+    }
+
+    const { rows: logs } = await pool.query(
+      `SELECT *
+       FROM lesson_logs
+       WHERE user_id = $1
+       ORDER BY created_at DESC`,
+      [studentId]
+    );
+
+    const stats = await computeStats(studentId);
+
+    res.json({
+      student,
+      logs,
+      stats,
+    });
+  } catch (e) {
+    next(e);
+  }
+});
+
+app.get("/admin/dinner-talk-questions", auth, adminOnly, async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT dtq.*, l.name AS lesson_name
+       FROM dinner_talk_questions dtq
+       LEFT JOIN lessons l ON l.id = dtq.lesson_id
+       ORDER BY l.name, dtq.question_text`
+    );
+    res.json({ questions: rows });
+  } catch (e) {
+    next(e);
+  }
+});
+
+app.post("/admin/dinner-talk-questions", auth, adminOnly, async (req, res, next) => {
+  try {
+    const { question_text, lesson_id } = req.body;
+
+    if (!question_text || !lesson_id) {
+      return res.status(400).json({ error: "Question text and related lesson are required." });
+    }
+
+    const { rows } = await pool.query(
+      `INSERT INTO dinner_talk_questions (question_text, lesson_id)
+       VALUES ($1, $2)
+       RETURNING *`,
+      [String(question_text).trim(), Number(lesson_id)]
+    );
+
+    res.status(201).json({ question: rows[0] });
+  } catch (e) {
+    if (e.code === "23505") {
+      return res.status(400).json({ error: "That Dinner Talk question already exists." });
+    }
+    next(e);
+  }
+});
+
+app.get("/dinner-talk-questions", auth, async (req, res, next) => {
+  try {
+    const lessonId = req.query.lessonId ? Number(req.query.lessonId) : null;
+
+    if (!lessonId) {
+      return res.json({ questions: [] });
+    }
+
+    const { rows } = await pool.query(
+      `SELECT *
+       FROM dinner_talk_questions
+       WHERE is_active = TRUE AND lesson_id = $1
+       ORDER BY question_text`,
+      [lessonId]
+    );
+
+    res.json({ questions: rows });
+  } catch (e) {
+    next(e);
+  }
+});
+
 app.get("/lessons", auth, async (req, res, next) => {
   try {
     const { rows } = await pool.query(
@@ -483,16 +622,17 @@ app.post("/logs", auth, async (req, res, next) => {
     const notes = (req.body.notes || "").trim();
     const mood = (req.body.mood || "").trim();
     const lessonId = req.body.lessonId ? Number(req.body.lessonId) : null;
+    const dinnerTalkQuestionId = req.body.dinnerTalkQuestionId ? Number(req.body.dinnerTalkQuestionId) : null;
   
 
     if (!catNorm) return res.status(400).json({ error: "Invalid category" });
     if (!title) return res.status(400).json({ error: "title required" });
 
     const { rows: [log] } = await pool.query(
-      `INSERT INTO lesson_logs (user_id, category, title, notes, mood, lesson_id)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO lesson_logs (user_id, category, title, notes, mood, lesson_id, dinner_talk_question_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
-      [req.user.id, catNorm, title, notes, mood, lessonId]
+      [req.user.id, catNorm, title, notes, mood, lessonId, dinnerTalkQuestionId]
     );
 
     const stats = await computeStats(req.user.id);

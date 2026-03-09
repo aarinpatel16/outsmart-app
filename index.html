@@ -87,6 +87,7 @@
     <div class="header-brand">Outsmart <span>the System</span></div>
     <div style="display:flex;align-items:center;gap:10px;">
       <button class="theme-btn" onclick="openThemePicker()">🎨 Theme</button>
+      <div onclick="logoutAll()" style="cursor:pointer;font-size:12px;font-weight:600;color:rgba(255,255,255,0.4);">Logout</div>
       <div class="header-user">
         <div class="level-badge">Level <strong id="h-level">0</strong></div>
         <div class="avatar" id="h-avatar">?</div>
@@ -202,7 +203,7 @@
     </div>
 
     <div class="form-group">
-      <div class="field-label">Lesson</div>
+      <div class="field-label" id="student-lesson-label-title">Lesson</div>
 
       <div class="custom-dropdown" id="student-lesson-dropdown-wrap">
         <button type="button" class="custom-dropdown-trigger" id="student-lesson-trigger" onclick="toggleLessonDropdown()">
@@ -216,13 +217,28 @@
       <input type="hidden" id="student-lesson-dropdown" value="">
     </div>
 
+    <div class="form-group" id="dinner-talk-question-group" style="display:none;">
+      <div class="field-label">Dinner Talk Question</div>
+
+      <div class="custom-dropdown" id="student-dtq-dropdown-wrap">
+        <button type="button" class="custom-dropdown-trigger" id="student-dtq-trigger" onclick="toggleDinnerTalkQuestionDropdown()">
+          <span id="student-dtq-label">Select a Dinner Talk question</span>
+          <span class="custom-dropdown-arrow">▾</span>
+        </button>
+
+        <div class="custom-dropdown-menu" id="student-dtq-menu"></div>
+      </div>
+
+      <input type="hidden" id="student-dtq-dropdown" value="">
+    </div>
+
     <div class="form-group">
-      <div class="field-label">What did you learn?</div>
+      <div class="field-label" id="form-intel-label">What did you learn?</div>
       <textarea class="field-textarea" id="form-intel" rows="4" placeholder="Drop the knowledge bomb here..."></textarea>
     </div>
 
     <div class="form-group">
-      <div class="field-label">How did you apply it?</div>
+      <div class="field-label" id="form-action-label">How did you apply it?</div>
       <textarea class="field-textarea" id="form-action" rows="4" placeholder="How did you actually use this in real life?"></textarea>
       <div class="field-hint">This is the most important field — describe real-life application.</div>
     </div>
@@ -275,7 +291,46 @@
 </button>
 
 <div id="admin-lessons-output" style="margin-top:20px;color:white;"></div>
+<hr style="margin:24px 0;border-color:rgba(255,255,255,0.08);">
+
+<div style="font-family:'DM Serif Display',serif;font-size:22px;color:#f0f8ff;margin-bottom:12px;">
+  Dinner Talk Questions
+</div>
+
+<label class="fl-label">Related Lesson</label>
+<select class="fl-input" id="admin-dtq-lesson">
+  <option value="">Select a related lesson</option>
+</select>
+
+<label class="fl-label">Question</label>
+<input class="fl-input" id="admin-dtq-text" type="text" placeholder="Enter Dinner Talk question">
+
+<button class="fl-btn fl-btn-primary" onclick="createAdminDinnerTalkQuestion()">
+  Add Dinner Talk Question
+</button>
+
+<div id="admin-dtq-output" style="margin-top:20px;color:white;"></div>
+  <hr style="margin:24px 0;border-color:rgba(255,255,255,0.08);">
+
+  <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#f0f8ff;margin-bottom:12px;">
+    Student Activity
   </div>
+
+  <div style="font-size:14px;color:rgba(255,255,255,0.5);margin-bottom:14px;">
+    Click a student to view their logs and stats.
+  </div>
+
+  <div id="admin-students-output" style="margin-top:20px;color:white;"></div>
+
+  <hr style="margin:24px 0;border-color:rgba(255,255,255,0.08);">
+
+  <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#f0f8ff;margin-bottom:12px;">
+    Selected Student Details
+  </div>
+
+  <div id="admin-student-summary" style="margin-top:20px;color:white;"></div>
+  <div id="admin-student-logs-output" style="margin-top:12px;color:white;"></div>
+    </div>
 </div>
 
 <!-- ========== SCREEN: BADGES ========== -->
@@ -284,10 +339,20 @@
     <div class="header-brand">My <span>Badges</span></div>
     <div onclick="logoutAll()" style="cursor:pointer;font-size:12px;font-weight:600;color:rgba(255,255,255,0.4);">Logout</div>
   </div>
+
   <div style="padding:24px 20px 12px;">
     <div style="font-family:'DM Serif Display',serif;font-size:26px;color:#f0f8ff;margin-bottom:4px;">Achievements</div>
     <div style="font-size:13px;color:rgba(255,255,255,0.4);">Unlock badges by reaching milestones</div>
   </div>
+
+  <div style="padding:0 20px 18px;">
+    <div id="rank-card" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:18px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#63b3ed;margin-bottom:6px;">Current Rank</div>
+      <div id="rank-name" style="font-family:'DM Serif Display',serif;font-size:28px;color:#f0f8ff;margin-bottom:6px;">Beginner</div>
+      <div id="rank-sub" style="font-size:13px;color:rgba(255,255,255,0.45);">Keep logging lessons to level up.</div>
+    </div>
+  </div>
+
   <div id="badges-grid" style="padding:0 20px 100px;display:grid;grid-template-columns:1fr 1fr;gap:12px;"></div>
 </div>
 

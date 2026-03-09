@@ -52,20 +52,28 @@ const API = {
     return this._put("/me/theme", { theme });
   },
 
-  submitLog(category, title, notes, lessonId) {
-    return this._post("/logs", { category, title, notes, lessonId });
+  submitLog(category, title, notes, lessonId, dinnerTalkQuestionId) {
+    return this._post("/logs", { category, title, notes, lessonId, dinnerTalkQuestionId });
   },
 
   getLogs() {
     return this._get("/logs");
   },
 
-   getAdminTest() {
+  getAdminTest() {
     return this._get("/admin/test");
   },
 
   getAdminLessons() {
     return this._get("/admin/lessons");
+  },
+
+  getAdminStudents() {
+    return this._get("/admin/students");
+  },
+
+  getAdminStudentLogs(studentId) {
+    return this._get(`/admin/students/${studentId}/logs`);
   },
 
   createAdminLesson(name, category) {
@@ -74,6 +82,18 @@ const API = {
 
   getLessons() {
     return this._get("/lessons");
+  },
+
+  getDinnerTalkQuestions(lessonId) {
+    return this._get(`/lessons/${lessonId}/dinner-talk-questions`);
+  },
+
+  getAdminDinnerTalkQuestions() {
+    return this._get("/admin/dinner-talk-questions");
+  },
+
+  createAdminDinnerTalkQuestion(questionText, lessonId) {
+    return this._post("/admin/dinner-talk-questions", { question_text: questionText, lesson_id: lessonId });
   },
 };
 
@@ -184,6 +204,8 @@ async function restoreSession() {
     if (user.role === "admin") {
       showScreen("screen-admin");
       await loadAdminLessons();
+      await loadAdminDinnerTalkQuestions();
+      await loadAdminDinnerTalkLessonOptions();
 
     } else if (user.role === "student") {
       await refreshDashboard();
@@ -222,6 +244,8 @@ async function signIn() {
     if (user.role === "admin") {
       showScreen("screen-admin");
       await loadAdminLessons();
+      await loadAdminDinnerTalkQuestions();
+      await loadAdminDinnerTalkLessonOptions();
     } else {
       await refreshDashboard();
       showScreen("screen-dashboard");
@@ -270,7 +294,40 @@ function selectCat(key) {
     if (opt) opt.classList.toggle("selected", k === key);
   });
 
-  loadStudentLessons();
+    loadStudentLessons();
+
+    const dtqGroup = $("dinner-talk-question-group");
+    if (dtqGroup) {
+      dtqGroup.style.display = key === "din" ? "block" : "none";
+    }
+
+      const lessonLabelTitle = $("student-lesson-label-title");
+      const intelLabel = $("form-intel-label");
+      const intelField = $("form-intel");
+
+      if (key === "din") {
+        if (lessonLabelTitle) lessonLabelTitle.textContent = "Related Lesson";
+        if (intelLabel) intelLabel.textContent = "Parent's Response";
+        if (intelField) intelField.placeholder = "What did your parent say during the conversation?";
+      } else {
+        if (lessonLabelTitle) lessonLabelTitle.textContent = "Lesson";
+        if (intelLabel) intelLabel.textContent = "What did you learn?";
+        if (intelField) intelField.placeholder = "Drop the knowledge bomb here...";
+      }
+
+    if (key === "din") {
+      loadDinnerTalkQuestions();
+    } else {
+      const hidden = $("student-dtq-dropdown");
+      const label = $("student-dtq-label");
+      const wrap = $("student-dtq-dropdown-wrap");
+      const menu = $("student-dtq-menu");
+
+      if (hidden) hidden.value = "";
+      if (label) label.textContent = "Select a Dinner Talk question";
+      if (wrap) wrap.classList.remove("open");
+      if (menu) menu.innerHTML = "";
+    }
 }
 
 function setFormDateToday() {
@@ -289,18 +346,31 @@ async function submitLog() {
     const lessonId = $("student-lesson-dropdown")?.value;
     if (!lessonId) return showToast("Pick a lesson.");
 
+    const dinnerTalkQuestionId = $("student-dtq-dropdown")?.value;
+    if (selectedCatKey === "din" && !dinnerTalkQuestionId) {
+      return showToast("Pick a Dinner Talk question.");
+    }
+
     const title = $("form-intel")?.value?.trim();
     const notes = $("form-action")?.value?.trim() || "";
 
     if (!title) return showToast("Write what you learned.");
 
-    const { stats } = await API.submitLog(selectedCatKey, title, notes, lessonId);
+    const { stats } = await API.submitLog(selectedCatKey, title, notes, lessonId, dinnerTalkQuestionId);
     currentStats = stats;
 
     if ($("form-intel")) $("form-intel").value = "";
     if ($("form-action")) $("form-action").value = "";
+    if ($("student-dtq-dropdown")) $("student-dtq-dropdown").value = "";
+    if ($("student-dtq-label")) $("student-dtq-label").textContent = "Select a Dinner Talk question";
+    if ($("student-dtq-menu")) $("student-dtq-menu").innerHTML = "";
+    if ($("student-dtq-dropdown-wrap")) $("student-dtq-dropdown-wrap").classList.remove("open");
+    if ($("dinner-talk-question-group")) $("dinner-talk-question-group").style.display = "none";
     selectedCatKey = null;
     ["fin","eq","lead","din"].forEach(k => $(`opt-${k}`)?.classList.remove("selected"));
+    if ($("student-lesson-label-title")) $("student-lesson-label-title").textContent = "Lesson";
+    if ($("form-intel-label")) $("form-intel-label").textContent = "What did you learn?";
+    if ($("form-intel")) $("form-intel").placeholder = "Drop the knowledge bomb here...";
 
     checkBadges(stats);
     openModal("modal-log-success");
@@ -316,6 +386,12 @@ function closeLogSuccess() {
 }
 function toggleLessonDropdown() {
   const wrap = $("student-lesson-dropdown-wrap");
+  if (!wrap) return;
+  wrap.classList.toggle("open");
+}
+
+function toggleDinnerTalkQuestionDropdown() {
+  const wrap = $("student-dtq-dropdown-wrap");
   if (!wrap) return;
   wrap.classList.toggle("open");
 }
@@ -346,9 +422,19 @@ async function loadStudentLessons() {
 
     menu.innerHTML = "";
 
-    const filteredLessons = lessons.filter(
-      (lesson) => lesson.category === selectedCategoryName
-    );
+    let filteredLessons = [];
+
+    if (selectedCatKey === "din") {
+      filteredLessons = lessons.filter(
+        (lesson) =>
+          lesson.category === "Financial Literacy" ||
+          lesson.category === "Emotional Intelligence"
+      );
+    } else {
+      filteredLessons = lessons.filter(
+        (lesson) => lesson.category === selectedCategoryName
+      );
+    }
 
     if (!filteredLessons.length) {
       menu.innerHTML = `<div class="custom-dropdown-item empty">No lessons in this category yet</div>`;
@@ -371,6 +457,10 @@ async function loadStudentLessons() {
         btn.classList.add("active");
 
         wrap.classList.remove("open");
+
+        if (selectedCatKey === "din") {
+          loadDinnerTalkQuestions();
+        }
       };
 
       menu.appendChild(btn);
@@ -379,6 +469,76 @@ async function loadStudentLessons() {
     console.error("Failed to load student lessons:", e);
     showToast("Could not load lessons.");
   }
+}
+
+async function loadDinnerTalkQuestions() {
+  try {
+    const lessonId = $("student-lesson-dropdown")?.value;
+
+    const menu = $("student-dtq-menu");
+    const hiddenInput = $("student-dtq-dropdown");
+    const label = $("student-dtq-label");
+    const wrap = $("student-dtq-dropdown-wrap");
+
+    if (!menu || !hiddenInput || !label || !wrap) return;
+
+    hiddenInput.value = "";
+    label.textContent = "Select a Dinner Talk question";
+    wrap.classList.remove("open");
+    menu.innerHTML = "";
+
+    if (!lessonId) {
+      menu.innerHTML = `<div class="custom-dropdown-item empty">Pick a related lesson first</div>`;
+      return;
+    }
+
+    const { questions } = await API.getDinnerTalkQuestions(lessonId);
+
+    if (!questions.length) {
+      menu.innerHTML = `<div class="custom-dropdown-item empty">No Dinner Talk questions for this lesson yet</div>`;
+      return;
+    }
+
+    questions.forEach((question) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "custom-dropdown-item";
+      btn.textContent = question.question_text;
+
+      btn.onclick = () => {
+        hiddenInput.value = question.id;
+        label.textContent = question.question_text;
+
+        document.querySelectorAll("#student-dtq-menu .custom-dropdown-item").forEach(el => {
+          el.classList.remove("active");
+        });
+        btn.classList.add("active");
+
+        wrap.classList.remove("open");
+      };
+
+      menu.appendChild(btn);
+    });
+  } catch (e) {
+    console.error("Failed to load Dinner Talk questions:", e);
+    showToast("Could not load Dinner Talk questions.");
+  }
+}
+
+function getRankName(level) {
+  if (level >= 5) return "Mastermind";
+  if (level >= 4) return "Operator";
+  if (level >= 3) return "Strategist";
+  if (level >= 2) return "Learner";
+  return "Beginner";
+}
+
+function getRankSub(level) {
+  if (level >= 5) return "You are operating at an elite level.";
+  if (level >= 4) return "You are building real consistency and depth.";
+  if (level >= 3) return "Your growth is becoming strategic.";
+  if (level >= 2) return "You are gaining momentum.";
+  return "Keep logging lessons to level up.";
 }
 
 function catCountFromStats(stats, key) {
@@ -464,17 +624,26 @@ async function refreshDashboard() {
 }
 
 const ALL_BADGES = [
-  { id: "first_log", icon: "🥇", name: "First Log", desc: "Submitted your very first lesson." },
-  { id: "all_categories", icon: "🎯", name: "Well Rounded", desc: "Logged in all 4 categories." },
-  { id: "level_2", icon: "⬆️", name: "Level Up", desc: "Reached Level 2." },
-  { id: "level_3", icon: "🚀", name: "Rising Leader", desc: "Reached Level 3." },
-  { id: "ten_logs", icon: "🔥", name: "Dedicated", desc: "Submitted 10 total logs." },
+  { id: "first_log", icon: "🌱", name: "First Entry", desc: "Submitted your very first lesson." },
+  { id: "five_logs", icon: "⭐", name: "Getting Started", desc: "Submitted 5 total logs." },
+  { id: "ten_logs", icon: "🔥", name: "In the Groove", desc: "Submitted 10 total logs." },
   { id: "twenty_five_logs", icon: "💪", name: "Committed", desc: "Submitted 25 total logs." },
-  { id: "streak_7", icon: "📅", name: "Week Streak", desc: "7-day logging streak." },
-  { id: "finance_master", icon: "💰", name: "Finance Master", desc: "5 Financial Literacy logs." },
-  { id: "eq_master", icon: "🧠", name: "EQ Champion", desc: "5 Emotional Intelligence logs." },
-  { id: "leader", icon: "⭐", name: "Leader", desc: "5 Leadership logs." },
-  { id: "conversationalist", icon: "🗣️", name: "Conversationalist", desc: "5 Dinner Talk logs." },
+  { id: "fifty_logs", icon: "🏆", name: "Machine", desc: "Submitted 50 total logs." },
+
+  { id: "all_four", icon: "🎯", name: "All Four Skills", desc: "Logged at least one lesson in every category." },
+
+  { id: "streak_3", icon: "⚡", name: "3-Day Streak", desc: "Logged lessons 3 days in a row." },
+  { id: "streak_7", icon: "📅", name: "Week Streak", desc: "Logged lessons 7 days in a row." },
+  { id: "streak_14", icon: "🚀", name: "2-Week Streak", desc: "Logged lessons 14 days in a row." },
+
+  { id: "finance_5", icon: "💰", name: "Finance Builder", desc: "Logged 5 Financial Literacy lessons." },
+  { id: "eq_5", icon: "🧠", name: "EQ Builder", desc: "Logged 5 Emotional Intelligence lessons." },
+  { id: "lead_5", icon: "⚡", name: "Leadership Builder", desc: "Logged 5 Leadership lessons." },
+  { id: "din_5", icon: "🗣️", name: "Dinner Talk Builder", desc: "Logged 5 Dinner Talk lessons." },
+
+  { id: "level_2", icon: "⬆️", name: "Level 2", desc: "Reached Level 2." },
+  { id: "level_3", icon: "🏅", name: "Level 3", desc: "Reached Level 3." },
+  { id: "level_5", icon: "👑", name: "Level 5", desc: "Reached Level 5." },
 ];
 
 function renderBadges() {
@@ -487,6 +656,9 @@ function renderBadges() {
   }
 
   const earnedIds = new Set((currentStats.badges ?? []).map(b => b.id));
+
+  setText("rank-name", getRankName(currentStats.level || 1));
+  setText("rank-sub", getRankSub(currentStats.level || 1));
 
   grid.innerHTML = ALL_BADGES.map(b => {
     const unlocked = earnedIds.has(b.id);
@@ -625,6 +797,29 @@ async function loadAdminLessons() {
   }
 }
 
+async function loadAdminDinnerTalkLessonOptions() {
+  try {
+    const { lessons } = await API.getAdminLessons();
+    const dropdown = $("admin-dtq-lesson");
+    if (!dropdown) return;
+
+    dropdown.innerHTML = `<option value="">Select a related lesson</option>`;
+
+    const allowed = lessons.filter(
+      l => l.category === "Financial Literacy" || l.category === "Emotional Intelligence"
+    );
+
+    allowed.forEach((lesson) => {
+      const option = document.createElement("option");
+      option.value = lesson.id;
+      option.textContent = `${lesson.name} (${lesson.category})`;
+      dropdown.appendChild(option);
+    });
+  } catch (e) {
+    showToast(e.message);
+  }
+}
+
 async function createAdminLesson() {
   console.log("createAdminLesson clicked");
 
@@ -655,13 +850,62 @@ async function createAdminLesson() {
   }
 }
 document.addEventListener("click", (e) => {
-  const wrap = $("student-lesson-dropdown-wrap");
-  if (!wrap) return;
+  const lessonWrap = $("student-lesson-dropdown-wrap");
+  if (lessonWrap && !lessonWrap.contains(e.target)) {
+    lessonWrap.classList.remove("open");
+  }
 
-  if (!wrap.contains(e.target)) {
-    wrap.classList.remove("open");
+  const dtqWrap = $("student-dtq-dropdown-wrap");
+  if (dtqWrap && !dtqWrap.contains(e.target)) {
+    dtqWrap.classList.remove("open");
   }
 });
+
+async function loadAdminDinnerTalkQuestions() {
+  try {
+    const { questions } = await API.getAdminDinnerTalkQuestions();
+    const el = $("admin-dtq-output");
+    if (!el) return;
+
+    if (!questions.length) {
+      el.innerHTML = `<div style="opacity:.7;">No Dinner Talk questions added yet.</div>`;
+      return;
+    }
+
+    el.innerHTML = questions.map(q => `
+      <div style="padding:12px;border:1px solid rgba(255,255,255,0.1);border-radius:12px;background:rgba(255,255,255,0.03);margin-bottom:10px;">
+        <div><strong>${escapeHtml(q.question_text)}</strong></div>
+        <div style="font-size:12px;opacity:.7;margin-top:4px;">Related lesson: ${escapeHtml(q.lesson_name || "Unknown")}</div>
+      </div>
+    `).join("");
+  } catch (e) {
+    showToast(e.message);
+  }
+}
+
+async function createAdminDinnerTalkQuestion() {
+  try {
+    const questionText = $("admin-dtq-text")?.value?.trim();
+    const lessonId = $("admin-dtq-lesson")?.value;
+
+    if (!lessonId) {
+      return showToast("Select the related lesson.");
+    }
+
+    if (!questionText) {
+      return showToast("Enter a Dinner Talk question.");
+    }
+
+    await API.createAdminDinnerTalkQuestion(questionText, lessonId);
+
+    $("admin-dtq-text").value = "";
+    $("admin-dtq-lesson").value = "";
+    showToast("Dinner Talk question added!");
+    await loadAdminDinnerTalkQuestions();
+  } catch (e) {
+    showToast(e.message);
+  }
+}
 
 switchLoginMode("signin");
 setFormDateToday();
