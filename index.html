@@ -1666,9 +1666,7 @@ async function createAccount() {
 // STUDENT LOGIN
 async function signIn() {
   try {
-    // Your UI says "Your name" but backend needs email.
-    // Treat this field as EMAIL to avoid changing HTML layout.
-    const email = $("si-name")?.value?.trim();
+    const email = $("si-email")?.value?.trim();
     const password = $("si-pass")?.value;
 
     if (!email || !password) return showToast("Enter email + password.");
