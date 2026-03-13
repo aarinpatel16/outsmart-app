@@ -14,15 +14,29 @@ async function createAdmin() {
 
   const hash = await bcrypt.hash(password, 10);
 
-  await pool.query(
+  const updated = await pool.query(
     `
-    INSERT INTO users (name, email, password_hash, role)
-    VALUES ($1, $2, $3, 'admin')
+    UPDATE users
+    SET name = $1,
+        email = $2,
+        password_hash = $3,
+        role = 'admin'
+    WHERE LOWER(email) = LOWER($2)
     `,
     [name, email, hash]
   );
 
-  console.log("✅ Admin created successfully");
+  if (updated.rowCount === 0) {
+    await pool.query(
+      `
+      INSERT INTO users (name, email, password_hash, role)
+      VALUES ($1, $2, $3, 'admin')
+      `,
+      [name, email, hash]
+    );
+  }
+
+  console.log("Admin credentials are set: username OTSadmin / password OTS1234");
   process.exit();
 }
 

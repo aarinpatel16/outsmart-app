@@ -352,8 +352,8 @@ app.post("/auth/login", async (req, res, next) => {
     const { rows } = await pool.query(
       `SELECT id, name, email, role, theme, password_hash
        FROM users
-       WHERE email = $1`,
-      [String(email).trim().toLowerCase()]
+       WHERE LOWER(email) = LOWER($1)`,
+      [String(email).trim()]
     );
 
     const u = rows[0];

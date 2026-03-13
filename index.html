@@ -1674,7 +1674,6 @@ async function signIn() {
     if (!email || !password) return showToast("Enter email + password.");
 
     const { token, user, stats } = await API.login(email, password);
-    if (user.role !== "student") return showToast("This is not a student account.");
 
     API._token = token;
     sessionStorage.setItem("ots_token", token);
@@ -1683,7 +1682,11 @@ async function signIn() {
     currentStats = stats;
 
     showToast("Signed in!");
-    showScreen("screen-dashboard");
+    if (user.role === "admin") {
+      showScreen("screen-admin");
+    } else {
+      showScreen("screen-dashboard");
+    }
   } catch (e) {
     showToast(e.message);
   }
