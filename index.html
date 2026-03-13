@@ -1265,6 +1265,46 @@
   <div id="badges-grid" style="padding:0 20px 100px;display:grid;grid-template-columns:1fr 1fr;gap:12px;"></div>
 </div>
 
+<!-- ========== SCREEN: ADMIN ========== -->
+<div class="screen" id="screen-admin">
+  <div class="app-header">
+    <div class="header-brand">Admin <span>Mode</span></div>
+    <div onclick="logoutAll()" style="cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;color:rgba(255,255,255,0.4);">Logout</div>
+  </div>
+
+  <div style="padding:24px 20px 12px;">
+    <div style="font-family:'DM Serif Display',serif;font-size:26px;color:#f0f8ff;margin-bottom:4px;">Control Center</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:rgba(255,255,255,0.4);">Manage admin access and create lessons.</div>
+  </div>
+
+  <div style="padding:0 20px 12px;">
+    <button class="theme-btn" style="width:100%;justify-content:center;padding:12px 14px;" onclick="testAdminRoute()">Test admin connection</button>
+  </div>
+
+  <div id="admin-test-output" style="padding:0 20px 12px;"></div>
+
+  <div style="margin:0 20px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:18px;">
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;color:#f0f8ff;margin-bottom:14px;">Add a lesson</div>
+    <label class="fl-label">Lesson name</label>
+    <input class="fl-input" id="admin-lesson-name" type="text" placeholder="Example: Budget basics">
+    <label class="fl-label">Category</label>
+    <select class="fl-input" id="admin-lesson-category">
+      <option value="">Select a category</option>
+      <option value="fin">Financial Literacy</option>
+      <option value="eq">Emotional Intelligence</option>
+      <option value="lead">Leadership</option>
+      <option value="din">Dinner Talk</option>
+    </select>
+    <button class="fl-btn fl-btn-primary" onclick="createAdminLesson()">Add Lesson</button>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">Lessons</div>
+    <div class="section-count">Admin library</div>
+  </div>
+  <div id="admin-lessons-output" style="padding:0 20px 100px;"></div>
+</div>
+
 <!-- ========== BOTTOM NAV ========== -->
 <div class="bottom-nav" id="bottom-nav" style="display:none;">
   <div class="nav-item active" id="nav-dash" onclick="showScreen('screen-dashboard')">
@@ -1511,6 +1551,18 @@ const API = {
   getChildLogs(studentId) {
     return this._get(`/parent/logs?studentId=${studentId}`);
   },
+
+  getAdminTest() {
+    return this._get("/admin/test");
+  },
+
+  getAdminLessons() {
+    return this._get("/admin/lessons");
+  },
+
+  createAdminLesson(name, category) {
+    return this._post("/admin/lessons", { name, category });
+  },
 };
 
 // ============================================================
@@ -1549,7 +1601,7 @@ function showScreen(screenId) {
   // bottom nav visibility
   const nav = $("bottom-nav");
   if (nav) {
-    nav.style.display = (screenId === "screen-login") ? "none" : "flex";
+    nav.style.display = (screenId === "screen-login" || screenId === "screen-admin") ? "none" : "flex";
   }
 
   // update nav active state
@@ -1559,6 +1611,10 @@ function showScreen(screenId) {
   if (screenId === "screen-dashboard") refreshDashboard();
   if (screenId === "screen-parent") refreshParentPortal();
   if (screenId === "screen-log") setFormDateToday();
+  if (screenId === "screen-admin") {
+    testAdminRoute();
+    loadAdminLessons();
+  }
 }
 
 function setNavActive(screenId) {
@@ -1743,6 +1799,67 @@ async function signInParent() {
   }
 }
 
+async function testAdminRoute() {
+  try {
+    const data = await API.getAdminTest();
+    const el = $("admin-test-output");
+    if (!el) return;
+
+    el.innerHTML = `
+      <div style="padding:16px;border:1px solid rgba(255,255,255,0.1);border-radius:12px;background:rgba(255,255,255,0.03);">
+        <div><strong>Status:</strong> ${data.ok}</div>
+        <div><strong>Message:</strong> ${escapeHtml(data.message)}</div>
+        <div><strong>User Role:</strong> ${escapeHtml(data.user.role)}</div>
+        <div><strong>User Email:</strong> ${escapeHtml(data.user.email)}</div>
+      </div>
+    `;
+  } catch (e) {
+    showToast(e.message);
+  }
+}
+
+async function loadAdminLessons() {
+  try {
+    const { lessons } = await API.getAdminLessons();
+    const el = $("admin-lessons-output");
+    if (!el) return;
+
+    if (!lessons.length) {
+      el.innerHTML = `<div style="opacity:.7;">No lessons added yet.</div>`;
+      return;
+    }
+
+    el.innerHTML = lessons.map((lesson) => `
+      <div style="padding:12px;border:1px solid rgba(255,255,255,0.1);border-radius:12px;background:rgba(255,255,255,0.03);margin-bottom:10px;">
+        <div><strong>${escapeHtml(lesson.name)}</strong></div>
+        <div style="font-size:13px;opacity:.75;">${escapeHtml(lesson.category)}</div>
+      </div>
+    `).join("");
+  } catch (e) {
+    showToast(e.message);
+  }
+}
+
+async function createAdminLesson() {
+  try {
+    const name = $("admin-lesson-name")?.value?.trim();
+    const category = $("admin-lesson-category")?.value;
+
+    if (!name || !category) {
+      return showToast("Enter a lesson name and category.");
+    }
+
+    await API.createAdminLesson(name, category);
+
+    $("admin-lesson-name").value = "";
+    $("admin-lesson-category").value = "";
+    showToast("Lesson added!");
+    await loadAdminLessons();
+  } catch (e) {
+    showToast(e.message);
+  }
+}
+
 // RESTORE SESSION
 (async function restoreSession() {
   const saved = sessionStorage.getItem("ots_token");
@@ -1755,6 +1872,7 @@ async function signInParent() {
 
     if (user.role === "student") showScreen("screen-dashboard");
     else if (user.role === "parent") showScreen("screen-parent");
+    else if (user.role === "admin") showScreen("screen-admin");
   } catch {
     sessionStorage.removeItem("ots_token");
     API._token = null;
