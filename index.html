@@ -2206,6 +2206,9 @@ function showScreen(screenId) {
     loadAvailableLessons();
     renderLessonOptions();
   }
+  if (screenId === "screen-badges") {
+    renderBadges();
+  }
   if (screenId === "screen-admin") {
     loadAdminDashboard();
   }
@@ -2974,6 +2977,62 @@ async function submitLog() {
 function closeLogSuccess() {
   closeModal("modal-log-success");
   showScreen("screen-dashboard");
+}
+
+const BADGE_META = {
+  first_log: {
+    name: "First Entry",
+    emoji: "🌱",
+    desc: "Log your first lesson to start building momentum.",
+  },
+  five_logs: {
+    name: "Getting Started",
+    emoji: "⭐",
+    desc: "Reach five total lesson logs.",
+  },
+  ten_logs: {
+    name: "In the Groove",
+    emoji: "🔥",
+    desc: "Reach ten total lesson logs.",
+  },
+  all_four: {
+    name: "All Four Skills",
+    emoji: "🏆",
+    desc: "Complete at least one lesson in every category.",
+  },
+  streak_3: {
+    name: "3-Day Streak",
+    emoji: "⚡",
+    desc: "Log lessons on three consecutive days.",
+  },
+  level_up: {
+    name: "Level Up",
+    emoji: "🚀",
+    desc: "Complete a full cycle across all four categories.",
+  },
+};
+
+function renderBadges() {
+  const grid = $("badges-grid");
+  if (!grid) return;
+
+  const unlocked = new Map((currentStats?.badges || []).map((badge) => [badge.id, badge]));
+  const badgeIds = Object.keys(BADGE_META);
+
+  grid.innerHTML = badgeIds.map((id) => {
+    const meta = BADGE_META[id];
+    const earned = unlocked.get(id);
+    const badge = earned || meta;
+
+    return `
+      <div class="badge-card ${earned ? "unlocked" : "locked"}">
+        ${earned ? `<div class="badge-unlocked-tag">Unlocked</div>` : ""}
+        <span class="badge-icon">${escapeHtml(badge.emoji)}</span>
+        <div class="badge-name">${escapeHtml(badge.name)}</div>
+        <div class="badge-desc">${escapeHtml(meta.desc)}</div>
+      </div>
+    `;
+  }).join("");
 }
 
 // ============================================================
