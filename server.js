@@ -30,11 +30,27 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
+async function ensureLessonsTable() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS lessons (
+      id SERIAL PRIMARY KEY,
+      name TEXT NOT NULL UNIQUE,
+      category TEXT NOT NULL,
+      is_active BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `);
+}
+
 // -------------------- LOGGING --------------------
 app.use((req, res, next) => {
   console.log(`[REQ] ${req.method} ${req.path}`);
   next();
 });
+
+ensureLessonsTable()
+  .then(() => console.log("[INIT] lessons table ready"))
+  .catch((err) => console.error("[INIT] failed to ensure lessons table", err));
 
 // -------------------- CATEGORY NORMALIZATION --------------------
 // Your frontend sends: fin | eq | lead | din

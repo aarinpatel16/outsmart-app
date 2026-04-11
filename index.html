@@ -1311,66 +1311,92 @@
       </div>
     </div>
 
-    <div class="admin-main-grid">
-      <section class="admin-panel admin-panel-users">
+    <div class="admin-tab-strip">
+      <button class="admin-tab-btn active" id="admin-tab-overview" onclick="switchAdminTab('overview')">Overview</button>
+      <button class="admin-tab-btn" id="admin-tab-users" onclick="switchAdminTab('users')">Users</button>
+      <button class="admin-tab-btn" id="admin-tab-lessons" onclick="switchAdminTab('lessons')">Lessons</button>
+    </div>
+
+    <div class="admin-tab-panel active" id="admin-panel-overview">
+      <div class="admin-main-grid">
+        <section class="admin-panel admin-panel-users">
+          <div class="admin-panel-head">
+            <div>
+              <h3>User Directory</h3>
+              <p>Search every account and inspect profile activity.</p>
+            </div>
+            <input class="admin-search" id="admin-user-search-overview" type="text" placeholder="Search by name, email, or role" oninput="syncAdminSearch(this.value)">
+          </div>
+          <div id="admin-users-list-overview" class="admin-user-list"></div>
+        </section>
+
+        <section class="admin-panel admin-panel-detail">
+          <div class="admin-panel-head">
+            <div>
+              <h3>User Details</h3>
+              <p>See profile details, linked family records, and recent logs.</p>
+            </div>
+          </div>
+          <div id="admin-user-detail-overview" class="admin-user-detail"></div>
+        </section>
+      </div>
+    </div>
+
+    <div class="admin-tab-panel" id="admin-panel-users">
+      <section class="admin-panel">
         <div class="admin-panel-head">
           <div>
             <h3>User Directory</h3>
-            <p>Search every account and inspect profile activity.</p>
+            <p>Browse every account in a dedicated user-management view.</p>
           </div>
-          <input class="admin-search" id="admin-user-search" type="text" placeholder="Search by name, email, or role" oninput="renderAdminUsers()">
+          <input class="admin-search" id="admin-user-search-users" type="text" placeholder="Search by name, email, or role" oninput="syncAdminSearch(this.value)">
         </div>
-        <div id="admin-users-list" class="admin-user-list"></div>
-      </section>
-
-      <section class="admin-panel admin-panel-detail">
-        <div class="admin-panel-head">
-          <div>
-            <h3>User Details</h3>
-            <p>See profile details, linked family records, and recent logs.</p>
-          </div>
+        <div class="admin-main-grid">
+          <div id="admin-users-list-users" class="admin-user-list"></div>
+          <div id="admin-user-detail-users" class="admin-user-detail"></div>
         </div>
-        <div id="admin-user-detail" class="admin-user-detail"></div>
       </section>
     </div>
 
-    <div class="admin-bottom-grid">
-      <section class="admin-panel">
-        <div class="admin-panel-head">
-          <div>
-            <h3>Create Lesson</h3>
-            <p>Add a new lesson to the content library.</p>
+    <div class="admin-tab-panel" id="admin-panel-lessons">
+      <div class="admin-bottom-grid">
+        <section class="admin-panel">
+          <div class="admin-panel-head">
+            <div>
+              <h3>Create Lesson</h3>
+              <p>Add a new lesson to the content library.</p>
+            </div>
           </div>
-        </div>
-        <div class="admin-form-grid">
-          <div>
-            <label class="fl-label">Lesson name</label>
-            <input class="fl-input" id="admin-lesson-name" type="text" placeholder="Example: Budget basics">
+          <div class="admin-form-grid">
+            <div>
+              <label class="fl-label">Lesson name</label>
+              <input class="fl-input" id="admin-lesson-name" type="text" placeholder="Example: Budget basics">
+            </div>
+            <div>
+              <label class="fl-label">Category</label>
+              <select class="fl-input" id="admin-lesson-category">
+                <option value="">Select a category</option>
+                <option value="fin">Financial Literacy</option>
+                <option value="eq">Emotional Intelligence</option>
+                <option value="lead">Leadership</option>
+                <option value="din">Dinner Talk</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label class="fl-label">Category</label>
-            <select class="fl-input" id="admin-lesson-category">
-              <option value="">Select a category</option>
-              <option value="fin">Financial Literacy</option>
-              <option value="eq">Emotional Intelligence</option>
-              <option value="lead">Leadership</option>
-              <option value="din">Dinner Talk</option>
-            </select>
-          </div>
-        </div>
-        <button class="fl-btn fl-btn-primary admin-primary-btn" onclick="createAdminLesson()">Add Lesson</button>
-      </section>
+          <button class="fl-btn fl-btn-primary admin-primary-btn" onclick="createAdminLesson()">Add Lesson</button>
+        </section>
 
-      <section class="admin-panel">
-        <div class="admin-panel-head">
-          <div>
-            <h3>Lesson Library</h3>
-            <p>Review active lessons grouped by category.</p>
+        <section class="admin-panel">
+          <div class="admin-panel-head">
+            <div>
+              <h3>Lesson Library</h3>
+              <p>Review active lessons grouped by category.</p>
+            </div>
+            <button class="admin-secondary-btn" onclick="loadAdminLessons()">Refresh</button>
           </div>
-          <button class="admin-secondary-btn" onclick="loadAdminLessons()">Refresh</button>
-        </div>
-        <div id="admin-lessons-output" class="admin-lesson-list"></div>
-      </section>
+          <div id="admin-lessons-output" class="admin-lesson-list"></div>
+        </section>
+      </div>
     </div>
   </div>
 </div>
@@ -1666,6 +1692,35 @@
   }
   .admin-summary-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .admin-tab-strip {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .admin-tab-btn {
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.03);
+    color: rgba(220,232,245,0.68);
+    border-radius: 999px;
+    padding: 11px 16px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .admin-tab-btn.active,
+  .admin-tab-btn:hover {
+    background: rgba(99,179,237,0.14);
+    color: #f4f8ff;
+    border-color: rgba(99,179,237,0.35);
+  }
+  .admin-tab-panel {
+    display: none;
+  }
+  .admin-tab-panel.active {
+    display: block;
   }
   .admin-stat-card {
     border-radius: 22px;
@@ -2014,6 +2069,7 @@ let adminUsers = [];
 let adminRecentLogs = [];
 let adminLinks = [];
 let selectedAdminUserId = null;
+let activeAdminTab = "overview";
 
 // ============================================================
 // UI HELPERS
@@ -2279,11 +2335,30 @@ function renderAdminOverview() {
   setText("admin-total-admins", overview.total_admins || 0);
 }
 
-function renderAdminUsers() {
-  const list = $("admin-users-list");
-  if (!list) return;
+function getAdminSearchQuery() {
+  return (
+    $("admin-user-search-overview")?.value?.trim() ||
+    $("admin-user-search-users")?.value?.trim() ||
+    ""
+  ).toLowerCase();
+}
 
-  const query = $("admin-user-search")?.value?.trim()?.toLowerCase() || "";
+function syncAdminSearch(value) {
+  if ($("admin-user-search-overview") && $("admin-user-search-overview").value !== value) {
+    $("admin-user-search-overview").value = value;
+  }
+  if ($("admin-user-search-users") && $("admin-user-search-users").value !== value) {
+    $("admin-user-search-users").value = value;
+  }
+  renderAdminUsers();
+}
+
+function renderAdminUsersInto(listId, detailId) {
+  const list = $(listId);
+  const detail = $(detailId);
+  if (!list || !detail) return;
+
+  const query = getAdminSearchQuery();
   const filtered = adminUsers.filter((user) => {
     if (!query) return true;
     return [user.name, user.email, user.role].some((value) =>
@@ -2294,7 +2369,14 @@ function renderAdminUsers() {
   if (!filtered.length) {
     list.innerHTML = `<div class="admin-empty-state">No users matched that search.</div>`;
     if (!adminUsers.some((user) => Number(user.id) === Number(selectedAdminUserId))) {
-      renderAdminUserDetail();
+      detail.innerHTML = `
+        <div class="admin-detail-empty">
+          <div>
+            <h4>No matching user</h4>
+            <p>Try a different search to review account details and recent activity.</p>
+          </div>
+        </div>
+      `;
     }
     return;
   }
@@ -2328,17 +2410,12 @@ function renderAdminUsers() {
       </div>
     </div>
   `).join("");
-
-  renderAdminUserDetail();
 }
 
-function renderAdminUserDetail() {
-  const panel = $("admin-user-detail");
-  if (!panel) return;
-
+function buildAdminUserDetailMarkup() {
   const user = adminUsers.find((entry) => Number(entry.id) === Number(selectedAdminUserId));
   if (!user) {
-    panel.innerHTML = `
+    return `
       <div class="admin-detail-empty">
         <div>
           <h4>Select a user</h4>
@@ -2346,13 +2423,12 @@ function renderAdminUserDetail() {
         </div>
       </div>
     `;
-    return;
   }
 
   const links = getLinkedRecordsForUser(user);
   const logs = getLogsForUser(user.id);
 
-  panel.innerHTML = `
+  return `
     <div class="admin-detail-card">
       <div class="admin-detail-header">
         <div>
@@ -2412,6 +2488,20 @@ function renderAdminUserDetail() {
       </div>
     </div>
   `;
+}
+
+function renderAdminUserDetail() {
+  const markup = buildAdminUserDetailMarkup();
+  ["admin-user-detail-overview", "admin-user-detail-users"].forEach((id) => {
+    const panel = $(id);
+    if (panel) panel.innerHTML = markup;
+  });
+}
+
+function renderAdminUsers() {
+  renderAdminUsersInto("admin-users-list-overview", "admin-user-detail-overview");
+  renderAdminUsersInto("admin-users-list-users", "admin-user-detail-users");
+  renderAdminUserDetail();
 }
 
 function selectAdminUser(userId) {
@@ -2601,6 +2691,14 @@ function closeLogSuccess() {
 function setText(id, value) {
   const el = $(id);
   if (el) el.textContent = String(value ?? "");
+}
+
+function switchAdminTab(tab) {
+  activeAdminTab = tab;
+  ["overview", "users", "lessons"].forEach((name) => {
+    $("admin-tab-" + name)?.classList.toggle("active", name === tab);
+    $("admin-panel-" + name)?.classList.toggle("active", name === tab);
+  });
 }
 
 function initials(name) {
