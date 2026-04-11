@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS lesson_logs (
   title      TEXT        NOT NULL,
   notes      TEXT        NOT NULL DEFAULT '',
   mood       TEXT        NOT NULL DEFAULT '',
+  lesson_id  INTEGER     REFERENCES lessons(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

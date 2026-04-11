@@ -40,6 +40,11 @@ async function ensureLessonsTable() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
   `);
+
+  await pool.query(`
+    ALTER TABLE lesson_logs
+    ADD COLUMN IF NOT EXISTS lesson_id INTEGER
+  `);
 }
 
 // -------------------- LOGGING --------------------

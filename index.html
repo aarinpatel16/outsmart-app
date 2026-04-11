@@ -2112,8 +2112,8 @@ const API = {
     return this._get("/me");
   },
 
-  submitLog(category, title, notes) {
-    return this._post("/logs", { category, title, notes });
+  submitLog(category, title, notes, lessonId) {
+    return this._post("/logs", { category, title, notes, lessonId });
   },
 
   getLogs() {
@@ -2930,10 +2930,10 @@ function renderLessonOptions() {
   const currentValue = select.value;
   select.innerHTML = [
     `<option value="">Select a lesson</option>`,
-    ...filtered.map((lesson) => `<option value="${escapeHtml(lesson.name)}">${escapeHtml(lesson.name)}</option>`)
+    ...filtered.map((lesson) => `<option value="${lesson.id}">${escapeHtml(lesson.name)}</option>`)
   ].join("");
 
-  if (filtered.some((lesson) => lesson.name === currentValue)) {
+  if (filtered.some((lesson) => String(lesson.id) === currentValue)) {
     select.value = currentValue;
   }
 }
@@ -2944,14 +2944,15 @@ async function submitLog() {
 
     if (!selectedCatKey) return showToast("Pick a category first.");
 
-    const selectedLesson = $("form-lesson")?.value?.trim();
-    const title = $("form-intel")?.value?.trim() || selectedLesson;   // "What did you learn?"
+    const selectedLessonId = $("form-lesson")?.value?.trim();
+    const selectedLesson = availableLessons.find((lesson) => String(lesson.id) === selectedLessonId);
+    const title = $("form-intel")?.value?.trim() || selectedLesson?.name || "";   // "What did you learn?"
     const notes = $("form-action")?.value?.trim();  // "How did you apply it?"
 
-    if (!selectedLesson) return showToast("Choose a lesson first.");
+    if (!selectedLessonId) return showToast("Choose a lesson first.");
     if (!title) return showToast("Write what you learned.");
 
-    const { log, stats } = await API.submitLog(categoryKeyToValue(selectedCatKey), title, notes || "");
+    const { log, stats } = await API.submitLog(categoryKeyToValue(selectedCatKey), title, notes || "", Number(selectedLessonId));
     currentStats = stats;
 
     // clear form
