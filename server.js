@@ -421,6 +421,83 @@ app.get("/admin/test", auth, adminOnly, async (req, res) => {
   });
 });
 
+app.get("/admin/users", auth, adminOnly, async (req, res, next) => {
+  try {
+    const overviewResult = await pool.query(
+      `SELECT
+         COUNT(*)::int AS total_users,
+         COUNT(*) FILTER (WHERE role = 'student')::int AS total_students,
+         COUNT(*) FILTER (WHERE role = 'parent')::int AS total_parents,
+         COUNT(*) FILTER (WHERE role = 'admin')::int AS total_admins
+       FROM users`
+    );
+
+    const usersResult = await pool.query(
+      `SELECT
+         u.id,
+         u.name,
+         u.email,
+         u.role,
+         u.theme,
+         u.created_at,
+         COUNT(ll.id)::int AS total_logs,
+         COUNT(DISTINCT ll.category)::int AS categories_completed,
+         MAX(ll.created_at) AS last_activity
+       FROM users u
+       LEFT JOIN lesson_logs ll ON ll.user_id = u.id
+       GROUP BY u.id
+       ORDER BY
+         CASE u.role
+           WHEN 'admin' THEN 1
+           WHEN 'parent' THEN 2
+           ELSE 3
+         END,
+         LOWER(u.name),
+         LOWER(u.email)`
+    );
+
+    const logsResult = await pool.query(
+      `SELECT
+         ll.id,
+         ll.user_id,
+         ll.category,
+         ll.title,
+         ll.notes,
+         ll.created_at,
+         u.name AS user_name,
+         u.email AS user_email,
+         u.role AS user_role
+       FROM lesson_logs ll
+       JOIN users u ON u.id = ll.user_id
+       ORDER BY ll.created_at DESC
+       LIMIT 250`
+    );
+
+    const linksResult = await pool.query(
+      `SELECT
+         pc.parent_id,
+         p.name AS parent_name,
+         p.email AS parent_email,
+         pc.student_id,
+         s.name AS student_name,
+         s.email AS student_email
+       FROM parent_children pc
+       JOIN users p ON p.id = pc.parent_id
+       JOIN users s ON s.id = pc.student_id
+       ORDER BY LOWER(p.name), LOWER(s.name)`
+    );
+
+    res.json({
+      overview: overviewResult.rows[0],
+      users: usersResult.rows,
+      recentLogs: logsResult.rows,
+      links: linksResult.rows,
+    });
+  } catch (e) {
+    next(e);
+  }
+});
+
 app.get("/admin/lessons", auth, adminOnly, async (req, res, next) => {
   try {
     const { rows } = await pool.query(

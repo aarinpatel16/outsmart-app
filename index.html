@@ -1271,42 +1271,108 @@
 
 <!-- ========== SCREEN: ADMIN ========== -->
 <div class="screen" id="screen-admin">
-  <div class="app-header">
-    <div class="header-brand">Admin <span>Mode</span></div>
-    <div onclick="logoutAll()" style="cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;color:rgba(255,255,255,0.4);">Logout</div>
-  </div>
+  <div class="admin-shell">
+    <div class="admin-header">
+      <div>
+        <div class="admin-eyebrow">Operations Console</div>
+        <div class="header-brand">Admin <span>Mode</span></div>
+      </div>
+      <button class="admin-logout" onclick="logoutAll()">Logout</button>
+    </div>
 
-  <div style="padding:24px 20px 12px;">
-    <div style="font-family:'DM Serif Display',serif;font-size:26px;color:#f0f8ff;margin-bottom:4px;">Control Center</div>
-    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:rgba(255,255,255,0.4);">Manage admin access and create lessons.</div>
-  </div>
+    <div class="admin-hero">
+      <div>
+        <h2>Control Center</h2>
+        <p>Monitor account activity, review user records, and manage lesson content from one place.</p>
+      </div>
+      <div class="admin-status-badge" id="admin-status-badge">Checking system status…</div>
+    </div>
 
-  <div style="padding:0 20px 12px;">
-    <button class="theme-btn" style="width:100%;justify-content:center;padding:12px 14px;" onclick="testAdminRoute()">Test admin connection</button>
-  </div>
+    <div class="admin-summary-grid">
+      <div class="admin-stat-card">
+        <span class="admin-stat-label">Total Accounts</span>
+        <strong class="admin-stat-value" id="admin-total-users">0</strong>
+        <span class="admin-stat-meta">All registered users</span>
+      </div>
+      <div class="admin-stat-card">
+        <span class="admin-stat-label">Students</span>
+        <strong class="admin-stat-value" id="admin-total-students">0</strong>
+        <span class="admin-stat-meta">Learner accounts</span>
+      </div>
+      <div class="admin-stat-card">
+        <span class="admin-stat-label">Parents</span>
+        <strong class="admin-stat-value" id="admin-total-parents">0</strong>
+        <span class="admin-stat-meta">Linked guardians</span>
+      </div>
+      <div class="admin-stat-card">
+        <span class="admin-stat-label">Admins</span>
+        <strong class="admin-stat-value" id="admin-total-admins">0</strong>
+        <span class="admin-stat-meta">Privileged operators</span>
+      </div>
+    </div>
 
-  <div id="admin-test-output" style="padding:0 20px 12px;"></div>
+    <div class="admin-main-grid">
+      <section class="admin-panel admin-panel-users">
+        <div class="admin-panel-head">
+          <div>
+            <h3>User Directory</h3>
+            <p>Search every account and inspect profile activity.</p>
+          </div>
+          <input class="admin-search" id="admin-user-search" type="text" placeholder="Search by name, email, or role" oninput="renderAdminUsers()">
+        </div>
+        <div id="admin-users-list" class="admin-user-list"></div>
+      </section>
 
-  <div style="margin:0 20px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:18px;">
-    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;color:#f0f8ff;margin-bottom:14px;">Add a lesson</div>
-    <label class="fl-label">Lesson name</label>
-    <input class="fl-input" id="admin-lesson-name" type="text" placeholder="Example: Budget basics">
-    <label class="fl-label">Category</label>
-    <select class="fl-input" id="admin-lesson-category">
-      <option value="">Select a category</option>
-      <option value="fin">Financial Literacy</option>
-      <option value="eq">Emotional Intelligence</option>
-      <option value="lead">Leadership</option>
-      <option value="din">Dinner Talk</option>
-    </select>
-    <button class="fl-btn fl-btn-primary" onclick="createAdminLesson()">Add Lesson</button>
-  </div>
+      <section class="admin-panel admin-panel-detail">
+        <div class="admin-panel-head">
+          <div>
+            <h3>User Details</h3>
+            <p>See profile details, linked family records, and recent logs.</p>
+          </div>
+        </div>
+        <div id="admin-user-detail" class="admin-user-detail"></div>
+      </section>
+    </div>
 
-  <div class="section-header">
-    <div class="section-title">Lessons</div>
-    <div class="section-count">Admin library</div>
+    <div class="admin-bottom-grid">
+      <section class="admin-panel">
+        <div class="admin-panel-head">
+          <div>
+            <h3>Create Lesson</h3>
+            <p>Add a new lesson to the content library.</p>
+          </div>
+        </div>
+        <div class="admin-form-grid">
+          <div>
+            <label class="fl-label">Lesson name</label>
+            <input class="fl-input" id="admin-lesson-name" type="text" placeholder="Example: Budget basics">
+          </div>
+          <div>
+            <label class="fl-label">Category</label>
+            <select class="fl-input" id="admin-lesson-category">
+              <option value="">Select a category</option>
+              <option value="fin">Financial Literacy</option>
+              <option value="eq">Emotional Intelligence</option>
+              <option value="lead">Leadership</option>
+              <option value="din">Dinner Talk</option>
+            </select>
+          </div>
+        </div>
+        <button class="fl-btn fl-btn-primary admin-primary-btn" onclick="createAdminLesson()">Add Lesson</button>
+      </section>
+
+      <section class="admin-panel">
+        <div class="admin-panel-head">
+          <div>
+            <h3>Lesson Library</h3>
+            <p>Review active lessons grouped by category.</p>
+          </div>
+          <button class="admin-secondary-btn" onclick="loadAdminLessons()">Refresh</button>
+        </div>
+        <div id="admin-lessons-output" class="admin-lesson-list"></div>
+      </section>
+    </div>
   </div>
-  <div id="admin-lessons-output" style="padding:0 20px 100px;"></div>
 </div>
 
 <!-- ========== BOTTOM NAV ========== -->
@@ -1489,6 +1555,364 @@
     display: flex; align-items: center; gap: 5px;
   }
   .theme-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+  #screen-admin {
+    background:
+      radial-gradient(circle at top left, rgba(99,179,237,0.16), transparent 34%),
+      linear-gradient(180deg, #0d1420 0%, #0b111a 100%);
+    padding: 28px 20px 44px;
+  }
+  .admin-shell {
+    width: min(1180px, 100%);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .admin-header,
+  .admin-hero,
+  .admin-panel,
+  .admin-stat-card {
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(14,22,34,0.82);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.28);
+    backdrop-filter: blur(14px);
+  }
+  .admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 22px;
+    border-radius: 24px;
+  }
+  .admin-eyebrow {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: #7fb5ec;
+    margin-bottom: 6px;
+  }
+  .admin-logout,
+  .admin-secondary-btn {
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.03);
+    color: rgba(240,248,255,0.8);
+    border-radius: 999px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 0.2s ease;
+  }
+  .admin-logout:hover,
+  .admin-secondary-btn:hover {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+  }
+  .admin-hero {
+    border-radius: 28px;
+    padding: 26px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  .admin-hero h2,
+  .admin-panel h3 {
+    font-family: 'DM Serif Display', serif;
+    color: #f4f8ff;
+    font-size: 32px;
+    line-height: 1.05;
+    margin-bottom: 8px;
+  }
+  .admin-panel h3 {
+    font-size: 24px;
+    margin-bottom: 4px;
+  }
+  .admin-hero p,
+  .admin-panel-head p,
+  .admin-stat-meta,
+  .admin-detail-empty p,
+  .admin-user-email,
+  .admin-activity-meta,
+  .admin-link-pill,
+  .admin-panel-subtext {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: rgba(220,232,245,0.6);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .admin-status-badge {
+    border-radius: 999px;
+    padding: 11px 16px;
+    border: 1px solid rgba(127,181,236,0.35);
+    background: rgba(127,181,236,0.12);
+    color: #d8ecff;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .admin-summary-grid,
+  .admin-main-grid,
+  .admin-bottom-grid,
+  .admin-form-grid,
+  .admin-detail-metrics {
+    display: grid;
+    gap: 16px;
+  }
+  .admin-summary-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .admin-stat-card {
+    border-radius: 22px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .admin-stat-label {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: rgba(140,176,212,0.76);
+  }
+  .admin-stat-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 38px;
+    color: #f4f8ff;
+    line-height: 1;
+  }
+  .admin-main-grid {
+    grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.3fr);
+  }
+  .admin-bottom-grid {
+    grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.1fr);
+  }
+  .admin-panel {
+    border-radius: 28px;
+    padding: 22px;
+    min-height: 100%;
+  }
+  .admin-panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .admin-search {
+    width: min(280px, 100%);
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.03);
+    color: #f4f8ff;
+    padding: 12px 14px;
+    outline: none;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+  }
+  .admin-search::placeholder { color: rgba(255,255,255,0.3); }
+  .admin-user-list,
+  .admin-lesson-list,
+  .admin-activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .admin-user-row,
+  .admin-lesson-card,
+  .admin-activity-card {
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.025);
+    padding: 16px;
+  }
+  .admin-user-row {
+    cursor: pointer;
+    transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+  }
+  .admin-user-row:hover,
+  .admin-user-row.active {
+    transform: translateY(-1px);
+    border-color: rgba(127,181,236,0.45);
+    background: rgba(99,179,237,0.08);
+  }
+  .admin-user-top,
+  .admin-lesson-top,
+  .admin-activity-top,
+  .admin-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .admin-user-name,
+  .admin-lesson-name,
+  .admin-activity-title,
+  .admin-detail-name {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #f4f8ff;
+  }
+  .admin-role-pill,
+  .admin-category-pill {
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #e6f2ff;
+    background: rgba(99,179,237,0.18);
+    border: 1px solid rgba(99,179,237,0.3);
+  }
+  .admin-role-pill.parent {
+    background: rgba(246,201,14,0.14);
+    border-color: rgba(246,201,14,0.24);
+  }
+  .admin-role-pill.admin {
+    background: rgba(252,129,129,0.15);
+    border-color: rgba(252,129,129,0.25);
+  }
+  .admin-user-metrics {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .admin-mini-metric,
+  .admin-detail-metric {
+    border-radius: 16px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    padding: 12px;
+  }
+  .admin-mini-metric strong,
+  .admin-detail-metric strong {
+    display: block;
+    font-family: 'DM Serif Display', serif;
+    color: #f4f8ff;
+    font-size: 24px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .admin-mini-metric span,
+  .admin-detail-metric span {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: rgba(220,232,245,0.58);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+  .admin-user-detail {
+    min-height: 420px;
+  }
+  .admin-detail-empty {
+    min-height: 340px;
+    border-radius: 22px;
+    border: 1px dashed rgba(255,255,255,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+  }
+  .admin-detail-empty h4,
+  .admin-subsection h4 {
+    font-family: 'DM Serif Display', serif;
+    color: #f4f8ff;
+    font-size: 22px;
+    margin-bottom: 8px;
+  }
+  .admin-detail-card {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .admin-detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .admin-chip,
+  .admin-link-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+  }
+  .admin-detail-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .admin-subsection {
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.025);
+    padding: 18px;
+  }
+  .admin-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .admin-activity-meta {
+    margin-top: 6px;
+  }
+  .admin-activity-notes {
+    margin-top: 10px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    color: rgba(235,243,251,0.82);
+    line-height: 1.5;
+  }
+  .admin-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-bottom: 16px;
+  }
+  .admin-primary-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .admin-empty-state {
+    border-radius: 18px;
+    border: 1px dashed rgba(255,255,255,0.12);
+    padding: 20px;
+    text-align: center;
+    color: rgba(220,232,245,0.6);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+  }
+  @media (max-width: 980px) {
+    .admin-summary-grid,
+    .admin-main-grid,
+    .admin-bottom-grid,
+    .admin-form-grid,
+    .admin-detail-metrics {
+      grid-template-columns: 1fr;
+    }
+    .admin-hero,
+    .admin-panel-head,
+    .admin-header {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .admin-search {
+      width: 100%;
+    }
+  }
 </style>
 
 <script>
@@ -1564,6 +1988,10 @@ const API = {
     return this._get("/admin/lessons");
   },
 
+  getAdminUsers() {
+    return this._get("/admin/users");
+  },
+
   createAdminLesson(name, category) {
     return this._post("/admin/lessons", { name, category });
   },
@@ -1581,6 +2009,11 @@ let loginMode = "signin";        // "signin" | "create"
 let parentMode = "parent-signin"; // "parent-signin" | "parent-create"
 
 let selectedCatKey = null; // fin | eq | lead | din
+let adminOverview = null;
+let adminUsers = [];
+let adminRecentLogs = [];
+let adminLinks = [];
+let selectedAdminUserId = null;
 
 // ============================================================
 // UI HELPERS
@@ -1616,8 +2049,7 @@ function showScreen(screenId) {
   if (screenId === "screen-parent") refreshParentPortal();
   if (screenId === "screen-log") setFormDateToday();
   if (screenId === "screen-admin") {
-    testAdminRoute();
-    loadAdminLessons();
+    loadAdminDashboard();
   }
 }
 
@@ -1803,21 +2235,222 @@ async function signInParent() {
   }
 }
 
+function formatAdminDate(value, fallback = "No activity yet") {
+  if (!value) return fallback;
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return fallback;
+  return d.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+function adminRoleClass(role) {
+  return role === "admin" ? "admin" : role === "parent" ? "parent" : "student";
+}
+
+function getLinkedRecordsForUser(user) {
+  if (!user) return [];
+  if (user.role === "parent") {
+    return adminLinks
+      .filter((link) => Number(link.parent_id) === Number(user.id))
+      .map((link) => ({ label: `${link.student_name} (${link.student_email})`, type: "Student" }));
+  }
+  if (user.role === "student") {
+    return adminLinks
+      .filter((link) => Number(link.student_id) === Number(user.id))
+      .map((link) => ({ label: `${link.parent_name} (${link.parent_email})`, type: "Parent" }));
+  }
+  return [];
+}
+
+function getLogsForUser(userId) {
+  return adminRecentLogs.filter((log) => Number(log.user_id) === Number(userId));
+}
+
+function renderAdminOverview() {
+  const overview = adminOverview || {};
+  setText("admin-total-users", overview.total_users || 0);
+  setText("admin-total-students", overview.total_students || 0);
+  setText("admin-total-parents", overview.total_parents || 0);
+  setText("admin-total-admins", overview.total_admins || 0);
+}
+
+function renderAdminUsers() {
+  const list = $("admin-users-list");
+  if (!list) return;
+
+  const query = $("admin-user-search")?.value?.trim()?.toLowerCase() || "";
+  const filtered = adminUsers.filter((user) => {
+    if (!query) return true;
+    return [user.name, user.email, user.role].some((value) =>
+      String(value || "").toLowerCase().includes(query)
+    );
+  });
+
+  if (!filtered.length) {
+    list.innerHTML = `<div class="admin-empty-state">No users matched that search.</div>`;
+    if (!adminUsers.some((user) => Number(user.id) === Number(selectedAdminUserId))) {
+      renderAdminUserDetail();
+    }
+    return;
+  }
+
+  if (!filtered.some((user) => Number(user.id) === Number(selectedAdminUserId))) {
+    selectedAdminUserId = filtered[0].id;
+  }
+
+  list.innerHTML = filtered.map((user) => `
+    <div class="admin-user-row ${Number(user.id) === Number(selectedAdminUserId) ? "active" : ""}" onclick="selectAdminUser(${Number(user.id)})">
+      <div class="admin-user-top">
+        <div>
+          <div class="admin-user-name">${escapeHtml(user.name)}</div>
+          <div class="admin-user-email">${escapeHtml(user.email)}</div>
+        </div>
+        <div class="admin-role-pill ${adminRoleClass(user.role)}">${escapeHtml(user.role)}</div>
+      </div>
+      <div class="admin-user-metrics">
+        <div class="admin-mini-metric">
+          <strong>${Number(user.total_logs || 0)}</strong>
+          <span>Logs</span>
+        </div>
+        <div class="admin-mini-metric">
+          <strong>${Number(user.categories_completed || 0)}</strong>
+          <span>Skills</span>
+        </div>
+        <div class="admin-mini-metric">
+          <strong>${getLinkedRecordsForUser(user).length}</strong>
+          <span>Links</span>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  renderAdminUserDetail();
+}
+
+function renderAdminUserDetail() {
+  const panel = $("admin-user-detail");
+  if (!panel) return;
+
+  const user = adminUsers.find((entry) => Number(entry.id) === Number(selectedAdminUserId));
+  if (!user) {
+    panel.innerHTML = `
+      <div class="admin-detail-empty">
+        <div>
+          <h4>Select a user</h4>
+          <p>Choose an account from the directory to review profile data and recent activity.</p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const links = getLinkedRecordsForUser(user);
+  const logs = getLogsForUser(user.id);
+
+  panel.innerHTML = `
+    <div class="admin-detail-card">
+      <div class="admin-detail-header">
+        <div>
+          <div class="admin-detail-name">${escapeHtml(user.name)}</div>
+          <div class="admin-user-email">${escapeHtml(user.email)}</div>
+          <div class="admin-detail-meta">
+            <div class="admin-chip">Role: ${escapeHtml(user.role)}</div>
+            <div class="admin-chip">Joined: ${escapeHtml(formatAdminDate(user.created_at, "Unknown"))}</div>
+            <div class="admin-chip">Theme: ${escapeHtml(user.theme || "Default")}</div>
+          </div>
+        </div>
+        <div class="admin-role-pill ${adminRoleClass(user.role)}">${escapeHtml(user.role)}</div>
+      </div>
+
+      <div class="admin-detail-metrics">
+        <div class="admin-detail-metric">
+          <strong>${Number(user.total_logs || 0)}</strong>
+          <span>Total Logs</span>
+        </div>
+        <div class="admin-detail-metric">
+          <strong>${Number(user.categories_completed || 0)}</strong>
+          <span>Skill Areas</span>
+        </div>
+        <div class="admin-detail-metric">
+          <strong>${logs.length}</strong>
+          <span>Recent Entries</span>
+        </div>
+      </div>
+
+      <div class="admin-subsection">
+        <h4>Linked Accounts</h4>
+        <p class="admin-panel-subtext">Family relationships connected to this account.</p>
+        <div class="admin-links">
+          ${links.length
+            ? links.map((link) => `<div class="admin-link-pill">${escapeHtml(link.type)}: ${escapeHtml(link.label)}</div>`).join("")
+            : `<div class="admin-empty-state">No linked accounts for this user.</div>`}
+        </div>
+      </div>
+
+      <div class="admin-subsection">
+        <h4>Recent Activity</h4>
+        <p class="admin-panel-subtext">Latest lesson logs submitted by this account.</p>
+        <div class="admin-activity-list">
+          ${logs.length
+            ? logs.slice(0, 8).map((log) => `
+                <div class="admin-activity-card">
+                  <div class="admin-activity-top">
+                    <div class="admin-activity-title">${escapeHtml(log.title)}</div>
+                    <div class="admin-category-pill">${escapeHtml(log.category)}</div>
+                  </div>
+                  <div class="admin-activity-meta">${escapeHtml(formatAdminDate(log.created_at))}</div>
+                  ${log.notes ? `<div class="admin-activity-notes">${escapeHtml(log.notes)}</div>` : ""}
+                </div>
+              `).join("")
+            : `<div class="admin-empty-state">No recent lesson logs for this user.</div>`}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function selectAdminUser(userId) {
+  selectedAdminUserId = Number(userId);
+  renderAdminUsers();
+}
+
+function renderAdminLessons(lessons) {
+  const el = $("admin-lessons-output");
+  if (!el) return;
+
+  if (!lessons.length) {
+    el.innerHTML = `<div class="admin-empty-state">No lessons added yet.</div>`;
+    return;
+  }
+
+  el.innerHTML = lessons.map((lesson) => `
+    <div class="admin-lesson-card">
+      <div class="admin-lesson-top">
+        <div>
+          <div class="admin-lesson-name">${escapeHtml(lesson.name)}</div>
+          <div class="admin-user-email">Created ${escapeHtml(formatAdminDate(lesson.created_at, "recently"))}</div>
+        </div>
+        <div class="admin-category-pill">${escapeHtml(lesson.category)}</div>
+      </div>
+    </div>
+  `).join("");
+}
+
 async function testAdminRoute() {
   try {
     const data = await API.getAdminTest();
-    const el = $("admin-test-output");
-    if (!el) return;
-
-    el.innerHTML = `
-      <div style="padding:16px;border:1px solid rgba(255,255,255,0.1);border-radius:12px;background:rgba(255,255,255,0.03);">
-        <div><strong>Status:</strong> ${data.ok}</div>
-        <div><strong>Message:</strong> ${escapeHtml(data.message)}</div>
-        <div><strong>User Role:</strong> ${escapeHtml(data.user.role)}</div>
-        <div><strong>User Email:</strong> ${escapeHtml(data.user.email)}</div>
-      </div>
-    `;
+    const badge = $("admin-status-badge");
+    if (badge) {
+      badge.textContent = data.ok ? "System healthy" : "System check needed";
+    }
   } catch (e) {
+    const badge = $("admin-status-badge");
+    if (badge) badge.textContent = "System check failed";
     showToast(e.message);
   }
 }
@@ -1825,20 +2458,33 @@ async function testAdminRoute() {
 async function loadAdminLessons() {
   try {
     const { lessons } = await API.getAdminLessons();
-    const el = $("admin-lessons-output");
-    if (!el) return;
+    renderAdminLessons(lessons);
+  } catch (e) {
+    showToast(e.message);
+  }
+}
 
-    if (!lessons.length) {
-      el.innerHTML = `<div style="opacity:.7;">No lessons added yet.</div>`;
-      return;
+async function loadAdminDashboard() {
+  try {
+    await testAdminRoute();
+    const [{ overview, users, recentLogs, links }, { lessons }] = await Promise.all([
+      API.getAdminUsers(),
+      API.getAdminLessons(),
+    ]);
+
+    adminOverview = overview;
+    adminUsers = users;
+    adminRecentLogs = recentLogs;
+    adminLinks = links;
+
+    if (!adminUsers.some((user) => Number(user.id) === Number(selectedAdminUserId))) {
+      const firstNonAdmin = adminUsers.find((user) => user.role !== "admin");
+      selectedAdminUserId = firstNonAdmin?.id || adminUsers[0]?.id || null;
     }
 
-    el.innerHTML = lessons.map((lesson) => `
-      <div style="padding:12px;border:1px solid rgba(255,255,255,0.1);border-radius:12px;background:rgba(255,255,255,0.03);margin-bottom:10px;">
-        <div><strong>${escapeHtml(lesson.name)}</strong></div>
-        <div style="font-size:13px;opacity:.75;">${escapeHtml(lesson.category)}</div>
-      </div>
-    `).join("");
+    renderAdminOverview();
+    renderAdminUsers();
+    renderAdminLessons(lessons);
   } catch (e) {
     showToast(e.message);
   }
