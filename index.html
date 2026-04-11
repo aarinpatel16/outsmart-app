@@ -1033,8 +1033,8 @@
 
       <!-- STUDENT CREATE ACCOUNT -->
       <div id="mode-create" style="display:none;">
-        <label class="fl-label">Your name</label>
-        <input class="fl-input" id="ca-name" type="text" placeholder="What should we call you?" autocomplete="off">
+        <label class="fl-label">First and last name</label>
+        <input class="fl-input" id="ca-name" type="text" placeholder="Enter your first and last name" autocomplete="name">
         <label class="fl-label">Email</label>
         <input class="fl-input" id="ca-email" type="email" placeholder="you@email.com">
         <label class="fl-label">Create a password</label>
@@ -2296,7 +2296,7 @@ async function createAccount() {
     const password = $("ca-pass")?.value;
     const parentEmail = $("ca-parent-email")?.value?.trim() || null;
 
-    if (!name || !email || !password) return showToast("Fill name, email, and password.");
+    if (!name || !email || !password) return showToast("Enter your first and last name, email, and password.");
 
     const { token, user, stats } = await API.studentRegister(name, email, password, parentEmail);
     API._token = token;
