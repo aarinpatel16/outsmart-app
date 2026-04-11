@@ -1163,6 +1163,14 @@
     </div>
 
     <div class="form-group">
+      <div class="field-label">Choose a Lesson</div>
+      <select class="fl-input" id="form-lesson" onchange="applySelectedLesson()" disabled>
+        <option value="">Pick a category first</option>
+      </select>
+      <div class="field-hint">Lessons are filtered by the category you choose above.</div>
+    </div>
+
+    <div class="form-group">
       <div class="field-label">What did you learn?</div>
       <textarea class="field-textarea" id="form-intel" rows="4" placeholder="Drop the knowledge bomb here..."></textarea>
     </div>
@@ -2099,6 +2107,10 @@ const API = {
     return this._get("/logs");
   },
 
+  getLessons() {
+    return this._get("/lessons");
+  },
+
   getChildren() {
     return this._get("/parent/children");
   },
@@ -2142,6 +2154,7 @@ let adminRecentLogs = [];
 let adminLinks = [];
 let selectedAdminUserId = null;
 let activeAdminTab = "overview";
+let availableLessons = [];
 
 // ============================================================
 // UI HELPERS
@@ -2175,7 +2188,11 @@ function showScreen(screenId) {
   // screen-specific refresh
   if (screenId === "screen-dashboard") refreshDashboard();
   if (screenId === "screen-parent") refreshParentPortal();
-  if (screenId === "screen-log") setFormDateToday();
+  if (screenId === "screen-log") {
+    setFormDateToday();
+    loadAvailableLessons();
+    renderLessonOptions();
+  }
   if (screenId === "screen-admin") {
     loadAdminDashboard();
   }
@@ -2852,6 +2869,8 @@ function selectCat(key) {
     const opt = $(`opt-${k}`);
     if (opt) opt.classList.toggle("selected", k === key);
   });
+
+  renderLessonOptions();
 }
 
 function setFormDateToday() {
@@ -2866,25 +2885,79 @@ function categoryKeyToValue(key) {
   return key;
 }
 
+async function loadAvailableLessons() {
+  if (!currentUser || currentUser.role !== "student" || availableLessons.length) return;
+
+  try {
+    const { lessons } = await API.getLessons();
+    availableLessons = lessons || [];
+    renderLessonOptions();
+  } catch (e) {
+    showToast(e.message);
+  }
+}
+
+function renderLessonOptions() {
+  const select = $("form-lesson");
+  if (!select) return;
+
+  if (!selectedCatKey) {
+    select.disabled = true;
+    select.innerHTML = `<option value="">Pick a category first</option>`;
+    return;
+  }
+
+  const filtered = availableLessons.filter((lesson) => String(lesson.category || "").trim() === categoryKeyToValue(selectedCatKey));
+  select.disabled = false;
+
+  if (!filtered.length) {
+    select.innerHTML = `<option value="">No lessons available for this category</option>`;
+    return;
+  }
+
+  const currentValue = select.value;
+  select.innerHTML = [
+    `<option value="">Select a lesson</option>`,
+    ...filtered.map((lesson) => `<option value="${escapeHtml(lesson.name)}">${escapeHtml(lesson.name)}</option>`)
+  ].join("");
+
+  if (filtered.some((lesson) => lesson.name === currentValue)) {
+    select.value = currentValue;
+  }
+}
+
+function applySelectedLesson() {
+  const lessonName = $("form-lesson")?.value?.trim();
+  if (!lessonName) return;
+  const intel = $("form-intel");
+  if (intel && !intel.value.trim()) {
+    intel.value = lessonName;
+  }
+}
+
 async function submitLog() {
   try {
     if (!currentUser || currentUser.role !== "student") return showToast("Sign in as a student first.");
 
     if (!selectedCatKey) return showToast("Pick a category first.");
 
-    const title = $("form-intel")?.value?.trim();   // "What did you learn?"
+    const selectedLesson = $("form-lesson")?.value?.trim();
+    const title = $("form-intel")?.value?.trim() || selectedLesson;   // "What did you learn?"
     const notes = $("form-action")?.value?.trim();  // "How did you apply it?"
 
+    if (!selectedLesson) return showToast("Choose a lesson first.");
     if (!title) return showToast("Write what you learned.");
 
     const { log, stats } = await API.submitLog(categoryKeyToValue(selectedCatKey), title, notes || "");
     currentStats = stats;
 
     // clear form
+    $("form-lesson").value = "";
     $("form-intel").value = "";
     $("form-action").value = "";
     selectedCatKey = null;
     ["fin","eq","lead","din"].forEach(k => $(`opt-${k}`)?.classList.remove("selected"));
+    renderLessonOptions();
 
     // show success modal + refresh dashboard
     openModal("modal-log-success");
