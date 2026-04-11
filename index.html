@@ -1318,28 +1318,37 @@
     </div>
 
     <div class="admin-tab-panel active" id="admin-panel-overview">
-      <div class="admin-main-grid">
-        <section class="admin-panel admin-panel-users">
+      <div class="admin-overview-grid">
+        <section class="admin-panel">
           <div class="admin-panel-head">
             <div>
-              <h3>User Directory</h3>
-              <p>Search every account and inspect profile activity.</p>
+              <h3>Growth Metrics</h3>
+              <p>Owner-facing performance indicators for engagement and usage.</p>
             </div>
-            <input class="admin-search" id="admin-user-search-overview" type="text" placeholder="Search by name, email, or role" oninput="syncAdminSearch(this.value)">
           </div>
-          <div id="admin-users-list-overview" class="admin-user-list"></div>
+          <div id="admin-overview-metrics" class="admin-insight-grid"></div>
         </section>
 
-        <section class="admin-panel admin-panel-detail">
+        <section class="admin-panel">
           <div class="admin-panel-head">
             <div>
-              <h3>User Details</h3>
-              <p>See profile details, linked family records, and recent logs.</p>
+              <h3>Monthly Activity</h3>
+              <p>Lesson volume over the most recent six months.</p>
             </div>
           </div>
-          <div id="admin-user-detail-overview" class="admin-user-detail"></div>
+          <div id="admin-monthly-activity" class="admin-chart-list"></div>
         </section>
       </div>
+
+      <section class="admin-panel">
+        <div class="admin-panel-head">
+          <div>
+            <h3>Operational Insights</h3>
+            <p>Signals that help you understand what is growing and what needs attention.</p>
+          </div>
+        </div>
+        <div id="admin-overview-insights" class="admin-insight-grid admin-insight-grid-wide"></div>
+      </section>
     </div>
 
     <div class="admin-tab-panel" id="admin-panel-users">
@@ -1686,7 +1695,9 @@
   .admin-main-grid,
   .admin-bottom-grid,
   .admin-form-grid,
-  .admin-detail-metrics {
+  .admin-detail-metrics,
+  .admin-overview-grid,
+  .admin-insight-grid {
     display: grid;
     gap: 16px;
   }
@@ -1746,8 +1757,17 @@
   .admin-main-grid {
     grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.3fr);
   }
+  .admin-overview-grid {
+    grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.85fr);
+  }
   .admin-bottom-grid {
     grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.1fr);
+  }
+  .admin-insight-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .admin-insight-grid-wide {
+    margin-top: 4px;
   }
   .admin-panel {
     border-radius: 28px;
@@ -1775,18 +1795,68 @@
   .admin-search::placeholder { color: rgba(255,255,255,0.3); }
   .admin-user-list,
   .admin-lesson-list,
-  .admin-activity-list {
+  .admin-activity-list,
+  .admin-chart-list {
     display: flex;
     flex-direction: column;
     gap: 12px;
   }
   .admin-user-row,
   .admin-lesson-card,
-  .admin-activity-card {
+  .admin-activity-card,
+  .admin-analytic-card,
+  .admin-chart-row {
     border-radius: 18px;
     border: 1px solid rgba(255,255,255,0.08);
     background: rgba(255,255,255,0.025);
     padding: 16px;
+  }
+  .admin-analytic-card {
+    min-height: 128px;
+  }
+  .admin-analytic-card strong {
+    display: block;
+    font-family: 'DM Serif Display', serif;
+    color: #f4f8ff;
+    font-size: 34px;
+    line-height: 1;
+    margin: 10px 0 8px;
+  }
+  .admin-analytic-card h4,
+  .admin-chart-label {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #f4f8ff;
+  }
+  .admin-analytic-card p,
+  .admin-chart-meta {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: rgba(220,232,245,0.62);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .admin-chart-row {
+    padding: 14px 16px;
+  }
+  .admin-chart-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .admin-chart-bar {
+    width: 100%;
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    overflow: hidden;
+  }
+  .admin-chart-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #63b3ed, #90cdf4);
   }
   .admin-user-row {
     cursor: pointer;
@@ -1955,7 +2025,9 @@
     .admin-main-grid,
     .admin-bottom-grid,
     .admin-form-grid,
-    .admin-detail-metrics {
+    .admin-detail-metrics,
+    .admin-overview-grid,
+    .admin-insight-grid {
       grid-template-columns: 1fr;
     }
     .admin-hero,
@@ -2333,20 +2405,163 @@ function renderAdminOverview() {
   setText("admin-total-students", overview.total_students || 0);
   setText("admin-total-parents", overview.total_parents || 0);
   setText("admin-total-admins", overview.total_admins || 0);
+
+  const studentCount = adminUsers.filter((user) => user.role === "student").length;
+  const totalLogs = adminRecentLogs.length;
+  const uniqueActiveUsers30d = new Set(
+    adminRecentLogs
+      .filter((log) => {
+        const created = new Date(log.created_at);
+        return created >= new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      })
+      .map((log) => Number(log.user_id))
+  ).size;
+  const monthlyBuckets = getMonthlyLogBuckets(adminRecentLogs, 6);
+  const avgLessonsPerMonth = monthlyBuckets.length
+    ? totalLogs / monthlyBuckets.length
+    : 0;
+  const avgLessonsPerStudent = studentCount ? totalLogs / studentCount : 0;
+  const categoryTotals = getCategoryTotals(adminRecentLogs);
+  const topCategoryEntry = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0];
+  const studentsWithParent = new Set(adminLinks.map((link) => Number(link.student_id))).size;
+  const parentCoverage = studentCount ? (studentsWithParent / studentCount) * 100 : 0;
+  const mostRecentLog = adminRecentLogs[0]?.created_at || null;
+
+  const metricsEl = $("admin-overview-metrics");
+  if (metricsEl) {
+    metricsEl.innerHTML = [
+      {
+        title: "Average Lessons / Month",
+        value: avgLessonsPerMonth.toFixed(avgLessonsPerMonth >= 10 ? 0 : 1),
+        body: "Average lesson logs created across the last six months of activity.",
+      },
+      {
+        title: "30-Day Active Users",
+        value: uniqueActiveUsers30d,
+        body: "Accounts that have submitted at least one lesson in the last 30 days.",
+      },
+      {
+        title: "Average Lessons / Student",
+        value: avgLessonsPerStudent.toFixed(avgLessonsPerStudent >= 10 ? 0 : 1),
+        body: "Average total lesson logs per student account.",
+      },
+      {
+        title: "Top Category",
+        value: topCategoryEntry ? topCategoryEntry[0] : "None",
+        body: topCategoryEntry ? `${topCategoryEntry[1]} total logs in this category.` : "No lesson activity yet.",
+      },
+      {
+        title: "Parent Coverage",
+        value: `${parentCoverage.toFixed(parentCoverage >= 10 ? 0 : 1)}%`,
+        body: "Share of student accounts that are linked to at least one parent.",
+      },
+      {
+        title: "Latest Activity",
+        value: mostRecentLog ? formatAdminDate(mostRecentLog, "No activity") : "No activity",
+        body: "Most recent lesson log recorded anywhere in the app.",
+      },
+    ].map((item) => `
+      <div class="admin-analytic-card">
+        <h4>${escapeHtml(item.title)}</h4>
+        <strong>${escapeHtml(String(item.value))}</strong>
+        <p>${escapeHtml(item.body)}</p>
+      </div>
+    `).join("");
+  }
+
+  const monthlyEl = $("admin-monthly-activity");
+  if (monthlyEl) {
+    const maxCount = Math.max(...monthlyBuckets.map((bucket) => bucket.count), 1);
+    monthlyEl.innerHTML = monthlyBuckets.map((bucket) => `
+      <div class="admin-chart-row">
+        <div class="admin-chart-head">
+          <div class="admin-chart-label">${escapeHtml(bucket.label)}</div>
+          <div class="admin-chart-meta">${escapeHtml(String(bucket.count))} lessons</div>
+        </div>
+        <div class="admin-chart-bar">
+          <div class="admin-chart-fill" style="width:${Math.max((bucket.count / maxCount) * 100, bucket.count ? 10 : 0)}%"></div>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  const insightsEl = $("admin-overview-insights");
+  if (insightsEl) {
+    const inactiveStudents = adminUsers.filter((user) => user.role === "student" && Number(user.total_logs || 0) === 0).length;
+    const parentCount = adminUsers.filter((user) => user.role === "parent").length;
+    const studentToParentRatio = parentCount ? (studentCount / parentCount) : null;
+    const categoryInsight = Object.entries(categoryTotals)
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, count]) => `${name}: ${count}`)
+      .join(" • ");
+
+    insightsEl.innerHTML = [
+      {
+        title: "Unengaged Students",
+        value: inactiveStudents,
+        body: "Student accounts with zero lesson logs so far. This is a good retention watchlist.",
+      },
+      {
+        title: "Student / Parent Ratio",
+        value: studentToParentRatio ? `${studentToParentRatio.toFixed(1)} : 1` : "N/A",
+        body: "How many students you have for each parent account currently linked.",
+      },
+      {
+        title: "Category Mix",
+        value: topCategoryEntry ? topCategoryEntry[0] : "No data",
+        body: categoryInsight || "No lesson activity yet to compare across categories.",
+      },
+    ].map((item) => `
+      <div class="admin-analytic-card">
+        <h4>${escapeHtml(item.title)}</h4>
+        <strong>${escapeHtml(String(item.value))}</strong>
+        <p>${escapeHtml(item.body)}</p>
+      </div>
+    `).join("");
+  }
+}
+
+function getMonthlyLogBuckets(logs, monthsBack = 6) {
+  const now = new Date();
+  const buckets = [];
+
+  for (let offset = monthsBack - 1; offset >= 0; offset--) {
+    const date = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    buckets.push({
+      key,
+      label: date.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
+      count: 0,
+    });
+  }
+
+  const byKey = new Map(buckets.map((bucket) => [bucket.key, bucket]));
+  logs.forEach((log) => {
+    const d = new Date(log.created_at);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const bucket = byKey.get(key);
+    if (bucket) bucket.count += 1;
+  });
+
+  return buckets;
+}
+
+function getCategoryTotals(logs) {
+  return logs.reduce((acc, log) => {
+    const key = String(log.category || "Unknown");
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
 }
 
 function getAdminSearchQuery() {
   return (
-    $("admin-user-search-overview")?.value?.trim() ||
     $("admin-user-search-users")?.value?.trim() ||
     ""
   ).toLowerCase();
 }
 
 function syncAdminSearch(value) {
-  if ($("admin-user-search-overview") && $("admin-user-search-overview").value !== value) {
-    $("admin-user-search-overview").value = value;
-  }
   if ($("admin-user-search-users") && $("admin-user-search-users").value !== value) {
     $("admin-user-search-users").value = value;
   }
@@ -2492,14 +2707,13 @@ function buildAdminUserDetailMarkup() {
 
 function renderAdminUserDetail() {
   const markup = buildAdminUserDetailMarkup();
-  ["admin-user-detail-overview", "admin-user-detail-users"].forEach((id) => {
+  ["admin-user-detail-users"].forEach((id) => {
     const panel = $(id);
     if (panel) panel.innerHTML = markup;
   });
 }
 
 function renderAdminUsers() {
-  renderAdminUsersInto("admin-users-list-overview", "admin-user-detail-overview");
   renderAdminUsersInto("admin-users-list-users", "admin-user-detail-users");
   renderAdminUserDetail();
 }
