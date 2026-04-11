@@ -1181,7 +1181,7 @@
 
     <div class="form-group">
       <div class="field-label">Choose a Lesson</div>
-      <select class="fl-input" id="form-lesson" onchange="applySelectedLesson()" disabled>
+      <select class="fl-input" id="form-lesson" disabled>
         <option value="">Pick a category first</option>
       </select>
       <div class="field-hint">Lessons are filtered by the category you choose above.</div>
@@ -2935,15 +2935,6 @@ function renderLessonOptions() {
 
   if (filtered.some((lesson) => lesson.name === currentValue)) {
     select.value = currentValue;
-  }
-}
-
-function applySelectedLesson() {
-  const lessonName = $("form-lesson")?.value?.trim();
-  if (!lessonName) return;
-  const intel = $("form-intel");
-  if (intel && !intel.value.trim()) {
-    intel.value = lessonName;
   }
 }
 
