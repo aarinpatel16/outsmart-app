@@ -2574,7 +2574,8 @@ function renderAdminUsersInto(listId, detailId) {
   if (!list || !detail) return;
 
   const query = getAdminSearchQuery();
-  const filtered = adminUsers.filter((user) => {
+  const studentUsers = adminUsers.filter((user) => user.role === "student");
+  const filtered = studentUsers.filter((user) => {
     if (!query) return true;
     return [user.name, user.email, user.role].some((value) =>
       String(value || "").toLowerCase().includes(query)
@@ -2582,13 +2583,13 @@ function renderAdminUsersInto(listId, detailId) {
   });
 
   if (!filtered.length) {
-    list.innerHTML = `<div class="admin-empty-state">No users matched that search.</div>`;
-    if (!adminUsers.some((user) => Number(user.id) === Number(selectedAdminUserId))) {
+    list.innerHTML = `<div class="admin-empty-state">No student accounts matched that search.</div>`;
+    if (!studentUsers.some((user) => Number(user.id) === Number(selectedAdminUserId))) {
       detail.innerHTML = `
         <div class="admin-detail-empty">
           <div>
-            <h4>No matching user</h4>
-            <p>Try a different search to review account details and recent activity.</p>
+            <h4>No matching student</h4>
+            <p>Try a different search to review student details and recent activity.</p>
           </div>
         </div>
       `;
@@ -2781,9 +2782,9 @@ async function loadAdminDashboard() {
     adminRecentLogs = recentLogs;
     adminLinks = links;
 
-    if (!adminUsers.some((user) => Number(user.id) === Number(selectedAdminUserId))) {
-      const firstNonAdmin = adminUsers.find((user) => user.role !== "admin");
-      selectedAdminUserId = firstNonAdmin?.id || adminUsers[0]?.id || null;
+    const studentUsers = adminUsers.filter((user) => user.role === "student");
+    if (!studentUsers.some((user) => Number(user.id) === Number(selectedAdminUserId))) {
+      selectedAdminUserId = studentUsers[0]?.id || null;
     }
 
     renderAdminOverview();
