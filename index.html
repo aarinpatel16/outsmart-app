@@ -762,6 +762,17 @@
     font-size: 12px; font-weight: 400;
     color: rgba(255,255,255,0.4); line-height: 1.5;
   }
+  .log-action.lesson-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(99,179,237,0.12);
+    color: #9fd4ff;
+    font-weight: 600;
+  }
   .log-detail-toggle,
   .admin-detail-toggle {
     margin-top: 10px;
@@ -3490,7 +3501,7 @@ async function refreshDashboard() {
                 <div class="log-date">${date}</div>
               </div>
               <div class="log-intel">${escapeHtml(l.title)}</div>
-              ${lessonName ? `<div class="log-action">Lesson: ${escapeHtml(lessonName)}</div>` : ""}
+              ${lessonName ? `<div class="log-action lesson-label">📘 Lesson: ${escapeHtml(lessonName)}</div>` : ""}
               ${renderStructuredNotesDetails(l.notes, "student", l.id)}
             </div>
           `;
@@ -3559,7 +3570,7 @@ async function refreshParentPortal() {
             <div class="log-date">${new Date(l.created_at).toLocaleDateString()}</div>
           </div>
           <div class="log-intel">${escapeHtml(l.title)}</div>
-          ${getStructuredLogValue(l.notes, "Selected Lesson") ? `<div class="log-action">Lesson: ${escapeHtml(getStructuredLogValue(l.notes, "Selected Lesson"))}</div>` : ""}
+          ${getStructuredLogValue(l.notes, "Selected Lesson") ? `<div class="log-action lesson-label">📘 Lesson: ${escapeHtml(getStructuredLogValue(l.notes, "Selected Lesson"))}</div>` : ""}
           ${renderStructuredNotesDetails(l.notes, "student", `parent-${l.id}`)}
         </div>
       `).join("");
