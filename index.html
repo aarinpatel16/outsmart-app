@@ -3085,6 +3085,16 @@ const API = {
     return data;
   },
 
+  async _delete(path) {
+    const r = await fetch(path, {
+      method: "DELETE",
+      headers: this._headers(),
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || "Request failed");
+    return data;
+  },
+
   studentRegister(name, email, password, parentEmail) {
     return this._post("/auth/student/register", { name, email, password, parentEmail });
   },
