@@ -40,9 +40,14 @@
   .screen.active { display: flex !important; }
 
   /* ========== LOGIN - FULL REBRAND ========== */
+  #screen-login.screen {
+    display: none !important;
+  }
+  #screen-login.screen.active {
+    display: grid !important;
+  }
   #screen-login {
     min-height: 100vh;
-    display: grid !important;
     place-items: center;
     background:
       radial-gradient(circle at 12% 18%, rgba(89, 155, 255, 0.22), transparent 24%),
@@ -1616,8 +1621,10 @@
     .cat-picker { grid-template-columns: repeat(4, 1fr); }
   }
   @media (max-width: 980px) {
-    #screen-login {
+    #screen-login.screen.active {
       display: block !important;
+    }
+    #screen-login {
       padding: 14px;
     }
     .login-shell {
