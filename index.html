@@ -684,7 +684,7 @@
   .cat-eq.cleared   .cat-check { background: #b794f4; }
   .cat-lead.cleared .cat-check { background: #fc814a; }
   .cat-din.cleared  .cat-check { background: #68d391; }
-  .cat-card.cleared .cat-check::after { content: 'âœ“'; color: #fff; font-weight: 800; font-size: 11px; font-family: 'Plus Jakarta Sans', sans-serif; }
+  .cat-card.cleared .cat-check::after { content: 'OK'; color: #fff; font-weight: 800; font-size: 11px; font-family: 'Plus Jakarta Sans', sans-serif; }
   .cat-card .cat-glow { display: none; }
 
   .cat-fin  { color: #63b3ed; }
@@ -1054,9 +1054,9 @@
   <!-- Hero Section -->
   <div class="login-hero">
     <div class="login-icon-row">
-      <div class="login-icon-pill">ðŸ’° Finance</div>
-      <div class="login-icon-pill">ðŸ§  Mindset</div>
-      <div class="login-icon-pill">âš¡ Leadership</div>
+      <div class="login-icon-pill">Finance</div>
+      <div class="login-icon-pill">Mindset</div>
+      <div class="login-icon-pill">Leadership</div>
     </div>
 
     <div class="login-wordmark">
@@ -1071,7 +1071,7 @@
         <div class="lbl">Skills</div>
       </div>
       <div class="login-stat-chip">
-        <div class="num">âˆž</div>
+        <div class="num">All</div>
         <div class="lbl">Growth</div>
       </div>
       <div class="login-stat-chip">
@@ -1100,7 +1100,7 @@
         <input class="fl-input" id="si-email" type="email" placeholder="you@email.com" autocomplete="email">
         <label class="fl-label">Password</label>
         <input class="fl-input" id="si-pass" type="password" placeholder="Your password">
-        <button class="fl-btn fl-btn-primary" onclick="signIn()">Sign In â†’</button>
+        <button class="fl-btn fl-btn-primary" onclick="signIn()">Sign In -></button>
         <div class="fl-switch">New here? <a onclick="switchLoginMode('create')">Create your account</a></div>
       </div>
 
@@ -1120,9 +1120,9 @@
 
   <!-- Trust Row -->
   <div class="trust-row">
-    <div class="trust-item">ðŸ”’ Private</div>
-    <div class="trust-item">ðŸ“± Mobile-first</div>
-    <div class="trust-item">ðŸ† Gamified</div>
+    <div class="trust-item">Private</div>
+    <div class="trust-item">Mobile-first</div>
+    <div class="trust-item">Gamified</div>
   </div>
 
 </div>
@@ -1135,7 +1135,7 @@
   <div class="app-header">
     <div class="header-brand">Outsmart <span>the System</span></div>
     <div style="display:flex;align-items:center;gap:10px;">
-      <button class="theme-btn" onclick="openThemePicker()">ðŸŽ¨ Theme</button>
+      <button class="theme-btn" onclick="openThemePicker()">Theme</button>
       <div class="header-user">
         <div class="level-badge">Level <strong id="h-level">0</strong></div>
         <div class="avatar" id="h-avatar">?</div>
@@ -1145,7 +1145,7 @@
 
   <div class="dash-hero">
     <div class="dash-greeting">Good to see you,</div>
-    <div class="dash-name" id="dash-name">â€”</div>
+    <div class="dash-name" id="dash-name">--</div>
     <div id="dash-rank" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:rgba(246,201,14,0.7);margin-bottom:20px;margin-top:-10px;"></div>
     <div class="system-status">
       <div class="status-row">
@@ -1161,28 +1161,28 @@
   <div class="categories-grid">
     <div class="cat-card cat-fin" id="card-fin" onclick="goLogCat('fin')">
       <div class="cat-glow"></div>
-      <div class="cat-icon">ðŸ’°</div>
+      <div class="cat-icon">FL</div>
       <div class="cat-name">Financial Literacy</div>
       <div class="cat-count" id="count-fin">0 logs</div>
       <div class="cat-check"></div>
     </div>
     <div class="cat-card cat-eq" id="card-eq" onclick="goLogCat('eq')">
       <div class="cat-glow"></div>
-      <div class="cat-icon">ðŸ§ </div>
+      <div class="cat-icon">EQ</div>
       <div class="cat-name">Emotional Intel</div>
       <div class="cat-count" id="count-eq">0 logs</div>
       <div class="cat-check"></div>
     </div>
     <div class="cat-card cat-lead" id="card-lead" onclick="goLogCat('lead')">
       <div class="cat-glow"></div>
-      <div class="cat-icon">âš¡</div>
+      <div class="cat-icon">LD</div>
       <div class="cat-name">Leadership</div>
       <div class="cat-count" id="count-lead">0 logs</div>
       <div class="cat-check"></div>
     </div>
     <div class="cat-card cat-din" id="card-din" onclick="goLogCat('din')">
       <div class="cat-glow"></div>
-      <div class="cat-icon">ðŸ—£ï¸</div>
+      <div class="cat-icon">DT</div>
       <div class="cat-name">Dinner Talk</div>
       <div class="cat-count" id="count-din">0 logs</div>
       <div class="cat-check"></div>
@@ -1191,7 +1191,7 @@
 
   <div class="log-btn-wrap">
     <button class="btn-log" onclick="showScreen('screen-log')">
-      âœï¸ Log a New Lesson
+      Log a New Lesson
     </button>
   </div>
 
@@ -1201,7 +1201,7 @@
   </div>
   <div class="log-list" id="recent-logs">
     <div class="empty-state">
-      <div class="icon">ðŸ“‚</div>
+      <div class="icon">LOG</div>
       <p>Nothing here yet.</p>
       <p style="margin-top:8px;font-size:9px;">Tap the button below to add your first entry.</p>
     </div>
@@ -1346,7 +1346,7 @@
 
   <!-- Welcome / no children state -->
   <div id="parent-no-children" style="display:none;padding:40px 20px;text-align:center;">
-    <div style="font-size:48px;margin-bottom:16px;">ðŸ‘¨â€ðŸ‘©â€ðŸ‘§</div>
+    <div style="font-size:48px;margin-bottom:16px;">Family</div>
     <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#f0f8ff;margin-bottom:8px;">No children linked yet</div>
     <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:rgba(255,255,255,0.4);line-height:1.5;max-width:280px;margin:0 auto;">Ask your child to add your email (<strong id="p-account-email" style="color:rgba(167,139,250,0.8);"></strong>) when creating their account.</div>
   </div>
@@ -1369,7 +1369,7 @@
 
   <!-- Rank display -->
   <div id="p-rank-display" style="margin:0 20px 16px;background:rgba(246,201,14,0.06);border:1px solid rgba(246,201,14,0.15);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
-    <div id="p-rank-icon" style="font-size:28px;">ðŸŒ±</div>
+    <div id="p-rank-icon" style="font-size:28px;">Up</div>
     <div>
       <div id="p-rank-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;color:#f6c90e;"></div>
       <div id="p-rank-desc" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;line-height:1.4;"></div>
@@ -1389,15 +1389,15 @@
 
   <!-- Manage mode info banner -->
   <div id="parent-manage-banner" style="display:none;margin:0 20px 12px;background:rgba(252,129,129,0.08);border:1px solid rgba(252,129,129,0.2);border-radius:12px;padding:11px 14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;color:rgba(252,129,129,0.8);line-height:1.4;">
-    ðŸ›¡ï¸ <strong>Manage mode on.</strong> You can delete entries. This action is permanent.
+    <strong>Manage mode on.</strong> You can delete entries. This action is permanent.
   </div>
 
   <div class="filter-bar" id="parent-filters">
     <div class="filter-chip active" onclick="filterLogs('all', this)">All</div>
-    <div class="filter-chip" onclick="filterLogs('fin', this)">ðŸ’° Finance</div>
-    <div class="filter-chip" onclick="filterLogs('eq', this)">ðŸ§  Emotional</div>
-    <div class="filter-chip" onclick="filterLogs('lead', this)">âš¡ Leadership</div>
-    <div class="filter-chip" onclick="filterLogs('din', this)">ðŸ—£ï¸ Dinner Talk</div>
+    <div class="filter-chip" onclick="filterLogs('fin', this)">Finance</div>
+    <div class="filter-chip" onclick="filterLogs('eq', this)">Emotional</div>
+    <div class="filter-chip" onclick="filterLogs('lead', this)">Leadership</div>
+    <div class="filter-chip" onclick="filterLogs('din', this)">Dinner Talk</div>
   </div>
 
   <div class="log-list" id="parent-logs" style="padding-bottom:40px;"></div>
@@ -1432,7 +1432,7 @@
         <h2>Control Center</h2>
         <p>Monitor account activity, review user records, and manage lesson content from one place.</p>
       </div>
-      <div class="admin-status-badge" id="admin-status-badge">Checking system statusâ€¦</div>
+      <div class="admin-status-badge" id="admin-status-badge">Checking system status...</div>
     </div>
 
     <div class="admin-summary-grid">
@@ -1586,18 +1586,18 @@
 <!-- ========== BADGE UNLOCK MODAL ========== -->
 <div class="modal-overlay" id="modal-badge">
   <div class="modal-box">
-    <div class="modal-icon" id="badge-modal-icon">ðŸ…</div>
+    <div class="modal-icon" id="badge-modal-icon">Badge</div>
     <div class="modal-title" style="color:#f6c90e;">Badge Unlocked!</div>
     <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:700;color:#f0f8ff;margin-bottom:8px;" id="badge-modal-name"></div>
     <div class="modal-sub" id="badge-modal-desc"></div>
-    <button class="modal-close" style="background:linear-gradient(135deg,#b7791f,#f6c90e);color:#000;" onclick="closeBadgeModal()">Claim It ðŸŽ‰</button>
+    <button class="modal-close" style="background:linear-gradient(135deg,#b7791f,#f6c90e);color:#000;" onclick="closeBadgeModal()">Claim It</button>
   </div>
 </div>
 
 <!-- ========== LEVEL UP MODAL ========== -->
 <div class="modal-overlay" id="modal-levelup">
   <div class="modal-box">
-    <div class="modal-icon">ðŸ†</div>
+    <div class="modal-icon">Up</div>
     <div class="modal-title glitch">Level Up!</div>
     <div class="modal-sub" id="levelup-sub">You've logged in all 4 categories. Keep going!</div>
     <button class="modal-close" onclick="closeLevelUp()">Keep Going</button>
@@ -1607,7 +1607,7 @@
 <!-- ========== LOG SUCCESS MODAL ========== -->
 <div class="modal-overlay" id="modal-log-success">
   <div class="modal-box success-log">
-    <div class="modal-icon">âœ…</div>
+    <div class="modal-icon">OK</div>
     <div class="modal-title">Saved!</div>
     <div class="modal-sub" id="modal-success-text">Entry logged to your Strategy Log.</div>
     <button class="modal-close" onclick="closeLogSuccess()">Continue</button>
@@ -1617,7 +1617,7 @@
 <!-- ========== DELETE CONFIRM MODAL ========== -->
 <div class="modal-overlay" id="modal-delete">
   <div class="modal-box" style="padding:32px 28px;">
-    <div class="modal-icon">ðŸ—‘ï¸</div>
+    <div class="modal-icon">Del</div>
     <div class="modal-title" style="color:#fc8181;">Delete Entry?</div>
     <div class="modal-sub">This can't be undone. Are you sure you want to remove this entry?</div>
     <div style="display:flex;gap:10px;margin-top:4px;">
@@ -2490,7 +2490,7 @@ async function createParentAccount() {
 
     // Your HTML does NOT include childEmail field, but backend needs it.
     // We'll ask once via a simple prompt.
-    const childEmail = prompt("Enter your childâ€™s STUDENT email (the email they used to register):");
+    const childEmail = prompt("Enter your child's STUDENT email (the email they used to register):");
     if (!childEmail) return showToast("Parent account requires child email to link.");
 
     const { token, user } = await API.parentRegister(name, email, password, childEmail);
@@ -2662,7 +2662,7 @@ function renderAdminOverview() {
     const categoryInsight = Object.entries(categoryTotals)
       .sort((a, b) => b[1] - a[1])
       .map(([name, count]) => `${name}: ${count}`)
-      .join(" â€¢ ");
+      .join(" | ");
 
     insightsEl.innerHTML = [
       {
@@ -3128,32 +3128,32 @@ function closeLogSuccess() {
 const BADGE_META = {
   first_log: {
     name: "First Entry",
-    emoji: "ðŸŒ±",
+    emoji: "Start",
     desc: "Log your first lesson to start building momentum.",
   },
   five_logs: {
     name: "Getting Started",
-    emoji: "â­",
+    emoji: "Star",
     desc: "Reach five total lesson logs.",
   },
   ten_logs: {
     name: "In the Groove",
-    emoji: "ðŸ”¥",
+    emoji: "Fire",
     desc: "Reach ten total lesson logs.",
   },
   all_four: {
     name: "All Four Skills",
-    emoji: "ðŸ†",
+    emoji: "Win",
     desc: "Complete at least one lesson in every category.",
   },
   streak_3: {
     name: "3-Day Streak",
-    emoji: "âš¡",
+    emoji: "Zap",
     desc: "Log lessons on three consecutive days.",
   },
   level_up: {
     name: "Level Up",
-    emoji: "ðŸš€",
+    emoji: "Up",
     desc: "Complete a full cycle across all four categories.",
   },
 };
@@ -3301,7 +3301,7 @@ async function refreshDashboard() {
     currentStats = stats;
 
     // header
-    setText("dash-name", currentUser.name || "â€”");
+    setText("dash-name", currentUser.name || "--");
     setText("h-level", stats.level || 1);
     setText("h-avatar", initials(currentUser.name));
 
@@ -3340,7 +3340,7 @@ async function refreshDashboard() {
       if (!total) {
         list.innerHTML = `
           <div class="empty-state">
-            <div class="icon">ðŸ“‚</div>
+            <div class="icon">LOG</div>
             <p>Nothing here yet.</p>
             <p style="margin-top:8px;font-size:9px;">Tap the button below to add your first entry.</p>
           </div>`;
