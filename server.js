@@ -32,17 +32,6 @@ const pool = new Pool({
 
 async function ensureDatabaseSchema() {
   await pool.query(`
-    ALTER TABLE users
-    ADD COLUMN IF NOT EXISTS approved BOOLEAN NOT NULL DEFAULT FALSE
-  `);
-
-  await pool.query(`
-    UPDATE users
-    SET approved = TRUE
-    WHERE role = 'admin'
-  `);
-
-  await pool.query(`
     CREATE TABLE IF NOT EXISTS lessons (
       id SERIAL PRIMARY KEY,
       name TEXT NOT NULL UNIQUE,
@@ -297,7 +286,7 @@ app.post("/auth/login", async (req, res, next) => {
     if (!email || !password) return res.status(400).json({ error: "email and password required" });
 
     const { rows } = await pool.query(
-      `SELECT id, name, email, role, theme, approved, password_hash
+      `SELECT id, name, email, role, theme, password_hash
        FROM users
        WHERE LOWER(email) = LOWER($1)`,
       [String(email).trim()]
@@ -309,11 +298,7 @@ app.post("/auth/login", async (req, res, next) => {
     const ok = await bcrypt.compare(password, u.password_hash);
     if (!ok) return res.status(401).json({ error: "Invalid credentials" });
 
-    if (u.role !== "admin" && !u.approved) {
-      return res.status(403).json({ error: "This account is waiting for owner approval before it can access the app." });
-    }
-
-    const user = { id: u.id, name: u.name, email: u.email, role: u.role, theme: u.theme, approved: u.approved };
+    const user = { id: u.id, name: u.name, email: u.email, role: u.role, theme: u.theme };
     const token = signToken(user);
 
     let stats = null;
@@ -329,7 +314,7 @@ app.post("/auth/login", async (req, res, next) => {
 app.get("/me", auth, async (req, res, next) => {
   try {
     const { rows } = await pool.query(
-      `SELECT id, name, email, role, theme, approved FROM users WHERE id = $1`,
+      `SELECT id, name, email, role, theme FROM users WHERE id = $1`,
       [req.user.id]
     );
     const user = rows[0];
@@ -423,7 +408,6 @@ app.get("/admin/users", auth, adminOnly, async (req, res, next) => {
          u.name,
          u.email,
          u.role,
-         u.approved,
          u.theme,
          u.created_at,
          COUNT(ll.id)::int AS total_logs,
@@ -515,34 +499,6 @@ app.get("/admin/users", auth, adminOnly, async (req, res, next) => {
   }
 });
 
-app.post("/admin/users/:id/access", auth, adminOnly, async (req, res, next) => {
-  try {
-    const userId = Number(req.params.id);
-    const approved = Boolean(req.body?.approved);
-
-    if (!userId) {
-      return res.status(400).json({ error: "A valid user id is required." });
-    }
-
-    const { rows } = await pool.query(
-      `UPDATE users
-       SET approved = $1
-       WHERE id = $2
-         AND role <> 'admin'
-       RETURNING id, name, email, role, approved`,
-      [approved, userId]
-    );
-
-    if (!rows[0]) {
-      return res.status(404).json({ error: "User not found or cannot be updated." });
-    }
-
-    res.json({ user: rows[0] });
-  } catch (e) {
-    next(e);
-  }
-});
-
 app.post("/admin/students", auth, adminOnly, async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
@@ -557,9 +513,9 @@ app.post("/admin/students", auth, adminOnly, async (req, res, next) => {
     const hash = await bcrypt.hash(String(password), 10);
 
     const { rows } = await pool.query(
-      `INSERT INTO users (name, email, password_hash, role, approved)
-       VALUES ($1, $2, $3, 'student', TRUE)
-       RETURNING id, name, email, role, approved, theme, created_at`,
+      `INSERT INTO users (name, email, password_hash, role)
+       VALUES ($1, $2, $3, 'student')
+       RETURNING id, name, email, role, theme, created_at`,
       [String(name).trim(), String(email).trim().toLowerCase(), hash]
     );
 
@@ -568,6 +524,36 @@ app.post("/admin/students", auth, adminOnly, async (req, res, next) => {
     if (String(e.message || "").toLowerCase().includes("duplicate")) {
       return res.status(400).json({ error: "Email already exists" });
     }
+    next(e);
+  }
+});
+
+app.delete("/admin/users/:id", auth, adminOnly, async (req, res, next) => {
+  try {
+    const userId = Number(req.params.id);
+
+    if (!userId) {
+      return res.status(400).json({ error: "A valid user id is required." });
+    }
+
+    if (Number(req.user.id) === userId) {
+      return res.status(400).json({ error: "You cannot remove the admin account you are currently using." });
+    }
+
+    const { rows } = await pool.query(
+      `DELETE FROM users
+       WHERE id = $1
+         AND role <> 'admin'
+       RETURNING id, name, email, role`,
+      [userId]
+    );
+
+    if (!rows[0]) {
+      return res.status(404).json({ error: "User not found or cannot be removed." });
+    }
+
+    res.json({ ok: true, user: rows[0] });
+  } catch (e) {
     next(e);
   }
 });

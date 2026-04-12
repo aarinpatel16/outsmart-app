@@ -2049,7 +2049,7 @@
         <div class="admin-panel-head">
           <div>
             <h3>User Directory</h3>
-            <p>Create student accounts and manage access from one place.</p>
+            <p>Create student accounts, review activity, and remove users from one place.</p>
           </div>
           <input class="admin-search" id="admin-user-search-users" type="text" placeholder="Search by name, email, or role" oninput="syncAdminSearch(this.value)">
         </div>
@@ -2915,12 +2915,12 @@ const API = {
     return this._get("/admin/users");
   },
 
-  setUserAccess(userId, approved) {
-    return this._post(`/admin/users/${userId}/access`, { approved });
-  },
-
   createAdminStudent(name, email, password) {
     return this._post("/admin/students", { name, email, password });
+  },
+
+  deleteAdminUser(userId) {
+    return this._delete(`/admin/users/${userId}`);
   },
 
   createAdminLesson(name, category) {
@@ -2982,6 +2982,10 @@ function showScreen(screenId) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   const el = $(screenId);
   if (el) el.classList.add("active");
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+  if (el) el.scrollTop = 0;
 
   // bottom nav visibility
   const nav = $("bottom-nav");
@@ -3173,10 +3177,6 @@ function formatAdminDate(value, fallback = "No activity yet") {
 
 function adminRoleClass(role) {
   return role === "admin" ? "admin" : role === "parent" ? "parent" : "student";
-}
-
-function adminAccessLabel(user) {
-  return user?.approved ? "Approved" : "Pending";
 }
 
 function getLinkedRecordsForUser(user) {
@@ -3483,7 +3483,7 @@ function renderAdminUsersInto(listId, detailId) {
         <div>
           <div class="admin-user-name">${escapeHtml(user.name)}</div>
           <div class="admin-user-email">${escapeHtml(user.email)}</div>
-          <div class="admin-user-email">Access: ${escapeHtml(adminAccessLabel(user))}</div>
+          <div class="admin-user-email">Joined ${escapeHtml(formatAdminDate(user.created_at, "recently"))}</div>
         </div>
         <div class="admin-role-pill ${adminRoleClass(user.role)}">${escapeHtml(user.role)}</div>
       </div>
@@ -3529,15 +3529,14 @@ function buildAdminUserDetailMarkup() {
           <div class="admin-user-email">${escapeHtml(user.email)}</div>
           <div class="admin-detail-meta">
             <div class="admin-chip">Role: ${escapeHtml(user.role)}</div>
-            <div class="admin-chip">Access: ${escapeHtml(adminAccessLabel(user))}</div>
             <div class="admin-chip">Joined: ${escapeHtml(formatAdminDate(user.created_at, "Unknown"))}</div>
             <div class="admin-chip">Theme: ${escapeHtml(user.theme || "Default")}</div>
           </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end;">
           <div class="admin-role-pill ${adminRoleClass(user.role)}">${escapeHtml(user.role)}</div>
-          <button class="admin-secondary-btn" onclick="toggleUserAccess(${Number(user.id)}, ${user.approved ? "false" : "true"})">
-            ${user.approved ? "Revoke Access" : "Approve Access"}
+          <button class="admin-secondary-btn" style="border-color:rgba(252,129,129,0.35);color:#ffb6b6;" onclick="deleteAdminUser(${Number(user.id)})">
+            Remove User
           </button>
         </div>
       </div>
@@ -3629,10 +3628,21 @@ async function createAdminStudent() {
   }
 }
 
-async function toggleUserAccess(userId, approved) {
+async function deleteAdminUser(userId) {
   try {
-    await API.setUserAccess(Number(userId), Boolean(approved));
-    showToast(approved ? "Access approved." : "Access revoked.");
+    const user = adminUsers.find((entry) => Number(entry.id) === Number(userId));
+    if (!user) {
+      return showToast("That user could not be found.");
+    }
+
+    const confirmed = window.confirm(`Remove ${user.name}? This will permanently delete their account, logs, and linked records.`);
+    if (!confirmed) return;
+
+    await API.deleteAdminUser(Number(userId));
+    if (Number(selectedAdminUserId) === Number(userId)) {
+      selectedAdminUserId = null;
+    }
+    showToast("User removed.");
     await loadAdminDashboard();
   } catch (e) {
     showToast(e.message);
