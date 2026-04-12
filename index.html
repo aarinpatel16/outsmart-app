@@ -111,14 +111,21 @@
     margin-bottom: 10px;
   }
   .login-logo-frame {
-    width: min(360px, 82vw);
-    margin: 0 auto 8px;
+    width: min(430px, 84vw);
+    height: 160px;
+    margin: 0 auto 2px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .login-logo-image {
     display: block;
     width: 100%;
-    height: auto;
-    filter: drop-shadow(0 20px 40px rgba(0,0,0,0.22));
+    height: 100%;
+    object-fit: cover;
+    object-position: center 46%;
+    filter: drop-shadow(0 16px 28px rgba(0,0,0,0.18));
   }
 
   .login-wordmark .tagline {
