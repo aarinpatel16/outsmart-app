@@ -110,13 +110,15 @@
   .login-wordmark {
     margin-bottom: 10px;
   }
-  .login-brand-mark {
-    width: 96px;
-    height: 96px;
-    margin: 0 auto 18px;
-    border-radius: 28px;
+  .login-logo-frame {
+    width: min(640px, 92vw);
+    margin: 0 auto 16px;
+  }
+  .login-logo-image {
     display: block;
-    box-shadow: 0 18px 40px rgba(0,0,0,0.24);
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 18px 34px rgba(0,0,0,0.18));
   }
 
   .login-wordmark .tagline {
@@ -1465,8 +1467,9 @@
 
     <div class="login-wordmark">
       <div class="tagline">Strategy Log</div>
-      <img class="login-brand-mark" src="assets/branding/ots-favicon-256.png" alt="OTS logo">
-      <h1>Outsmart<br><em>the System</em></h1>
+      <div class="login-logo-frame">
+        <img class="login-logo-image" src="assets/branding/ots-logo-transparent.svg" alt="Outsmart the System logo">
+      </div>
       <div class="subtitle">Log your wins. Track your growth. Level up your life.</div>
     </div>
 
