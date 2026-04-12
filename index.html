@@ -74,16 +74,17 @@
   .login-shell {
     position: relative;
     z-index: 1;
-    width: min(1180px, 100%);
+    width: min(1440px, 100%);
     display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
-    gap: 28px;
+    grid-template-columns: minmax(0, 1.15fr) minmax(430px, 0.85fr);
+    gap: 30px;
     align-items: stretch;
+    min-height: calc(100vh - 56px);
   }
   .login-hero {
     position: relative;
     border-radius: 36px;
-    padding: 40px 40px 34px;
+    padding: 52px 52px 42px;
     background:
       linear-gradient(155deg, rgba(17,27,39,0.9) 0%, rgba(12,19,29,0.92) 100%);
     border: 1px solid rgba(255,255,255,0.08);
@@ -91,7 +92,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    min-height: 660px;
+    min-height: 100%;
   }
   .login-icon-row {
     display: flex;
@@ -119,8 +120,8 @@
     margin-bottom: 18px;
   }
   .login-logo-frame {
-    width: min(560px, 100%);
-    margin: 0 0 24px;
+    width: min(680px, 100%);
+    margin: 0 0 30px;
   }
   .login-logo-image {
     display: block;
@@ -139,24 +140,26 @@
   }
   .login-wordmark .subtitle {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 400;
-    color: rgba(220,232,245,0.7);
-    line-height: 1.7;
-    max-width: 480px;
+    color: rgba(220,232,245,0.68);
+    line-height: 1.75;
+    max-width: 540px;
     margin: 0;
   }
   .login-message {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(26px, 4vw, 38px);
-    line-height: 1.08;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(26px, 3vw, 36px);
+    font-weight: 800;
+    line-height: 1.14;
+    letter-spacing: -0.04em;
     color: #f4f8ff;
-    max-width: 520px;
-    margin-bottom: 14px;
+    max-width: 620px;
+    margin-bottom: 16px;
   }
   .login-message span {
     color: #90cdf4;
-    font-style: italic;
+    font-style: normal;
   }
   .login-stats {
     display: flex;
@@ -193,12 +196,12 @@
     background: rgba(21,32,46,0.92);
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 36px;
-    padding: 26px 24px;
+    padding: 34px 32px 28px;
     box-shadow: 0 26px 70px rgba(0,0,0,0.28);
     display: flex;
     flex-direction: column;
     justify-content: center;
-    min-height: 660px;
+    min-height: 100%;
   }
 
   /* Mode selector pills */
@@ -387,10 +390,13 @@
   /* Switch link */
   .fl-switch {
     text-align: center;
-    margin-top: 18px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.08);
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 13px;
     color: rgba(255,255,255,0.35);
+    line-height: 1.8;
   }
 
   .fl-switch a {
@@ -442,10 +448,13 @@
   .trust-row {
     display: flex;
     justify-content: center;
-    gap: 20px;
-    padding: 0 24px 28px;
+    gap: 14px;
+    padding: 18px 0 0;
+    margin-top: 22px;
+    border-top: 1px solid rgba(255,255,255,0.08);
     position: relative;
     z-index: 1;
+    flex-wrap: wrap;
   }
 
   .trust-item {
@@ -454,7 +463,11 @@
     gap: 6px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 11px;
-    color: rgba(255,255,255,0.25);
+    font-weight: 600;
+    color: rgba(255,255,255,0.4);
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.03);
   }
 
   /* ========== APP SHARED STYLES ========== */
@@ -1458,7 +1471,7 @@
       border-radius: 28px;
     }
     .login-hero {
-      padding: 30px 22px 24px;
+      padding: 32px 24px 28px;
       text-align: center;
     }
     .login-icon-row,
@@ -1478,7 +1491,10 @@
       margin-right: auto;
     }
     .login-card {
-      padding: 22px 18px;
+      padding: 24px 20px;
+    }
+    .trust-row {
+      justify-content: center;
     }
   }
 </style>
