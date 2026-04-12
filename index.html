@@ -38,7 +38,7 @@
   .screen { display: none !important; min-height: 100vh; flex-direction: column; }
   .screen.active { display: flex !important; }
 
-  /* ========== LOGIN â€” WARM FRIENDLY REDESIGN ========== */
+  /* ========== LOGIN - WARM FRIENDLY REDESIGN ========== */
   #screen-login {
     flex-direction: column;
     min-height: 100vh;
@@ -684,7 +684,7 @@
   .cat-eq.cleared   .cat-check { background: #b794f4; }
   .cat-lead.cleared .cat-check { background: #fc814a; }
   .cat-din.cleared  .cat-check { background: #68d391; }
-  .cat-card.cleared .cat-check::after { content: 'OK'; color: #fff; font-weight: 800; font-size: 11px; font-family: 'Plus Jakarta Sans', sans-serif; }
+  .cat-card.cleared .cat-check::after { content: '✓'; color: #fff; font-weight: 800; font-size: 14px; font-family: 'Plus Jakarta Sans', sans-serif; }
   .cat-card .cat-glow { display: none; }
 
   .cat-fin  { color: #63b3ed; }
@@ -1107,9 +1107,9 @@
   <!-- Hero Section -->
   <div class="login-hero">
     <div class="login-icon-row">
-      <div class="login-icon-pill">Finance</div>
-      <div class="login-icon-pill">Mindset</div>
-      <div class="login-icon-pill">Leadership</div>
+      <div class="login-icon-pill">💰 Finance</div>
+      <div class="login-icon-pill">🧠 Mindset</div>
+      <div class="login-icon-pill">⚡ Leadership</div>
     </div>
 
     <div class="login-wordmark">
@@ -1173,9 +1173,9 @@
 
   <!-- Trust Row -->
   <div class="trust-row">
-    <div class="trust-item">Private</div>
-    <div class="trust-item">Mobile-first</div>
-    <div class="trust-item">Gamified</div>
+    <div class="trust-item">🔒 Private</div>
+    <div class="trust-item">📱 Mobile-first</div>
+    <div class="trust-item">🏆 Gamified</div>
   </div>
 
 </div>
@@ -1188,7 +1188,7 @@
   <div class="app-header">
     <div class="header-brand">Outsmart <span>the System</span></div>
     <div style="display:flex;align-items:center;gap:10px;">
-      <button class="theme-btn" onclick="openThemePicker()">Theme</button>
+      <button class="theme-btn" onclick="openThemePicker()">🎨 Theme</button>
       <div class="header-user">
         <div class="level-badge">Level <strong id="h-level">0</strong></div>
         <div class="avatar" id="h-avatar">?</div>
@@ -1214,28 +1214,28 @@
   <div class="categories-grid">
     <div class="cat-card cat-fin" id="card-fin" onclick="goLogCat('fin')">
       <div class="cat-glow"></div>
-      <div class="cat-icon">FL</div>
+      <div class="cat-icon" aria-hidden="true">💰</div>
       <div class="cat-name">Financial Literacy</div>
       <div class="cat-count" id="count-fin">0 logs</div>
       <div class="cat-check"></div>
     </div>
     <div class="cat-card cat-eq" id="card-eq" onclick="goLogCat('eq')">
       <div class="cat-glow"></div>
-      <div class="cat-icon">EQ</div>
+      <div class="cat-icon" aria-hidden="true">🧠</div>
       <div class="cat-name">Emotional Intel</div>
       <div class="cat-count" id="count-eq">0 logs</div>
       <div class="cat-check"></div>
     </div>
     <div class="cat-card cat-lead" id="card-lead" onclick="goLogCat('lead')">
       <div class="cat-glow"></div>
-      <div class="cat-icon">LD</div>
+      <div class="cat-icon" aria-hidden="true">⚡</div>
       <div class="cat-name">Leadership</div>
       <div class="cat-count" id="count-lead">0 logs</div>
       <div class="cat-check"></div>
     </div>
     <div class="cat-card cat-din" id="card-din" onclick="goLogCat('din')">
       <div class="cat-glow"></div>
-      <div class="cat-icon">DT</div>
+      <div class="cat-icon" aria-hidden="true">🗣️</div>
       <div class="cat-name">Dinner Talk</div>
       <div class="cat-count" id="count-din">0 logs</div>
       <div class="cat-check"></div>
@@ -1399,7 +1399,7 @@
 
   <!-- Welcome / no children state -->
   <div id="parent-no-children" style="display:none;padding:40px 20px;text-align:center;">
-    <div style="font-size:48px;margin-bottom:16px;">Family</div>
+    <div style="font-size:48px;margin-bottom:16px;">👨‍👩‍👧</div>
     <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#f0f8ff;margin-bottom:8px;">No children linked yet</div>
     <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:rgba(255,255,255,0.4);line-height:1.5;max-width:280px;margin:0 auto;">Ask your child to add your email (<strong id="p-account-email" style="color:rgba(167,139,250,0.8);"></strong>) when creating their account.</div>
   </div>
@@ -1422,7 +1422,7 @@
 
   <!-- Rank display -->
   <div id="p-rank-display" style="margin:0 20px 16px;background:rgba(246,201,14,0.06);border:1px solid rgba(246,201,14,0.15);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
-    <div id="p-rank-icon" style="font-size:28px;">Up</div>
+    <div id="p-rank-icon" style="font-size:28px;">🚀</div>
     <div>
       <div id="p-rank-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;color:#f6c90e;"></div>
       <div id="p-rank-desc" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;line-height:1.4;"></div>
@@ -1447,10 +1447,10 @@
 
   <div class="filter-bar" id="parent-filters">
     <div class="filter-chip active" onclick="filterLogs('all', this)">All</div>
-    <div class="filter-chip" onclick="filterLogs('fin', this)">Finance</div>
-    <div class="filter-chip" onclick="filterLogs('eq', this)">Emotional</div>
-    <div class="filter-chip" onclick="filterLogs('lead', this)">Leadership</div>
-    <div class="filter-chip" onclick="filterLogs('din', this)">Dinner Talk</div>
+    <div class="filter-chip" onclick="filterLogs('fin', this)">💰 Finance</div>
+    <div class="filter-chip" onclick="filterLogs('eq', this)">🧠 Emotional</div>
+    <div class="filter-chip" onclick="filterLogs('lead', this)">⚡ Leadership</div>
+    <div class="filter-chip" onclick="filterLogs('din', this)">🗣️ Dinner Talk</div>
   </div>
 
   <div class="log-list" id="parent-logs" style="padding-bottom:40px;"></div>
@@ -1639,7 +1639,7 @@
 <!-- ========== BADGE UNLOCK MODAL ========== -->
 <div class="modal-overlay" id="modal-badge">
   <div class="modal-box">
-    <div class="modal-icon" id="badge-modal-icon">Badge</div>
+    <div class="modal-icon" id="badge-modal-icon">🏅</div>
     <div class="modal-title" style="color:#f6c90e;">Badge Unlocked!</div>
     <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:700;color:#f0f8ff;margin-bottom:8px;" id="badge-modal-name"></div>
     <div class="modal-sub" id="badge-modal-desc"></div>
@@ -1650,7 +1650,7 @@
 <!-- ========== LEVEL UP MODAL ========== -->
 <div class="modal-overlay" id="modal-levelup">
   <div class="modal-box">
-    <div class="modal-icon">Up</div>
+    <div class="modal-icon">🚀</div>
     <div class="modal-title glitch">Level Up!</div>
     <div class="modal-sub" id="levelup-sub">You've logged in all 4 categories. Keep going!</div>
     <button class="modal-close" onclick="closeLevelUp()">Keep Going</button>
@@ -1660,7 +1660,7 @@
 <!-- ========== LOG SUCCESS MODAL ========== -->
 <div class="modal-overlay" id="modal-log-success">
   <div class="modal-box success-log">
-    <div class="modal-icon">OK</div>
+    <div class="modal-icon">✅</div>
     <div class="modal-title">Saved!</div>
     <div class="modal-sub" id="modal-success-text">Entry logged to your Strategy Log.</div>
     <button class="modal-close" onclick="closeLogSuccess()">Continue</button>
@@ -1670,7 +1670,7 @@
 <!-- ========== DELETE CONFIRM MODAL ========== -->
 <div class="modal-overlay" id="modal-delete">
   <div class="modal-box" style="padding:32px 28px;">
-    <div class="modal-icon">Del</div>
+    <div class="modal-icon">🗑️</div>
     <div class="modal-title" style="color:#fc8181;">Delete Entry?</div>
     <div class="modal-sub">This can't be undone. Are you sure you want to remove this entry?</div>
     <div style="display:flex;gap:10px;margin-top:4px;">
@@ -2917,7 +2917,10 @@ function buildAdminUserDetailMarkup() {
                     <div class="admin-activity-title">${escapeHtml(log.title)}</div>
                     <div class="admin-category-pill">${escapeHtml(log.category)}</div>
                   </div>
-                  <div class="admin-activity-meta">${escapeHtml(formatAdminDate(log.created_at))}</div>
+                  <div class="admin-activity-meta">
+                    ${escapeHtml(formatAdminDate(log.created_at))}
+                    ${getStructuredLogValue(log.notes, "Selected Lesson") ? ` • Lesson: ${escapeHtml(getStructuredLogValue(log.notes, "Selected Lesson"))}` : ""}
+                  </div>
                   ${renderStructuredNotesDetails(log.notes, "admin", `admin-${log.id}`)}
                 </div>
               `).join("")
@@ -3181,32 +3184,32 @@ function closeLogSuccess() {
 const BADGE_META = {
   first_log: {
     name: "First Entry",
-    emoji: "Start",
+    emoji: "🌱",
     desc: "Log your first lesson to start building momentum.",
   },
   five_logs: {
     name: "Getting Started",
-    emoji: "Star",
+    emoji: "⭐",
     desc: "Reach five total lesson logs.",
   },
   ten_logs: {
     name: "In the Groove",
-    emoji: "Fire",
+    emoji: "🔥",
     desc: "Reach ten total lesson logs.",
   },
   all_four: {
     name: "All Four Skills",
-    emoji: "Win",
+    emoji: "🏆",
     desc: "Complete at least one lesson in every category.",
   },
   streak_3: {
     name: "3-Day Streak",
-    emoji: "Zap",
+    emoji: "⚡",
     desc: "Log lessons on three consecutive days.",
   },
   level_up: {
     name: "Level Up",
-    emoji: "Up",
+    emoji: "🚀",
     desc: "Complete a full cycle across all four categories.",
   },
 };
@@ -3286,6 +3289,11 @@ function parseStructuredLogNotes(notes) {
   });
 
   return sections.filter((section) => section.value);
+}
+
+function getStructuredLogValue(notes, label) {
+  const section = parseStructuredLogNotes(notes).find((item) => item.label === label);
+  return section?.value || "";
 }
 
 function renderStructuredNotesDetails(notes, mode, itemId) {
@@ -3474,6 +3482,7 @@ async function refreshDashboard() {
           if (c.includes("dinner")) color = "#68d391";
 
           const date = new Date(l.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+          const lessonName = getStructuredLogValue(l.notes, "Selected Lesson");
           return `
             <div class="log-item" style="border-left-color:${color}">
               <div class="log-item-top">
@@ -3481,6 +3490,7 @@ async function refreshDashboard() {
                 <div class="log-date">${date}</div>
               </div>
               <div class="log-intel">${escapeHtml(l.title)}</div>
+              ${lessonName ? `<div class="log-action">Lesson: ${escapeHtml(lessonName)}</div>` : ""}
               ${renderStructuredNotesDetails(l.notes, "student", l.id)}
             </div>
           `;
@@ -3531,7 +3541,7 @@ async function refreshParentPortal() {
     if (noKids) noKids.style.display = "none";
     if (statsRow) statsRow.style.display = "grid";
 
-    // show first childâ€™s summary (simple)
+    // show first child's summary (simple)
     const child = children[0];
     const s = child.stats;
 
@@ -3549,6 +3559,7 @@ async function refreshParentPortal() {
             <div class="log-date">${new Date(l.created_at).toLocaleDateString()}</div>
           </div>
           <div class="log-intel">${escapeHtml(l.title)}</div>
+          ${getStructuredLogValue(l.notes, "Selected Lesson") ? `<div class="log-action">Lesson: ${escapeHtml(getStructuredLogValue(l.notes, "Selected Lesson"))}</div>` : ""}
           ${renderStructuredNotesDetails(l.notes, "student", `parent-${l.id}`)}
         </div>
       `).join("");
