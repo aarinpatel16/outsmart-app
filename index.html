@@ -38,7 +38,7 @@
   .screen { display: none !important; min-height: 100vh; flex-direction: column; }
   .screen.active { display: flex !important; }
 
-  /* ========== LOGIN — WARM FRIENDLY REDESIGN ========== */
+  /* ========== LOGIN â€” WARM FRIENDLY REDESIGN ========== */
   #screen-login {
     flex-direction: column;
     min-height: 100vh;
@@ -684,7 +684,7 @@
   .cat-eq.cleared   .cat-check { background: #b794f4; }
   .cat-lead.cleared .cat-check { background: #fc814a; }
   .cat-din.cleared  .cat-check { background: #68d391; }
-  .cat-card.cleared .cat-check::after { content: '✓'; color: #fff; font-weight: 800; font-size: 11px; font-family: 'Plus Jakarta Sans', sans-serif; }
+  .cat-card.cleared .cat-check::after { content: 'âœ“'; color: #fff; font-weight: 800; font-size: 11px; font-family: 'Plus Jakarta Sans', sans-serif; }
   .cat-card .cat-glow { display: none; }
 
   .cat-fin  { color: #63b3ed; }
@@ -827,6 +827,79 @@
     font-size: 11px; font-weight: 500;
     color: rgba(255,255,255,0.25); margin-top: 7px; line-height: 1.4;
   }
+
+  .log-progress-wrap { margin-bottom: 18px; }
+  .log-progress-top {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 12px; margin-bottom: 10px;
+  }
+  .log-step-kicker {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.16em;
+    text-transform: uppercase; color: #7fb5ec;
+  }
+  .log-step-label {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px; color: #f0f8ff;
+  }
+  .log-progress-track {
+    height: 10px; border-radius: 999px;
+    background: rgba(255,255,255,0.08); overflow: hidden;
+  }
+  .log-progress-fill {
+    height: 100%; width: 20%; border-radius: 999px;
+    background: linear-gradient(90deg, #63b3ed, #90cdf4);
+    transition: width 0.25s ease;
+  }
+  .log-setup-bar {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px; margin-bottom: 18px;
+  }
+  .log-setup-chip {
+    border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03); padding: 14px 16px;
+  }
+  .log-setup-chip span {
+    display: block; font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 6px;
+  }
+  .log-setup-chip strong {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px; color: #f0f8ff;
+  }
+  .log-step { display: none; }
+  .log-step.active { display: block; }
+  .log-step-card {
+    border-radius: 22px; border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(17,28,46,0.72); padding: 20px;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.22);
+  }
+  .log-step-helper {
+    margin-bottom: 10px; font-size: 13px;
+    color: rgba(220,232,245,0.65);
+  }
+  .log-step-textarea {
+    min-height: 164px; font-size: 16px; line-height: 1.7;
+  }
+  .log-finish-note {
+    margin-top: 14px; padding: 12px 14px; border-radius: 14px;
+    background: rgba(104,211,145,0.08); border: 1px solid rgba(104,211,145,0.18);
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px;
+    color: rgba(216,250,227,0.82); line-height: 1.5;
+  }
+  .log-nav {
+    display: flex; gap: 12px; margin-top: 18px;
+  }
+  .log-nav-btn, .log-next-btn, .log-save-btn { flex: 1; }
+  .log-nav-btn {
+    border: 1.5px solid rgba(255,255,255,0.12); border-radius: 14px;
+    background: rgba(255,255,255,0.03); color: rgba(240,248,255,0.82);
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 700;
+    padding: 16px; cursor: pointer;
+  }
+  .log-nav-btn:hover { background: rgba(255,255,255,0.08); }
+  .log-save-btn { display: none; }
 
   .date-display {
     background: rgba(255,255,255,0.04);
@@ -981,9 +1054,9 @@
   <!-- Hero Section -->
   <div class="login-hero">
     <div class="login-icon-row">
-      <div class="login-icon-pill">💰 Finance</div>
-      <div class="login-icon-pill">🧠 Mindset</div>
-      <div class="login-icon-pill">⚡ Leadership</div>
+      <div class="login-icon-pill">ðŸ’° Finance</div>
+      <div class="login-icon-pill">ðŸ§  Mindset</div>
+      <div class="login-icon-pill">âš¡ Leadership</div>
     </div>
 
     <div class="login-wordmark">
@@ -998,7 +1071,7 @@
         <div class="lbl">Skills</div>
       </div>
       <div class="login-stat-chip">
-        <div class="num">∞</div>
+        <div class="num">âˆž</div>
         <div class="lbl">Growth</div>
       </div>
       <div class="login-stat-chip">
@@ -1027,7 +1100,7 @@
         <input class="fl-input" id="si-email" type="email" placeholder="you@email.com" autocomplete="email">
         <label class="fl-label">Password</label>
         <input class="fl-input" id="si-pass" type="password" placeholder="Your password">
-        <button class="fl-btn fl-btn-primary" onclick="signIn()">Sign In →</button>
+        <button class="fl-btn fl-btn-primary" onclick="signIn()">Sign In â†’</button>
         <div class="fl-switch">New here? <a onclick="switchLoginMode('create')">Create your account</a></div>
       </div>
 
@@ -1047,9 +1120,9 @@
 
   <!-- Trust Row -->
   <div class="trust-row">
-    <div class="trust-item">🔒 Private</div>
-    <div class="trust-item">📱 Mobile-first</div>
-    <div class="trust-item">🏆 Gamified</div>
+    <div class="trust-item">ðŸ”’ Private</div>
+    <div class="trust-item">ðŸ“± Mobile-first</div>
+    <div class="trust-item">ðŸ† Gamified</div>
   </div>
 
 </div>
@@ -1062,7 +1135,7 @@
   <div class="app-header">
     <div class="header-brand">Outsmart <span>the System</span></div>
     <div style="display:flex;align-items:center;gap:10px;">
-      <button class="theme-btn" onclick="openThemePicker()">🎨 Theme</button>
+      <button class="theme-btn" onclick="openThemePicker()">ðŸŽ¨ Theme</button>
       <div class="header-user">
         <div class="level-badge">Level <strong id="h-level">0</strong></div>
         <div class="avatar" id="h-avatar">?</div>
@@ -1072,7 +1145,7 @@
 
   <div class="dash-hero">
     <div class="dash-greeting">Good to see you,</div>
-    <div class="dash-name" id="dash-name">—</div>
+    <div class="dash-name" id="dash-name">â€”</div>
     <div id="dash-rank" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:rgba(246,201,14,0.7);margin-bottom:20px;margin-top:-10px;"></div>
     <div class="system-status">
       <div class="status-row">
@@ -1088,28 +1161,28 @@
   <div class="categories-grid">
     <div class="cat-card cat-fin" id="card-fin" onclick="goLogCat('fin')">
       <div class="cat-glow"></div>
-      <div class="cat-icon">💰</div>
+      <div class="cat-icon">ðŸ’°</div>
       <div class="cat-name">Financial Literacy</div>
       <div class="cat-count" id="count-fin">0 logs</div>
       <div class="cat-check"></div>
     </div>
     <div class="cat-card cat-eq" id="card-eq" onclick="goLogCat('eq')">
       <div class="cat-glow"></div>
-      <div class="cat-icon">🧠</div>
+      <div class="cat-icon">ðŸ§ </div>
       <div class="cat-name">Emotional Intel</div>
       <div class="cat-count" id="count-eq">0 logs</div>
       <div class="cat-check"></div>
     </div>
     <div class="cat-card cat-lead" id="card-lead" onclick="goLogCat('lead')">
       <div class="cat-glow"></div>
-      <div class="cat-icon">⚡</div>
+      <div class="cat-icon">âš¡</div>
       <div class="cat-name">Leadership</div>
       <div class="cat-count" id="count-lead">0 logs</div>
       <div class="cat-check"></div>
     </div>
     <div class="cat-card cat-din" id="card-din" onclick="goLogCat('din')">
       <div class="cat-glow"></div>
-      <div class="cat-icon">🗣️</div>
+      <div class="cat-icon">ðŸ—£ï¸</div>
       <div class="cat-name">Dinner Talk</div>
       <div class="cat-count" id="count-din">0 logs</div>
       <div class="cat-check"></div>
@@ -1118,7 +1191,7 @@
 
   <div class="log-btn-wrap">
     <button class="btn-log" onclick="showScreen('screen-log')">
-      ✏️ Log a New Lesson
+      âœï¸ Log a New Lesson
     </button>
   </div>
 
@@ -1128,7 +1201,7 @@
   </div>
   <div class="log-list" id="recent-logs">
     <div class="empty-state">
-      <div class="icon">📂</div>
+      <div class="icon">ðŸ“‚</div>
       <p>Nothing here yet.</p>
       <p style="margin-top:8px;font-size:9px;">Tap the button below to add your first entry.</p>
     </div>
@@ -1140,7 +1213,7 @@
 <div class="screen" id="screen-log">
   <div class="app-header">
     <div onclick="showScreen('screen-dashboard')" style="cursor:pointer;display:flex;align-items:center;gap:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,0.5);">
-      ← Back
+      ? Back
     </div>
     <div class="header-brand">Outsmart <span>the System</span></div>
     <div style="width:60px"></div>
@@ -1152,58 +1225,107 @@
   </div>
 
   <div class="form-body">
-    <div class="form-group">
-      <div class="field-label">Choose a Category</div>
-      <div class="cat-picker">
-        <div class="cat-option cat-fin" id="opt-fin" onclick="selectCat('fin')">
-          <span class="cat-option-icon">💰</span>
-          <span class="cat-option-text">Financial</span>
+    <div class="log-progress-wrap">
+      <div class="log-progress-top">
+        <div class="log-step-kicker" id="log-step-kicker">Step 1 of 5</div>
+        <div class="log-step-label" id="log-step-label">The Lesson</div>
+      </div>
+      <div class="log-progress-track">
+        <div class="log-progress-fill" id="log-progress-fill"></div>
+      </div>
+    </div>
+
+    <div class="log-setup-bar">
+      <div class="log-setup-chip">
+        <span>Today</span>
+        <strong id="form-date">—</strong>
+      </div>
+      <div class="log-setup-chip">
+        <span>Selected Lesson</span>
+        <strong id="log-selected-lesson">None yet</strong>
+      </div>
+    </div>
+
+    <div class="log-step active" id="log-step-1">
+      <div class="log-step-card">
+        <div class="form-group">
+          <div class="field-label">Choose a Category</div>
+          <div class="cat-picker">
+            <div class="cat-option cat-fin" id="opt-fin" onclick="selectCat('fin')">
+              <span class="cat-option-icon">??</span>
+              <span class="cat-option-text">Financial</span>
+            </div>
+            <div class="cat-option cat-eq" id="opt-eq" onclick="selectCat('eq')">
+              <span class="cat-option-icon">??</span>
+              <span class="cat-option-text">Emotional</span>
+            </div>
+            <div class="cat-option cat-lead" id="opt-lead" onclick="selectCat('lead')">
+              <span class="cat-option-icon">?</span>
+              <span class="cat-option-text">Leadership</span>
+            </div>
+            <div class="cat-option cat-din" id="opt-din" onclick="selectCat('din')">
+              <span class="cat-option-icon">???</span>
+              <span class="cat-option-text">Dinner Talk</span>
+            </div>
+          </div>
         </div>
-        <div class="cat-option cat-eq" id="opt-eq" onclick="selectCat('eq')">
-          <span class="cat-option-icon">🧠</span>
-          <span class="cat-option-text">Emotional</span>
+
+        <div class="form-group">
+          <div class="field-label">Choose a Lesson</div>
+          <select class="fl-input" id="form-lesson" disabled onchange="updateSelectedLessonLabel()">
+            <option value="">Pick a category first</option>
+          </select>
+          <div class="field-hint">Pick the lesson first, then answer one question at a time.</div>
         </div>
-        <div class="cat-option cat-lead" id="opt-lead" onclick="selectCat('lead')">
-          <span class="cat-option-icon">⚡</span>
-          <span class="cat-option-text">Leadership</span>
-        </div>
-        <div class="cat-option cat-din" id="opt-din" onclick="selectCat('din')">
-          <span class="cat-option-icon">🗣️</span>
-          <span class="cat-option-text">Dinner Talk</span>
+
+        <div class="form-group">
+          <div class="field-label">The Lesson</div>
+          <div class="field-hint log-step-helper">What new thing did you learn?</div>
+          <textarea class="field-textarea log-step-textarea" id="form-step-lesson" rows="5" placeholder="Tell us the new idea in your own words..."></textarea>
         </div>
       </div>
     </div>
 
-    <div class="form-group">
-      <div class="field-label">Date</div>
-      <div class="date-display" id="form-date">—</div>
+    <div class="log-step" id="log-step-2">
+      <div class="log-step-card">
+        <div class="field-label">My Thoughts</div>
+        <div class="field-hint log-step-helper">Why is this a good thing to know?</div>
+        <textarea class="field-textarea log-step-textarea" id="form-step-thoughts" rows="6" placeholder="Why do you think this matters?"></textarea>
+      </div>
     </div>
 
-    <div class="form-group">
-      <div class="field-label">Choose a Lesson</div>
-      <select class="fl-input" id="form-lesson" disabled>
-        <option value="">Pick a category first</option>
-      </select>
-      <div class="field-hint">Lessons are filtered by the category you choose above.</div>
+    <div class="log-step" id="log-step-3">
+      <div class="log-step-card">
+        <div class="field-label">The Action</div>
+        <div class="field-hint log-step-helper">How did you try this out in real life?</div>
+        <textarea class="field-textarea log-step-textarea" id="form-step-action" rows="6" placeholder="What did you actually do?"></textarea>
+      </div>
     </div>
 
-    <div class="form-group">
-      <div class="field-label">What did you learn?</div>
-      <textarea class="field-textarea" id="form-intel" rows="4" placeholder="Drop the knowledge bomb here..."></textarea>
+    <div class="log-step" id="log-step-4">
+      <div class="log-step-card">
+        <div class="field-label">The Result</div>
+        <div class="field-hint log-step-helper">How did it go? Did it work?</div>
+        <textarea class="field-textarea log-step-textarea" id="form-step-result" rows="6" placeholder="Tell us what happened next."></textarea>
+      </div>
     </div>
 
-    <div class="form-group">
-      <div class="field-label">How did you apply it?</div>
-      <textarea class="field-textarea" id="form-action" rows="4" placeholder="How did you actually use this in real life?"></textarea>
-      <div class="field-hint">This is the most important field — describe real-life application.</div>
+    <div class="log-step" id="log-step-5">
+      <div class="log-step-card">
+        <div class="field-label">The Future</div>
+        <div class="field-hint log-step-helper">What is your next move?</div>
+        <textarea class="field-textarea log-step-textarea" id="form-step-future" rows="6" placeholder="What will you do next time?"></textarea>
+        <div class="log-finish-note">You're on the final step. Save your full entry when you're ready.</div>
+      </div>
     </div>
 
-    <button class="btn-primary" style="font-size:22px;letter-spacing:3px;padding:18px;" onclick="submitLog()">
-      Save Entry
-    </button>
+    <div class="log-nav">
+      <button class="log-nav-btn" id="log-back-btn" onclick="prevLogStep()">Back</button>
+      <button class="btn-primary log-next-btn" id="log-next-btn" onclick="nextLogStep()">Next</button>
+      <button class="btn-primary log-save-btn" id="log-save-btn" onclick="submitLog()">Save Entry</button>
+    </div>
   </div>
 </div>
-
 <!-- ========== SCREEN: PARENT PORTAL ========== -->
 <div class="screen" id="screen-parent">
   <div class="app-header">
@@ -1224,7 +1346,7 @@
 
   <!-- Welcome / no children state -->
   <div id="parent-no-children" style="display:none;padding:40px 20px;text-align:center;">
-    <div style="font-size:48px;margin-bottom:16px;">👨‍👩‍👧</div>
+    <div style="font-size:48px;margin-bottom:16px;">ðŸ‘¨â€ðŸ‘©â€ðŸ‘§</div>
     <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#f0f8ff;margin-bottom:8px;">No children linked yet</div>
     <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:rgba(255,255,255,0.4);line-height:1.5;max-width:280px;margin:0 auto;">Ask your child to add your email (<strong id="p-account-email" style="color:rgba(167,139,250,0.8);"></strong>) when creating their account.</div>
   </div>
@@ -1247,7 +1369,7 @@
 
   <!-- Rank display -->
   <div id="p-rank-display" style="margin:0 20px 16px;background:rgba(246,201,14,0.06);border:1px solid rgba(246,201,14,0.15);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
-    <div id="p-rank-icon" style="font-size:28px;">🌱</div>
+    <div id="p-rank-icon" style="font-size:28px;">ðŸŒ±</div>
     <div>
       <div id="p-rank-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;color:#f6c90e;"></div>
       <div id="p-rank-desc" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;line-height:1.4;"></div>
@@ -1267,15 +1389,15 @@
 
   <!-- Manage mode info banner -->
   <div id="parent-manage-banner" style="display:none;margin:0 20px 12px;background:rgba(252,129,129,0.08);border:1px solid rgba(252,129,129,0.2);border-radius:12px;padding:11px 14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;color:rgba(252,129,129,0.8);line-height:1.4;">
-    🛡️ <strong>Manage mode on.</strong> You can delete entries. This action is permanent.
+    ðŸ›¡ï¸ <strong>Manage mode on.</strong> You can delete entries. This action is permanent.
   </div>
 
   <div class="filter-bar" id="parent-filters">
     <div class="filter-chip active" onclick="filterLogs('all', this)">All</div>
-    <div class="filter-chip" onclick="filterLogs('fin', this)">💰 Finance</div>
-    <div class="filter-chip" onclick="filterLogs('eq', this)">🧠 Emotional</div>
-    <div class="filter-chip" onclick="filterLogs('lead', this)">⚡ Leadership</div>
-    <div class="filter-chip" onclick="filterLogs('din', this)">🗣️ Dinner Talk</div>
+    <div class="filter-chip" onclick="filterLogs('fin', this)">ðŸ’° Finance</div>
+    <div class="filter-chip" onclick="filterLogs('eq', this)">ðŸ§  Emotional</div>
+    <div class="filter-chip" onclick="filterLogs('lead', this)">âš¡ Leadership</div>
+    <div class="filter-chip" onclick="filterLogs('din', this)">ðŸ—£ï¸ Dinner Talk</div>
   </div>
 
   <div class="log-list" id="parent-logs" style="padding-bottom:40px;"></div>
@@ -1310,7 +1432,7 @@
         <h2>Control Center</h2>
         <p>Monitor account activity, review user records, and manage lesson content from one place.</p>
       </div>
-      <div class="admin-status-badge" id="admin-status-badge">Checking system status…</div>
+      <div class="admin-status-badge" id="admin-status-badge">Checking system statusâ€¦</div>
     </div>
 
     <div class="admin-summary-grid">
@@ -1464,18 +1586,18 @@
 <!-- ========== BADGE UNLOCK MODAL ========== -->
 <div class="modal-overlay" id="modal-badge">
   <div class="modal-box">
-    <div class="modal-icon" id="badge-modal-icon">🏅</div>
+    <div class="modal-icon" id="badge-modal-icon">ðŸ…</div>
     <div class="modal-title" style="color:#f6c90e;">Badge Unlocked!</div>
     <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:700;color:#f0f8ff;margin-bottom:8px;" id="badge-modal-name"></div>
     <div class="modal-sub" id="badge-modal-desc"></div>
-    <button class="modal-close" style="background:linear-gradient(135deg,#b7791f,#f6c90e);color:#000;" onclick="closeBadgeModal()">Claim It 🎉</button>
+    <button class="modal-close" style="background:linear-gradient(135deg,#b7791f,#f6c90e);color:#000;" onclick="closeBadgeModal()">Claim It ðŸŽ‰</button>
   </div>
 </div>
 
 <!-- ========== LEVEL UP MODAL ========== -->
 <div class="modal-overlay" id="modal-levelup">
   <div class="modal-box">
-    <div class="modal-icon">🏆</div>
+    <div class="modal-icon">ðŸ†</div>
     <div class="modal-title glitch">Level Up!</div>
     <div class="modal-sub" id="levelup-sub">You've logged in all 4 categories. Keep going!</div>
     <button class="modal-close" onclick="closeLevelUp()">Keep Going</button>
@@ -1485,7 +1607,7 @@
 <!-- ========== LOG SUCCESS MODAL ========== -->
 <div class="modal-overlay" id="modal-log-success">
   <div class="modal-box success-log">
-    <div class="modal-icon">✅</div>
+    <div class="modal-icon">âœ…</div>
     <div class="modal-title">Saved!</div>
     <div class="modal-sub" id="modal-success-text">Entry logged to your Strategy Log.</div>
     <button class="modal-close" onclick="closeLogSuccess()">Continue</button>
@@ -1495,7 +1617,7 @@
 <!-- ========== DELETE CONFIRM MODAL ========== -->
 <div class="modal-overlay" id="modal-delete">
   <div class="modal-box" style="padding:32px 28px;">
-    <div class="modal-icon">🗑️</div>
+    <div class="modal-icon">ðŸ—‘ï¸</div>
     <div class="modal-title" style="color:#fc8181;">Delete Entry?</div>
     <div class="modal-sub">This can't be undone. Are you sure you want to remove this entry?</div>
     <div style="display:flex;gap:10px;margin-top:4px;">
@@ -2060,6 +2182,10 @@
     .admin-search {
       width: 100%;
     }
+    .log-setup-bar, .log-nav {
+      grid-template-columns: 1fr;
+      flex-direction: column;
+    }
   }
 </style>
 
@@ -2168,6 +2294,15 @@ let adminLinks = [];
 let selectedAdminUserId = null;
 let activeAdminTab = "overview";
 let availableLessons = [];
+let currentLogStep = 0;
+
+const LOG_STEPS = [
+  { key: "lesson", label: "The Lesson", helper: "What new thing did you learn?" },
+  { key: "thoughts", label: "My Thoughts", helper: "Why is this a good thing to know?" },
+  { key: "action", label: "The Action", helper: "How did you try this out in real life?" },
+  { key: "result", label: "The Result", helper: "How did it go? Did it work?" },
+  { key: "future", label: "The Future", helper: "What is your next move?" },
+];
 
 // ============================================================
 // UI HELPERS
@@ -2205,6 +2340,8 @@ function showScreen(screenId) {
     setFormDateToday();
     loadAvailableLessons();
     renderLessonOptions();
+    setLogStep(Math.min(currentLogStep, LOG_STEPS.length - 1));
+    updateSelectedLessonLabel();
   }
   if (screenId === "screen-badges") {
     renderBadges();
@@ -2353,7 +2490,7 @@ async function createParentAccount() {
 
     // Your HTML does NOT include childEmail field, but backend needs it.
     // We'll ask once via a simple prompt.
-    const childEmail = prompt("Enter your child’s STUDENT email (the email they used to register):");
+    const childEmail = prompt("Enter your childâ€™s STUDENT email (the email they used to register):");
     if (!childEmail) return showToast("Parent account requires child email to link.");
 
     const { token, user } = await API.parentRegister(name, email, password, childEmail);
@@ -2525,7 +2662,7 @@ function renderAdminOverview() {
     const categoryInsight = Object.entries(categoryTotals)
       .sort((a, b) => b[1] - a[1])
       .map(([name, count]) => `${name}: ${count}`)
-      .join(" • ");
+      .join(" â€¢ ");
 
     insightsEl.innerHTML = [
       {
@@ -2919,6 +3056,7 @@ function renderLessonOptions() {
   if (!selectedCatKey) {
     select.disabled = true;
     select.innerHTML = `<option value="">Pick a category first</option>`;
+    updateSelectedLessonLabel();
     return;
   }
 
@@ -2927,6 +3065,7 @@ function renderLessonOptions() {
 
   if (!filtered.length) {
     select.innerHTML = `<option value="">No lessons available for this category</option>`;
+    updateSelectedLessonLabel();
     return;
   }
 
@@ -2939,32 +3078,39 @@ function renderLessonOptions() {
   if (filtered.some((lesson) => String(lesson.id) === currentValue)) {
     select.value = currentValue;
   }
+  updateSelectedLessonLabel();
+}
+
+function updateSelectedLessonLabel() {
+  const selectedLessonId = $("form-lesson")?.value?.trim();
+  const selectedLesson = availableLessons.find((lesson) => String(lesson.id) === selectedLessonId);
+  setText("log-selected-lesson", selectedLesson?.name || "None yet");
 }
 
 async function submitLog() {
   try {
     if (!currentUser || currentUser.role !== "student") return showToast("Sign in as a student first.");
-
-    if (!selectedCatKey) return showToast("Pick a category first.");
+    if (!validateLogStep(LOG_STEPS.length - 1)) return;
 
     const selectedLessonId = $("form-lesson")?.value?.trim();
     const selectedLesson = availableLessons.find((lesson) => String(lesson.id) === selectedLessonId);
-    const title = $("form-intel")?.value?.trim() || selectedLesson?.name || "";   // "What did you learn?"
-    const notes = $("form-action")?.value?.trim();  // "How did you apply it?"
+    const title = $("form-step-lesson")?.value?.trim() || "";
+    const notes = [
+      `Selected Lesson: ${selectedLesson?.name || "Unknown"}`,
+      "",
+      `My Thoughts: ${$("form-step-thoughts")?.value?.trim() || ""}`,
+      "",
+      `The Action: ${$("form-step-action")?.value?.trim() || ""}`,
+      "",
+      `The Result: ${$("form-step-result")?.value?.trim() || ""}`,
+      "",
+      `The Future: ${$("form-step-future")?.value?.trim() || ""}`,
+    ].join("\n");
 
-    if (!selectedLessonId) return showToast("Choose a lesson first.");
-    if (!title) return showToast("Write what you learned.");
-
-    const { log, stats } = await API.submitLog(categoryKeyToValue(selectedCatKey), title, notes || "", Number(selectedLessonId));
+    const { log, stats } = await API.submitLog(categoryKeyToValue(selectedCatKey), title, notes, Number(selectedLessonId));
     currentStats = stats;
 
-    // clear form
-    $("form-lesson").value = "";
-    $("form-intel").value = "";
-    $("form-action").value = "";
-    selectedCatKey = null;
-    ["fin","eq","lead","din"].forEach(k => $(`opt-${k}`)?.classList.remove("selected"));
-    renderLessonOptions();
+    resetLogForm();
 
     // show success modal + refresh dashboard
     openModal("modal-log-success");
@@ -2982,32 +3128,32 @@ function closeLogSuccess() {
 const BADGE_META = {
   first_log: {
     name: "First Entry",
-    emoji: "🌱",
+    emoji: "ðŸŒ±",
     desc: "Log your first lesson to start building momentum.",
   },
   five_logs: {
     name: "Getting Started",
-    emoji: "⭐",
+    emoji: "â­",
     desc: "Reach five total lesson logs.",
   },
   ten_logs: {
     name: "In the Groove",
-    emoji: "🔥",
+    emoji: "ðŸ”¥",
     desc: "Reach ten total lesson logs.",
   },
   all_four: {
     name: "All Four Skills",
-    emoji: "🏆",
+    emoji: "ðŸ†",
     desc: "Complete at least one lesson in every category.",
   },
   streak_3: {
     name: "3-Day Streak",
-    emoji: "⚡",
+    emoji: "âš¡",
     desc: "Log lessons on three consecutive days.",
   },
   level_up: {
     name: "Level Up",
-    emoji: "🚀",
+    emoji: "ðŸš€",
     desc: "Complete a full cycle across all four categories.",
   },
 };
@@ -3044,6 +3190,85 @@ function setText(id, value) {
   if (el) el.textContent = String(value ?? "");
 }
 
+function getLogFieldId(stepIndex) {
+  return `form-step-${LOG_STEPS[stepIndex].key}`;
+}
+
+function getCurrentLogValue(stepIndex) {
+  return $(getLogFieldId(stepIndex))?.value?.trim() || "";
+}
+
+function updateLogProgressUi() {
+  const current = LOG_STEPS[currentLogStep];
+  setText("log-step-kicker", `Step ${currentLogStep + 1} of ${LOG_STEPS.length}`);
+  setText("log-step-label", current.label);
+
+  const fill = $("log-progress-fill");
+  if (fill) {
+    fill.style.width = `${((currentLogStep + 1) / LOG_STEPS.length) * 100}%`;
+  }
+
+  LOG_STEPS.forEach((_, idx) => {
+    $(`log-step-${idx + 1}`)?.classList.toggle("active", idx === currentLogStep);
+  });
+
+  const backBtn = $("log-back-btn");
+  const nextBtn = $("log-next-btn");
+  const saveBtn = $("log-save-btn");
+
+  if (backBtn) backBtn.style.display = currentLogStep === 0 ? "none" : "block";
+  if (nextBtn) nextBtn.style.display = currentLogStep === LOG_STEPS.length - 1 ? "none" : "block";
+  if (saveBtn) saveBtn.style.display = currentLogStep === LOG_STEPS.length - 1 ? "block" : "none";
+}
+
+function setLogStep(stepIndex) {
+  currentLogStep = Math.max(0, Math.min(stepIndex, LOG_STEPS.length - 1));
+  updateLogProgressUi();
+}
+
+function validateLogStep(stepIndex = currentLogStep) {
+  if (stepIndex === 0) {
+    if (!selectedCatKey) {
+      showToast("Pick a category first.");
+      return false;
+    }
+    if (!$("form-lesson")?.value?.trim()) {
+      showToast("Choose a lesson first.");
+      return false;
+    }
+  }
+
+  if (!getCurrentLogValue(stepIndex)) {
+    showToast(LOG_STEPS[stepIndex].helper);
+    return false;
+  }
+
+  return true;
+}
+
+function nextLogStep() {
+  if (!validateLogStep()) return;
+  setLogStep(currentLogStep + 1);
+}
+
+function prevLogStep() {
+  setLogStep(currentLogStep - 1);
+}
+
+function resetLogForm() {
+  $("form-lesson").value = "";
+  $("form-step-lesson").value = "";
+  $("form-step-thoughts").value = "";
+  $("form-step-action").value = "";
+  $("form-step-result").value = "";
+  $("form-step-future").value = "";
+  selectedCatKey = null;
+  ["fin", "eq", "lead", "din"].forEach((k) => $(`opt-${k}`)?.classList.remove("selected"));
+  renderLessonOptions();
+  updateSelectedLessonLabel();
+  setLogStep(0);
+}
+
 function switchAdminTab(tab) {
   activeAdminTab = tab;
   ["overview", "users", "lessons"].forEach((name) => {
@@ -3076,7 +3301,7 @@ async function refreshDashboard() {
     currentStats = stats;
 
     // header
-    setText("dash-name", currentUser.name || "—");
+    setText("dash-name", currentUser.name || "â€”");
     setText("h-level", stats.level || 1);
     setText("h-avatar", initials(currentUser.name));
 
@@ -3115,7 +3340,7 @@ async function refreshDashboard() {
       if (!total) {
         list.innerHTML = `
           <div class="empty-state">
-            <div class="icon">📂</div>
+            <div class="icon">ðŸ“‚</div>
             <p>Nothing here yet.</p>
             <p style="margin-top:8px;font-size:9px;">Tap the button below to add your first entry.</p>
           </div>`;
@@ -3186,7 +3411,7 @@ async function refreshParentPortal() {
     if (noKids) noKids.style.display = "none";
     if (statsRow) statsRow.style.display = "grid";
 
-    // show first child’s summary (simple)
+    // show first childâ€™s summary (simple)
     const child = children[0];
     const s = child.stats;
 
@@ -3225,3 +3450,4 @@ setFormDateToday();
 </script>
 </body>
 </html>
+
