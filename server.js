@@ -30,7 +30,18 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-async function ensureLessonsTable() {
+async function ensureDatabaseSchema() {
+  await pool.query(`
+    ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS approved BOOLEAN NOT NULL DEFAULT FALSE
+  `);
+
+  await pool.query(`
+    UPDATE users
+    SET approved = TRUE
+    WHERE role = 'admin'
+  `);
+
   await pool.query(`
     CREATE TABLE IF NOT EXISTS lessons (
       id SERIAL PRIMARY KEY,
@@ -53,9 +64,9 @@ app.use((req, res, next) => {
   next();
 });
 
-ensureLessonsTable()
-  .then(() => console.log("[INIT] lessons table ready"))
-  .catch((err) => console.error("[INIT] failed to ensure lessons table", err));
+ensureDatabaseSchema()
+  .then(() => console.log("[INIT] database schema ready"))
+  .catch((err) => console.error("[INIT] failed to ensure database schema", err));
 
 // -------------------- CATEGORY NORMALIZATION --------------------
 // Your frontend sends: fin | eq | lead | din
@@ -284,9 +295,9 @@ app.post("/auth/student/register", async (req, res, next) => {
     const hash = await bcrypt.hash(password, 10);
 
     const { rows } = await pool.query(
-      `INSERT INTO users (name, email, password_hash, role)
-       VALUES ($1, $2, $3, 'student')
-       RETURNING id, name, email, role, theme`,
+      `INSERT INTO users (name, email, password_hash, role, approved)
+       VALUES ($1, $2, $3, 'student', FALSE)
+       RETURNING id, name, email, role, theme, approved`,
       [name.trim(), email.trim().toLowerCase(), hash]
     );
 
@@ -305,10 +316,11 @@ app.post("/auth/student/register", async (req, res, next) => {
       }
     }
 
-    const token = signToken(user);
-    const stats = await computeStats(user.id);
-
-    res.status(201).json({ token, user, stats });
+    res.status(201).json({
+      user,
+      requiresApproval: true,
+      message: "Account created. The owner must approve access before this account can sign in.",
+    });
   } catch (e) {
     // handle duplicate email
     if (String(e.message || "").toLowerCase().includes("duplicate")) {
@@ -338,9 +350,9 @@ app.post("/auth/parent/register", async (req, res, next) => {
     const hash = await bcrypt.hash(password, 10);
 
     const { rows } = await pool.query(
-      `INSERT INTO users (name, email, password_hash, role)
-       VALUES ($1, $2, $3, 'parent')
-       RETURNING id, name, email, role`,
+      `INSERT INTO users (name, email, password_hash, role, approved)
+       VALUES ($1, $2, $3, 'parent', FALSE)
+       RETURNING id, name, email, role, approved`,
       [name.trim(), email.trim().toLowerCase(), hash]
     );
 
@@ -354,8 +366,11 @@ app.post("/auth/parent/register", async (req, res, next) => {
       [parent.id, child.rows[0].id]
     );
 
-    const token = signToken(parent);
-    res.status(201).json({ token, user: parent });
+    res.status(201).json({
+      user: parent,
+      requiresApproval: true,
+      message: "Parent account created. The owner must approve access before this account can sign in.",
+    });
   } catch (e) {
     if (String(e.message || "").toLowerCase().includes("duplicate")) {
       return res.status(400).json({ error: "Email already exists" });
@@ -371,7 +386,7 @@ app.post("/auth/login", async (req, res, next) => {
     if (!email || !password) return res.status(400).json({ error: "email and password required" });
 
     const { rows } = await pool.query(
-      `SELECT id, name, email, role, theme, password_hash
+      `SELECT id, name, email, role, theme, approved, password_hash
        FROM users
        WHERE LOWER(email) = LOWER($1)`,
       [String(email).trim()]
@@ -383,7 +398,11 @@ app.post("/auth/login", async (req, res, next) => {
     const ok = await bcrypt.compare(password, u.password_hash);
     if (!ok) return res.status(401).json({ error: "Invalid credentials" });
 
-    const user = { id: u.id, name: u.name, email: u.email, role: u.role, theme: u.theme };
+    if (u.role !== "admin" && !u.approved) {
+      return res.status(403).json({ error: "This account is waiting for owner approval before it can access the app." });
+    }
+
+    const user = { id: u.id, name: u.name, email: u.email, role: u.role, theme: u.theme, approved: u.approved };
     const token = signToken(user);
 
     let stats = null;
@@ -399,7 +418,7 @@ app.post("/auth/login", async (req, res, next) => {
 app.get("/me", auth, async (req, res, next) => {
   try {
     const { rows } = await pool.query(
-      `SELECT id, name, email, role, theme FROM users WHERE id = $1`,
+      `SELECT id, name, email, role, theme, approved FROM users WHERE id = $1`,
       [req.user.id]
     );
     const user = rows[0];
@@ -493,6 +512,7 @@ app.get("/admin/users", auth, adminOnly, async (req, res, next) => {
          u.name,
          u.email,
          u.role,
+         u.approved,
          u.theme,
          u.created_at,
          COUNT(ll.id)::int AS total_logs,
@@ -579,6 +599,34 @@ app.get("/admin/users", auth, adminOnly, async (req, res, next) => {
       categoryBreakdown: categoryBreakdownResult.rows,
       lessonBreakdown: lessonBreakdownResult.rows,
     });
+  } catch (e) {
+    next(e);
+  }
+});
+
+app.post("/admin/users/:id/access", auth, adminOnly, async (req, res, next) => {
+  try {
+    const userId = Number(req.params.id);
+    const approved = Boolean(req.body?.approved);
+
+    if (!userId) {
+      return res.status(400).json({ error: "A valid user id is required." });
+    }
+
+    const { rows } = await pool.query(
+      `UPDATE users
+       SET approved = $1
+       WHERE id = $2
+         AND role <> 'admin'
+       RETURNING id, name, email, role, approved`,
+      [approved, userId]
+    );
+
+    if (!rows[0]) {
+      return res.status(404).json({ error: "User not found or cannot be updated." });
+    }
+
+    res.json({ user: rows[0] });
   } catch (e) {
     next(e);
   }

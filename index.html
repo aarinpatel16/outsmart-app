@@ -1556,7 +1556,7 @@
 
         <div class="trust-row">
           <div class="trust-item">Student-safe</div>
-          <div class="trust-item">Built for mobile</div>
+          <div class="trust-item">Private access</div>
           <div class="trust-item">Progress driven</div>
         </div>
       </div>
@@ -2911,6 +2911,10 @@ const API = {
     return this._get("/admin/users");
   },
 
+  setUserAccess(userId, approved) {
+    return this._post(`/admin/users/${userId}/access`, { approved });
+  },
+
   createAdminLesson(name, category) {
     return this._post("/admin/lessons", { name, category });
   },
@@ -3095,15 +3099,14 @@ async function createAccount() {
 
     if (!name || !email || !password) return showToast("Enter your first and last name, email, and password.");
 
-    const { token, user, stats } = await API.studentRegister(name, email, password, parentEmail);
-    API._token = token;
-    sessionStorage.setItem("ots_token", token);
+    await API.studentRegister(name, email, password, parentEmail);
 
-    currentUser = user;
-    currentStats = stats;
+    if ($("ca-name")) $("ca-name").value = "";
+    if ($("ca-email")) $("ca-email").value = "";
+    if ($("ca-pass")) $("ca-pass").value = "";
 
-    showToast("Account created!");
-    showScreen("screen-dashboard");
+    switchLoginMode("signin");
+    showToast("Account created. It will unlock after the owner approves access.");
   } catch (e) {
     showToast(e.message);
   }
@@ -3150,16 +3153,14 @@ async function createParentAccount() {
     const childEmail = prompt("Enter your child's STUDENT email (the email they used to register):");
     if (!childEmail) return showToast("Parent account requires child email to link.");
 
-    const { token, user } = await API.parentRegister(name, email, password, childEmail);
+    await API.parentRegister(name, email, password, childEmail);
 
-    API._token = token;
-    sessionStorage.setItem("ots_token", token);
+    if ($("pc-name")) $("pc-name").value = "";
+    if ($("pc-email")) $("pc-email").value = "";
+    if ($("pc-pass")) $("pc-pass").value = "";
 
-    currentUser = user;
-    currentStats = null;
-
-    showToast("Parent account created!");
-    showScreen("screen-parent");
+    switchParentMode("parent-signin");
+    showToast("Parent account created. It will unlock after the owner approves access.");
   } catch (e) {
     showToast(e.message);
   }
@@ -3204,6 +3205,10 @@ function formatAdminDate(value, fallback = "No activity yet") {
 
 function adminRoleClass(role) {
   return role === "admin" ? "admin" : role === "parent" ? "parent" : "student";
+}
+
+function adminAccessLabel(user) {
+  return user?.approved ? "Approved" : "Pending";
 }
 
 function getLinkedRecordsForUser(user) {
@@ -3477,8 +3482,8 @@ function renderAdminUsersInto(listId, detailId) {
   if (!list || !detail) return;
 
   const query = getAdminSearchQuery();
-  const studentUsers = adminUsers.filter((user) => user.role === "student");
-  const filtered = studentUsers.filter((user) => {
+  const visibleUsers = adminUsers.filter((user) => user.role !== "admin");
+  const filtered = visibleUsers.filter((user) => {
     if (!query) return true;
     return [user.name, user.email, user.role].some((value) =>
       String(value || "").toLowerCase().includes(query)
@@ -3486,13 +3491,13 @@ function renderAdminUsersInto(listId, detailId) {
   });
 
   if (!filtered.length) {
-    list.innerHTML = `<div class="admin-empty-state">No student accounts matched that search.</div>`;
-    if (!studentUsers.some((user) => Number(user.id) === Number(selectedAdminUserId))) {
+    list.innerHTML = `<div class="admin-empty-state">No accounts matched that search.</div>`;
+    if (!visibleUsers.some((user) => Number(user.id) === Number(selectedAdminUserId))) {
       detail.innerHTML = `
         <div class="admin-detail-empty">
           <div>
-            <h4>No matching student</h4>
-            <p>Try a different search to review student details and recent activity.</p>
+            <h4>No matching account</h4>
+            <p>Try a different search to review account access, details, and recent activity.</p>
           </div>
         </div>
       `;
@@ -3510,6 +3515,7 @@ function renderAdminUsersInto(listId, detailId) {
         <div>
           <div class="admin-user-name">${escapeHtml(user.name)}</div>
           <div class="admin-user-email">${escapeHtml(user.email)}</div>
+          <div class="admin-user-email">Access: ${escapeHtml(adminAccessLabel(user))}</div>
         </div>
         <div class="admin-role-pill ${adminRoleClass(user.role)}">${escapeHtml(user.role)}</div>
       </div>
@@ -3555,11 +3561,17 @@ function buildAdminUserDetailMarkup() {
           <div class="admin-user-email">${escapeHtml(user.email)}</div>
           <div class="admin-detail-meta">
             <div class="admin-chip">Role: ${escapeHtml(user.role)}</div>
+            <div class="admin-chip">Access: ${escapeHtml(adminAccessLabel(user))}</div>
             <div class="admin-chip">Joined: ${escapeHtml(formatAdminDate(user.created_at, "Unknown"))}</div>
             <div class="admin-chip">Theme: ${escapeHtml(user.theme || "Default")}</div>
           </div>
         </div>
-        <div class="admin-role-pill ${adminRoleClass(user.role)}">${escapeHtml(user.role)}</div>
+        <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end;">
+          <div class="admin-role-pill ${adminRoleClass(user.role)}">${escapeHtml(user.role)}</div>
+          <button class="admin-secondary-btn" onclick="toggleUserAccess(${Number(user.id)}, ${user.approved ? "false" : "true"})">
+            ${user.approved ? "Revoke Access" : "Approve Access"}
+          </button>
+        </div>
       </div>
 
       <div class="admin-detail-metrics">
@@ -3623,6 +3635,16 @@ function renderAdminUserDetail() {
 function renderAdminUsers() {
   renderAdminUsersInto("admin-users-list-users", "admin-user-detail-users");
   renderAdminUserDetail();
+}
+
+async function toggleUserAccess(userId, approved) {
+  try {
+    await API.setUserAccess(Number(userId), Boolean(approved));
+    showToast(approved ? "Access approved." : "Access revoked.");
+    await loadAdminDashboard();
+  } catch (e) {
+    showToast(e.message);
+  }
 }
 
 function selectAdminUser(userId) {
