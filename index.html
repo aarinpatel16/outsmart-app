@@ -535,6 +535,27 @@
   .header-brand span { color: #63b3ed; font-style: italic; }
 
   .header-user { display: flex; align-items: center; gap: 10px; }
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header-action-btn {
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.03);
+    color: rgba(240,248,255,0.82);
+    border-radius: 999px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 0.2s ease;
+  }
+  .header-action-btn:hover {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+  }
 
   .avatar {
     width: 36px; height: 36px;
@@ -544,6 +565,11 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700; font-size: 13px; color: #fff;
     box-shadow: 0 2px 10px rgba(99,179,237,0.3);
+  }
+  .avatar-btn {
+    border: none;
+    padding: 0;
+    cursor: pointer;
   }
 
   .level-badge {
@@ -829,6 +855,7 @@
 
   /* ========== LOG FORM ========== */
   #screen-log { background: #0d1520; padding-bottom: 100px; }
+  #screen-profile { background: #0d1520; padding-bottom: 100px; }
 
   .form-header {
     padding: 24px 20px 20px;
@@ -990,6 +1017,145 @@
   .portal-header h2 {
     font-family: 'DM Serif Display', serif;
     font-size: 28px; color: #f0f8ff; letter-spacing: -0.3px;
+  }
+
+  .profile-shell {
+    padding: 24px 20px 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .profile-hero,
+  .profile-panel {
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(17,28,40,0.9);
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.22);
+  }
+  .profile-hero {
+    padding: 24px 20px;
+  }
+  .profile-eyebrow {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: #7fb5ec;
+    margin-bottom: 8px;
+  }
+  .profile-hero h2,
+  .profile-panel h3 {
+    font-family: 'DM Serif Display', serif;
+    color: #f4f8ff;
+  }
+  .profile-hero h2 {
+    font-size: 32px;
+    line-height: 1.04;
+    margin-bottom: 8px;
+  }
+  .profile-panel h3 {
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+  .profile-copy,
+  .profile-subcopy,
+  .profile-list-meta,
+  .profile-empty {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    color: rgba(220,232,245,0.64);
+    line-height: 1.5;
+  }
+  .profile-summary-grid,
+  .profile-category-grid {
+    display: grid;
+    gap: 12px;
+  }
+  .profile-summary-grid {
+    margin-top: 18px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .profile-stat-card {
+    border-radius: 18px;
+    padding: 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+  }
+  .profile-stat-label {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: rgba(140,176,212,0.76);
+  }
+  .profile-stat-value {
+    display: block;
+    margin-top: 10px;
+    font-family: 'DM Serif Display', serif;
+    font-size: 34px;
+    color: #f4f8ff;
+    line-height: 1;
+  }
+  .profile-panel {
+    padding: 20px;
+  }
+  .profile-panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .profile-category-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .profile-category-card,
+  .profile-list-row {
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.025);
+    padding: 14px 16px;
+  }
+  .profile-category-top,
+  .profile-list-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .profile-category-name,
+  .profile-list-name {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #f4f8ff;
+  }
+  .profile-category-count,
+  .profile-list-count {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    color: rgba(220,232,245,0.68);
+    white-space: nowrap;
+  }
+  .profile-bar {
+    width: 100%;
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    overflow: hidden;
+  }
+  .profile-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #63b3ed, #90cdf4);
+  }
+  .profile-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
 
   .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; padding: 20px; }
@@ -1538,6 +1704,7 @@
             </div>
           </div>
           <div id="admin-overview-metrics" class="admin-insight-grid"></div>
+          <div id="admin-overview-breakdown" class="admin-breakdown-panel" style="display:none;"></div>
         </section>
 
         <section class="admin-panel">
@@ -2021,6 +2188,18 @@
   .admin-analytic-card {
     min-height: 128px;
   }
+  .admin-analytic-card-button {
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+  }
+  .admin-analytic-card-button:hover,
+  .admin-analytic-card-button.active {
+    transform: translateY(-1px);
+    border-color: rgba(127,181,236,0.42);
+    background: rgba(99,179,237,0.08);
+  }
   .admin-analytic-card strong {
     display: block;
     font-family: 'DM Serif Display', serif;
@@ -2064,6 +2243,60 @@
     height: 100%;
     border-radius: 999px;
     background: linear-gradient(90deg, #63b3ed, #90cdf4);
+  }
+  .admin-breakdown-panel {
+    margin-top: 18px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 18px;
+  }
+  .admin-breakdown-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .admin-breakdown-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: #f4f8ff;
+    margin-bottom: 4px;
+  }
+  .admin-breakdown-copy {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: rgba(220,232,245,0.62);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .admin-breakdown-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .admin-breakdown-row {
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.025);
+    padding: 14px 16px;
+  }
+  .admin-breakdown-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+  .admin-breakdown-name {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #f4f8ff;
+  }
+  .admin-breakdown-meta {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    color: rgba(220,232,245,0.65);
+    white-space: nowrap;
   }
   .admin-user-row {
     cursor: pointer;
@@ -2355,7 +2588,10 @@ let adminOverview = null;
 let adminUsers = [];
 let adminRecentLogs = [];
 let adminLinks = [];
+let adminLessonBreakdown = [];
+let adminCategoryBreakdown = [];
 let selectedAdminUserId = null;
+let activeAdminBreakdown = "";
 let activeAdminTab = "overview";
 let availableLessons = [];
 let currentLogStep = 0;
@@ -2632,6 +2868,78 @@ function getLogsForUser(userId) {
   return adminRecentLogs.filter((log) => Number(log.user_id) === Number(userId));
 }
 
+function getAdminBreakdownMeta(items) {
+  const total = items.reduce((sum, item) => sum + Number(item.count || 0), 0);
+  return { total, max: Math.max(...items.map((item) => Number(item.count || 0)), 1) };
+}
+
+function renderAdminBreakdownPanel(type = activeAdminBreakdown) {
+  const panel = $("admin-overview-breakdown");
+  if (!panel) return;
+
+  activeAdminBreakdown = type || "";
+
+  const source = type === "lessons"
+    ? adminLessonBreakdown
+    : type === "categories"
+      ? adminCategoryBreakdown
+      : [];
+
+  if (!source.length) {
+    panel.style.display = "none";
+    panel.innerHTML = "";
+    return;
+  }
+
+  const { total, max } = getAdminBreakdownMeta(source);
+  const title = type === "lessons" ? "Most Logged Lesson Breakdown" : "Top Category Breakdown";
+  const copy = type === "lessons"
+    ? "Every lesson ranked by share of all logged lesson entries."
+    : "Every category ranked by share of all logged lesson entries.";
+
+  panel.style.display = "block";
+  panel.innerHTML = `
+    <div class="admin-breakdown-head">
+      <div>
+        <div class="admin-breakdown-title">${escapeHtml(title)}</div>
+        <div class="admin-breakdown-copy">${escapeHtml(copy)}</div>
+      </div>
+      <button class="admin-secondary-btn" onclick="closeAdminBreakdown()">Close</button>
+    </div>
+    <div class="admin-breakdown-list">
+      ${source.map((item) => {
+        const count = Number(item.count || 0);
+        const percent = total ? (count / total) * 100 : 0;
+        return `
+          <div class="admin-breakdown-row">
+            <div class="admin-breakdown-top">
+              <div class="admin-breakdown-name">${escapeHtml(item.name || "Unknown")}</div>
+              <div class="admin-breakdown-meta">${count} logs • ${percent.toFixed(percent >= 10 ? 0 : 1)}%</div>
+            </div>
+            <div class="admin-chart-bar">
+              <div class="admin-chart-fill" style="width:${Math.max((count / max) * 100, count ? 8 : 0)}%"></div>
+            </div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function closeAdminBreakdown() {
+  activeAdminBreakdown = "";
+  renderAdminBreakdownPanel("");
+  document.querySelectorAll(".admin-analytic-card-button").forEach((card) => card.classList.remove("active"));
+}
+
+function openAdminBreakdown(type) {
+  activeAdminBreakdown = type;
+  document.querySelectorAll(".admin-analytic-card-button").forEach((card) => {
+    card.classList.toggle("active", card.dataset.breakdown === type);
+  });
+  renderAdminBreakdownPanel(type);
+}
+
 function renderAdminOverview() {
   const overview = adminOverview || {};
   setText("admin-total-users", overview.total_users || 0);
@@ -2655,9 +2963,10 @@ function renderAdminOverview() {
     : 0;
   const avgLessonsPerStudent = studentCount ? totalLogs / studentCount : 0;
   const categoryTotals = getCategoryTotals(adminRecentLogs);
-  const topCategoryEntry = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0];
-  const studentsWithParent = new Set(adminLinks.map((link) => Number(link.student_id))).size;
-  const parentCoverage = studentCount ? (studentsWithParent / studentCount) * 100 : 0;
+  const topCategoryEntry = adminCategoryBreakdown[0]
+    ? [adminCategoryBreakdown[0].name, Number(adminCategoryBreakdown[0].count || 0)]
+    : Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0];
+  const topLessonEntry = adminLessonBreakdown[0] || null;
   const mostRecentLog = adminRecentLogs[0]?.created_at || null;
 
   const metricsEl = $("admin-overview-metrics");
@@ -2681,12 +2990,14 @@ function renderAdminOverview() {
       {
         title: "Top Category",
         value: topCategoryEntry ? topCategoryEntry[0] : "None",
-        body: topCategoryEntry ? `${topCategoryEntry[1]} total logs in this category.` : "No lesson activity yet.",
+        body: topCategoryEntry ? `${topCategoryEntry[1]} total logs in this category. Click to see the full mix.` : "No lesson activity yet.",
+        breakdown: "categories",
       },
       {
-        title: "Parent Coverage",
-        value: `${parentCoverage.toFixed(parentCoverage >= 10 ? 0 : 1)}%`,
-        body: "Share of student accounts that are linked to at least one parent.",
+        title: "Most Logged Lesson",
+        value: topLessonEntry ? topLessonEntry.name : "None",
+        body: topLessonEntry ? `${Number(topLessonEntry.count || 0)} total logs under this lesson. Click to see the full ranking.` : "No lesson activity yet.",
+        breakdown: "lessons",
       },
       {
         title: "Latest Activity",
@@ -2694,13 +3005,15 @@ function renderAdminOverview() {
         body: "Most recent lesson log recorded anywhere in the app.",
       },
     ].map((item) => `
-      <div class="admin-analytic-card">
+      <button type="button" class="admin-analytic-card ${item.breakdown ? "admin-analytic-card-button" : ""} ${activeAdminBreakdown === item.breakdown ? "active" : ""}" ${item.breakdown ? `data-breakdown="${item.breakdown}" onclick="openAdminBreakdown('${item.breakdown}')"` : ""}>
         <h4>${escapeHtml(item.title)}</h4>
         <strong>${escapeHtml(String(item.value))}</strong>
         <p>${escapeHtml(item.body)}</p>
-      </div>
+      </button>
     `).join("");
   }
+
+  renderAdminBreakdownPanel(activeAdminBreakdown);
 
   const monthlyEl = $("admin-monthly-activity");
   if (monthlyEl) {
@@ -3008,7 +3321,7 @@ async function loadAdminLessons() {
 async function loadAdminDashboard() {
   try {
     await testAdminRoute();
-    const [{ overview, users, recentLogs, links }, { lessons }] = await Promise.all([
+    const [{ overview, users, recentLogs, links, categoryBreakdown, lessonBreakdown }, { lessons }] = await Promise.all([
       API.getAdminUsers(),
       API.getAdminLessons(),
     ]);
@@ -3017,6 +3330,8 @@ async function loadAdminDashboard() {
     adminUsers = users;
     adminRecentLogs = recentLogs;
     adminLinks = links;
+    adminCategoryBreakdown = categoryBreakdown || [];
+    adminLessonBreakdown = lessonBreakdown || [];
 
     const studentUsers = adminUsers.filter((user) => user.role === "student");
     if (!studentUsers.some((user) => Number(user.id) === Number(selectedAdminUserId))) {

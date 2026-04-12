@@ -484,14 +484,43 @@ app.get("/admin/users", auth, adminOnly, async (req, res, next) => {
          ll.category,
          ll.title,
          ll.notes,
+         COALESCE(
+           ls.name,
+           NULLIF(BTRIM(SPLIT_PART(SPLIT_PART(ll.notes, 'Selected Lesson: ', 2), E'\n', 1)), ''),
+           'Unknown'
+         ) AS lesson_name,
          ll.created_at,
          u.name AS user_name,
          u.email AS user_email,
          u.role AS user_role
        FROM lesson_logs ll
+       LEFT JOIN lessons ls ON ls.id = ll.lesson_id
        JOIN users u ON u.id = ll.user_id
        ORDER BY ll.created_at DESC
        LIMIT 250`
+    );
+
+    const categoryBreakdownResult = await pool.query(
+      `SELECT
+         ll.category AS name,
+         COUNT(*)::int AS count
+       FROM lesson_logs ll
+       GROUP BY ll.category
+       ORDER BY COUNT(*) DESC, ll.category ASC`
+    );
+
+    const lessonBreakdownResult = await pool.query(
+      `SELECT
+         COALESCE(
+           ls.name,
+           NULLIF(BTRIM(SPLIT_PART(SPLIT_PART(ll.notes, 'Selected Lesson: ', 2), E'\n', 1)), ''),
+           'Unknown'
+         ) AS name,
+         COUNT(*)::int AS count
+       FROM lesson_logs ll
+       LEFT JOIN lessons ls ON ls.id = ll.lesson_id
+       GROUP BY 1
+       ORDER BY COUNT(*) DESC, 1 ASC`
     );
 
     const linksResult = await pool.query(
@@ -513,6 +542,8 @@ app.get("/admin/users", auth, adminOnly, async (req, res, next) => {
       users: usersResult.rows,
       recentLogs: logsResult.rows,
       links: linksResult.rows,
+      categoryBreakdown: categoryBreakdownResult.rows,
+      lessonBreakdown: lessonBreakdownResult.rows,
     });
   } catch (e) {
     next(e);
