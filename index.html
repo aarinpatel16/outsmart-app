@@ -762,6 +762,59 @@
     font-size: 12px; font-weight: 400;
     color: rgba(255,255,255,0.4); line-height: 1.5;
   }
+  .log-detail-toggle,
+  .admin-detail-toggle {
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    background: rgba(255,255,255,0.06);
+    color: #cfe6ff;
+    border-radius: 999px;
+    padding: 7px 12px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .log-detail-panel,
+  .admin-activity-detail {
+    display: none;
+    margin-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 12px;
+  }
+  .log-detail-panel.open,
+  .admin-activity-detail.open {
+    display: block;
+  }
+  .log-detail-row,
+  .admin-activity-row {
+    margin-bottom: 10px;
+  }
+  .log-detail-row:last-child,
+  .admin-activity-row:last-child {
+    margin-bottom: 0;
+  }
+  .log-detail-row strong,
+  .admin-activity-row strong {
+    display: block;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(151,196,239,0.88);
+    margin-bottom: 4px;
+  }
+  .log-detail-row p,
+  .admin-activity-row p {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    line-height: 1.55;
+    color: rgba(235,243,251,0.82);
+  }
 
   /* ========== LOG FORM ========== */
   #screen-log { background: #0d1520; padding-bottom: 100px; }
@@ -2865,7 +2918,7 @@ function buildAdminUserDetailMarkup() {
                     <div class="admin-category-pill">${escapeHtml(log.category)}</div>
                   </div>
                   <div class="admin-activity-meta">${escapeHtml(formatAdminDate(log.created_at))}</div>
-                  ${log.notes ? `<div class="admin-activity-notes">${escapeHtml(log.notes)}</div>` : ""}
+                  ${renderStructuredNotesDetails(log.notes, "admin", `admin-${log.id}`)}
                 </div>
               `).join("")
             : `<div class="admin-empty-state">No recent lesson logs for this user.</div>`}
@@ -3198,6 +3251,73 @@ function getCurrentLogValue(stepIndex) {
   return $(getLogFieldId(stepIndex))?.value?.trim() || "";
 }
 
+function parseStructuredLogNotes(notes) {
+  const text = String(notes || "").trim();
+  if (!text) return [];
+
+  const labels = [
+    "Selected Lesson",
+    "My Thoughts",
+    "The Action",
+    "The Result",
+    "The Future",
+  ];
+
+  const sections = [];
+  let current = null;
+
+  text.split(/\r?\n/).forEach((line) => {
+    const trimmed = line.trim();
+    if (!trimmed) return;
+
+    const matchedLabel = labels.find((label) => trimmed.startsWith(`${label}:`));
+    if (matchedLabel) {
+      current = {
+        label: matchedLabel,
+        value: trimmed.slice(matchedLabel.length + 1).trim(),
+      };
+      sections.push(current);
+      return;
+    }
+
+    if (current) {
+      current.value = `${current.value}\n${trimmed}`.trim();
+    }
+  });
+
+  return sections.filter((section) => section.value);
+}
+
+function renderStructuredNotesDetails(notes, mode, itemId) {
+  const sections = parseStructuredLogNotes(notes);
+  if (!sections.length) {
+    return notes ? `<div class="${mode === "admin" ? "admin-activity-notes" : "log-action"}">${escapeHtml(notes)}</div>` : "";
+  }
+
+  const detailClass = mode === "admin" ? "admin-activity-detail" : "log-detail-panel";
+  const rowClass = mode === "admin" ? "admin-activity-row" : "log-detail-row";
+  const buttonClass = mode === "admin" ? "admin-detail-toggle" : "log-detail-toggle";
+  const detailId = `${mode}-detail-${itemId}`;
+
+  return `
+    <button class="${buttonClass}" onclick="toggleLogDetail('${detailId}')">Show answers</button>
+    <div class="${detailClass}" id="${detailId}">
+      ${sections.map((section) => `
+        <div class="${rowClass}">
+          <strong>${escapeHtml(section.label)}</strong>
+          <p>${escapeHtml(section.value)}</p>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function toggleLogDetail(id) {
+  const panel = $(id);
+  if (!panel) return;
+  panel.classList.toggle("open");
+}
+
 function updateLogProgressUi() {
   const current = LOG_STEPS[currentLogStep];
   setText("log-step-kicker", `Step ${currentLogStep + 1} of ${LOG_STEPS.length}`);
@@ -3361,7 +3481,7 @@ async function refreshDashboard() {
                 <div class="log-date">${date}</div>
               </div>
               <div class="log-intel">${escapeHtml(l.title)}</div>
-              ${l.notes ? `<div class="log-action">${escapeHtml(l.notes)}</div>` : ""}
+              ${renderStructuredNotesDetails(l.notes, "student", l.id)}
             </div>
           `;
         }).join("");
@@ -3429,7 +3549,7 @@ async function refreshParentPortal() {
             <div class="log-date">${new Date(l.created_at).toLocaleDateString()}</div>
           </div>
           <div class="log-intel">${escapeHtml(l.title)}</div>
-          ${l.notes ? `<div class="log-action">${escapeHtml(l.notes)}</div>` : ""}
+          ${renderStructuredNotesDetails(l.notes, "student", `parent-${l.id}`)}
         </div>
       `).join("");
     }
