@@ -110,22 +110,13 @@
   .login-wordmark {
     margin-bottom: 10px;
   }
-  .login-logo-frame {
-    width: min(430px, 84vw);
-    height: 160px;
-    margin: 0 auto 2px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .login-logo-image {
+  .login-brand-mark {
+    width: 96px;
+    height: 96px;
+    margin: 0 auto 18px;
+    border-radius: 28px;
     display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center 46%;
-    filter: drop-shadow(0 16px 28px rgba(0,0,0,0.18));
+    box-shadow: 0 18px 40px rgba(0,0,0,0.24);
   }
 
   .login-wordmark .tagline {
@@ -140,11 +131,13 @@
 
   .login-wordmark h1 {
     font-family: 'DM Serif Display', serif;
-    font-size: 42px;
+    font-size: clamp(34px, 5vw, 46px);
     font-weight: 400;
     line-height: 1.05;
     color: #f0f8ff;
     letter-spacing: -0.5px;
+    max-width: 420px;
+    margin: 0 auto;
   }
 
   .login-wordmark h1 em {
@@ -157,9 +150,9 @@
     font-size: 14px;
     font-weight: 400;
     color: rgba(255,255,255,0.45);
-    margin-top: 10px;
+    margin-top: 14px;
     line-height: 1.5;
-    max-width: 260px;
+    max-width: 300px;
     margin-left: auto;
     margin-right: auto;
   }
@@ -1472,9 +1465,8 @@
 
     <div class="login-wordmark">
       <div class="tagline">Strategy Log</div>
-      <div class="login-logo-frame">
-        <img class="login-logo-image" src="assets/branding/ots-logo-transparent.svg" alt="Outsmart the System logo">
-      </div>
+      <img class="login-brand-mark" src="assets/branding/ots-favicon-256.png" alt="OTS logo">
+      <h1>Outsmart<br><em>the System</em></h1>
       <div class="subtitle">Log your wins. Track your growth. Level up your life.</div>
     </div>
 
