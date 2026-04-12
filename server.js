@@ -433,6 +433,40 @@ app.put("/me/theme", auth, async (req, res, next) => {
   }
 });
 
+app.get("/leaderboard", auth, async (req, res, next) => {
+  try {
+    if (req.user.role !== "student") {
+      return res.status(403).json({ error: "Students only" });
+    }
+
+    const { rows: students } = await pool.query(
+      `SELECT id, name, email
+       FROM users
+       WHERE role = 'student'
+       ORDER BY LOWER(name), id`
+    );
+
+    const leaderboard = await Promise.all(
+      students.map(async (student) => {
+        const stats = await computeStats(student.id);
+        return {
+          id: student.id,
+          name: student.name,
+          email: student.email,
+          total_logs: stats.total_logs,
+          level: stats.level,
+          categories_completed: stats.categories_completed,
+          streak_days: stats.streak_days,
+        };
+      })
+    );
+
+    res.json({ leaderboard });
+  } catch (e) {
+    next(e);
+  }
+});
+
 // -------- ADMIN --------
 app.get("/admin/test", auth, adminOnly, async (req, res) => {
   res.json({

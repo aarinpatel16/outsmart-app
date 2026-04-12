@@ -1157,6 +1157,144 @@
     flex-direction: column;
     gap: 12px;
   }
+  #screen-leaderboard { background: #0d1520; padding-bottom: 100px; }
+  .leaderboard-shell {
+    padding: 24px 20px 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .leaderboard-hero,
+  .leaderboard-panel {
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(17,28,40,0.9);
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.22);
+  }
+  .leaderboard-hero {
+    padding: 24px 20px;
+  }
+  .leaderboard-eyebrow {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: #7fb5ec;
+    margin-bottom: 8px;
+  }
+  .leaderboard-hero h2,
+  .leaderboard-panel h3 {
+    font-family: 'DM Serif Display', serif;
+    color: #f4f8ff;
+  }
+  .leaderboard-hero h2 {
+    font-size: 32px;
+    line-height: 1.04;
+    margin-bottom: 8px;
+  }
+  .leaderboard-copy,
+  .leaderboard-subcopy,
+  .leaderboard-meta,
+  .leaderboard-empty {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    color: rgba(220,232,245,0.64);
+    line-height: 1.5;
+  }
+  .leaderboard-filter-row {
+    margin-top: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .leaderboard-filter-btn {
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.03);
+    color: rgba(220,232,245,0.75);
+    border-radius: 999px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 0.2s ease;
+  }
+  .leaderboard-filter-btn.active,
+  .leaderboard-filter-btn:hover {
+    background: rgba(99,179,237,0.14);
+    color: #f4f8ff;
+    border-color: rgba(99,179,237,0.35);
+  }
+  .leaderboard-panel {
+    padding: 20px;
+  }
+  .leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .leaderboard-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 14px;
+    align-items: center;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.025);
+    padding: 16px;
+  }
+  .leaderboard-rank {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: #f4f8ff;
+    background: linear-gradient(135deg, rgba(99,179,237,0.28), rgba(144,205,244,0.08));
+    border: 1px solid rgba(99,179,237,0.22);
+  }
+  .leaderboard-name {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #f4f8ff;
+    margin-bottom: 4px;
+  }
+  .leaderboard-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .leaderboard-chip {
+    border-radius: 999px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 6px 10px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(220,232,245,0.76);
+  }
+  .leaderboard-score {
+    text-align: right;
+  }
+  .leaderboard-score strong {
+    display: block;
+    font-family: 'DM Serif Display', serif;
+    font-size: 30px;
+    color: #f4f8ff;
+    line-height: 1;
+  }
+  .leaderboard-score span {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    color: rgba(220,232,245,0.62);
+  }
 
   .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; padding: 20px; }
 
@@ -1658,6 +1796,7 @@
   <div class="app-header">
     <div class="header-brand">My <span>Progress</span></div>
     <div class="header-actions">
+      <button class="header-action-btn" onclick="showScreen('screen-leaderboard')">Leaderboard</button>
       <button class="header-action-btn" onclick="showScreen('screen-dashboard')">Home</button>
       <button class="header-action-btn" onclick="logoutAll()">Logout</button>
     </div>
@@ -1689,6 +1828,39 @@
         </div>
       </div>
       <div class="profile-list" id="profile-lesson-list"></div>
+    </section>
+  </div>
+</div>
+
+<!-- ========== SCREEN: LEADERBOARD ========== -->
+<div class="screen" id="screen-leaderboard">
+  <div class="app-header">
+    <div class="header-brand">Student <span>Leaderboard</span></div>
+    <div class="header-actions">
+      <button class="header-action-btn" onclick="showScreen('screen-dashboard')">Home</button>
+      <button class="header-action-btn" onclick="logoutAll()">Logout</button>
+    </div>
+  </div>
+
+  <div class="leaderboard-shell">
+    <section class="leaderboard-hero">
+      <div class="leaderboard-eyebrow">Competition Mode</div>
+      <h2>See who is climbing the fastest</h2>
+      <div class="leaderboard-copy">Students can compare progress by level or by total lessons logged, while still seeing the bigger picture behind each rank.</div>
+      <div class="leaderboard-filter-row">
+        <button class="leaderboard-filter-btn active" id="leaderboard-filter-level" onclick="setLeaderboardMetric('level')">Rank by Level</button>
+        <button class="leaderboard-filter-btn" id="leaderboard-filter-logs" onclick="setLeaderboardMetric('total_logs')">Rank by Total Lessons</button>
+      </div>
+    </section>
+
+    <section class="leaderboard-panel">
+      <div class="profile-panel-head">
+        <div>
+          <h3>Standings</h3>
+          <div class="leaderboard-subcopy" id="leaderboard-subcopy">Showing every student ranked by level.</div>
+        </div>
+      </div>
+      <div class="leaderboard-list" id="leaderboard-list"></div>
     </section>
   </div>
 </div>
@@ -2538,6 +2710,12 @@
       flex-wrap: wrap;
       justify-content: flex-end;
     }
+    .leaderboard-row {
+      grid-template-columns: 1fr;
+    }
+    .leaderboard-score {
+      text-align: left;
+    }
   }
 </style>
 
@@ -2598,6 +2776,10 @@ const API = {
     return this._get("/logs");
   },
 
+  getLeaderboard() {
+    return this._get("/leaderboard");
+  },
+
   getLessons() {
     return this._get("/lessons");
   },
@@ -2634,6 +2816,8 @@ const API = {
 let currentUser = null;
 let currentStats = null;
 let currentStudentLogs = [];
+let leaderboardEntries = [];
+let leaderboardMetric = "level";
 
 let roleMode = "student";        // "student" | "parent"
 let loginMode = "signin";        // "signin" | "create"
@@ -2705,6 +2889,9 @@ function showScreen(screenId) {
   if (screenId === "screen-profile") {
     renderProfileScreen();
   }
+  if (screenId === "screen-leaderboard") {
+    loadLeaderboard();
+  }
   if (screenId === "screen-admin") {
     loadAdminDashboard();
   }
@@ -2714,6 +2901,7 @@ function setNavActive(screenId) {
   const map = {
     "screen-dashboard": "nav-dash",
     "screen-profile": "nav-dash",
+    "screen-leaderboard": "nav-dash",
     "screen-log": "nav-log",
     "screen-badges": "nav-badges",
   };
@@ -2737,6 +2925,7 @@ function logoutAll() {
   currentUser = null;
   currentStats = null;
   currentStudentLogs = [];
+  leaderboardEntries = [];
   showToast("Logged out");
   showScreen("screen-login");
 }
@@ -3818,6 +4007,81 @@ function getStudentLessonBreakdown(logs) {
   return Object.entries(totals)
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}
+
+function sortLeaderboardEntries(entries, metric = leaderboardMetric) {
+  const sortMetric = metric === "total_logs" ? "total_logs" : "level";
+  return [...(entries || [])].sort((a, b) => {
+    const primary = Number(b[sortMetric] || 0) - Number(a[sortMetric] || 0);
+    if (primary !== 0) return primary;
+
+    if (sortMetric === "level") {
+      const byLogs = Number(b.total_logs || 0) - Number(a.total_logs || 0);
+      if (byLogs !== 0) return byLogs;
+    } else {
+      const byLevel = Number(b.level || 0) - Number(a.level || 0);
+      if (byLevel !== 0) return byLevel;
+    }
+
+    return String(a.name || "").localeCompare(String(b.name || ""));
+  });
+}
+
+function renderLeaderboard() {
+  const list = $("leaderboard-list");
+  if (!list) return;
+
+  $("leaderboard-filter-level")?.classList.toggle("active", leaderboardMetric === "level");
+  $("leaderboard-filter-logs")?.classList.toggle("active", leaderboardMetric === "total_logs");
+  setText(
+    "leaderboard-subcopy",
+    leaderboardMetric === "level"
+      ? "Showing every student ranked by level."
+      : "Showing every student ranked by total lessons logged."
+  );
+
+  const sorted = sortLeaderboardEntries(leaderboardEntries, leaderboardMetric);
+  if (!sorted.length) {
+    list.innerHTML = `<div class="leaderboard-empty">No student rankings are available yet.</div>`;
+    return;
+  }
+
+  list.innerHTML = sorted.map((entry, index) => `
+    <div class="leaderboard-row">
+      <div class="leaderboard-rank">#${index + 1}</div>
+      <div>
+        <div class="leaderboard-name">${escapeHtml(entry.name || "Student")}</div>
+        <div class="leaderboard-meta">${escapeHtml(entry.email || "")}</div>
+        <div class="leaderboard-stats">
+          <div class="leaderboard-chip">Level ${Number(entry.level || 1)}</div>
+          <div class="leaderboard-chip">${Number(entry.total_logs || 0)} lessons</div>
+          <div class="leaderboard-chip">${Number(entry.categories_completed || 0)}/4 skills</div>
+          <div class="leaderboard-chip">${Number(entry.streak_days || 0)} day streak</div>
+        </div>
+      </div>
+      <div class="leaderboard-score">
+        <strong>${leaderboardMetric === "level" ? Number(entry.level || 1) : Number(entry.total_logs || 0)}</strong>
+        <span>${leaderboardMetric === "level" ? "Level" : "Lessons"}</span>
+      </div>
+    </div>
+  `).join("");
+}
+
+function setLeaderboardMetric(metric) {
+  leaderboardMetric = metric === "total_logs" ? "total_logs" : "level";
+  renderLeaderboard();
+}
+
+async function loadLeaderboard() {
+  if (!currentUser || currentUser.role !== "student") return;
+
+  try {
+    const { leaderboard } = await API.getLeaderboard();
+    leaderboardEntries = leaderboard || [];
+    renderLeaderboard();
+  } catch (e) {
+    showToast(e.message);
+  }
 }
 
 function renderProfileScreen() {
