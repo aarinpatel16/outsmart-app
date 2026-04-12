@@ -1550,6 +1550,7 @@
       </div>
     </div>
     <div class="header-actions">
+      <button class="header-action-btn" onclick="showScreen('screen-leaderboard')">Leaderboard</button>
       <button class="header-action-btn" onclick="logoutAll()">Logout</button>
       <div class="header-user">
         <div class="level-badge">Level <strong id="h-level">0</strong></div>
@@ -4157,11 +4158,19 @@ function setLeaderboardMetric(metric) {
 async function loadLeaderboard() {
   if (!currentUser || currentUser.role !== "student") return;
 
+  const list = $("leaderboard-list");
+  if (list) {
+    list.innerHTML = `<div class="leaderboard-empty">Loading rankings...</div>`;
+  }
+
   try {
     const { leaderboard } = await API.getLeaderboard();
     leaderboardEntries = leaderboard || [];
     renderLeaderboard();
   } catch (e) {
+    if (list) {
+      list.innerHTML = `<div class="leaderboard-empty">We couldn't load the leaderboard right now. Try refreshing after the latest deploy finishes.</div>`;
+    }
     showToast(e.message);
   }
 }
