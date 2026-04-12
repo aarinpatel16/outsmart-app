@@ -1301,7 +1301,7 @@
         <div class="lbl">Skills</div>
       </div>
       <div class="login-stat-chip">
-        <div class="num">All</div>
+        <div class="num">∞</div>
         <div class="lbl">Growth</div>
       </div>
       <div class="login-stat-chip">
@@ -1364,11 +1364,12 @@
 <div class="screen" id="screen-dashboard">
   <div class="app-header">
     <div class="header-brand">Outsmart <span>the System</span></div>
-    <div style="display:flex;align-items:center;gap:10px;">
+    <div class="header-actions">
       <button class="theme-btn" onclick="openThemePicker()">🎨 Theme</button>
+      <button class="header-action-btn" onclick="logoutAll()">Logout</button>
       <div class="header-user">
         <div class="level-badge">Level <strong id="h-level">0</strong></div>
-        <div class="avatar" id="h-avatar">?</div>
+        <button class="avatar avatar-btn" id="h-avatar" onclick="showScreen('screen-profile')" title="Open my progress">?</button>
       </div>
     </div>
   </div>
@@ -1443,10 +1444,13 @@
 <div class="screen" id="screen-log">
   <div class="app-header">
     <div onclick="showScreen('screen-dashboard')" style="cursor:pointer;display:flex;align-items:center;gap:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,0.5);">
-      ? Back
+      ← Back
     </div>
     <div class="header-brand">Outsmart <span>the System</span></div>
-    <div style="width:60px"></div>
+    <div class="header-actions">
+      <button class="header-action-btn" onclick="showScreen('screen-profile')">My Stats</button>
+      <button class="header-action-btn" onclick="logoutAll()">Logout</button>
+    </div>
   </div>
 
   <div class="form-header">
@@ -1482,19 +1486,19 @@
           <div class="field-label">Choose a Category</div>
           <div class="cat-picker">
             <div class="cat-option cat-fin" id="opt-fin" onclick="selectCat('fin')">
-              <span class="cat-option-icon">??</span>
+              <span class="cat-option-icon">💰</span>
               <span class="cat-option-text">Financial</span>
             </div>
             <div class="cat-option cat-eq" id="opt-eq" onclick="selectCat('eq')">
-              <span class="cat-option-icon">??</span>
+              <span class="cat-option-icon">🧠</span>
               <span class="cat-option-text">Emotional</span>
             </div>
             <div class="cat-option cat-lead" id="opt-lead" onclick="selectCat('lead')">
-              <span class="cat-option-icon">?</span>
+              <span class="cat-option-icon">⚡</span>
               <span class="cat-option-text">Leadership</span>
             </div>
             <div class="cat-option cat-din" id="opt-din" onclick="selectCat('din')">
-              <span class="cat-option-icon">???</span>
+              <span class="cat-option-icon">🗣️</span>
               <span class="cat-option-text">Dinner Talk</span>
             </div>
           </div>
@@ -1637,13 +1641,56 @@
 <div class="screen" id="screen-badges">
   <div class="app-header">
     <div class="header-brand">My <span>Badges</span></div>
-    <div onclick="logoutAll()" style="cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;color:rgba(255,255,255,0.4);">Logout</div>
+    <div class="header-actions">
+      <button class="header-action-btn" onclick="showScreen('screen-profile')">My Stats</button>
+      <button class="header-action-btn" onclick="logoutAll()">Logout</button>
+    </div>
   </div>
   <div style="padding:24px 20px 12px;">
     <div style="font-family:'DM Serif Display',serif;font-size:26px;color:#f0f8ff;margin-bottom:4px;">Achievements</div>
     <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:rgba(255,255,255,0.4);">Unlock badges by reaching milestones</div>
   </div>
   <div id="badges-grid" style="padding:0 20px 100px;display:grid;grid-template-columns:1fr 1fr;gap:12px;"></div>
+</div>
+
+<!-- ========== SCREEN: PROFILE ========== -->
+<div class="screen" id="screen-profile">
+  <div class="app-header">
+    <div class="header-brand">My <span>Progress</span></div>
+    <div class="header-actions">
+      <button class="header-action-btn" onclick="showScreen('screen-dashboard')">Home</button>
+      <button class="header-action-btn" onclick="logoutAll()">Logout</button>
+    </div>
+  </div>
+
+  <div class="profile-shell">
+    <section class="profile-hero">
+      <div class="profile-eyebrow">Student Intel</div>
+      <h2 id="profile-name">Your progress at a glance</h2>
+      <div class="profile-copy" id="profile-copy">See your lesson totals, category momentum, and the lessons you use most.</div>
+      <div class="profile-summary-grid" id="profile-summary-grid"></div>
+    </section>
+
+    <section class="profile-panel">
+      <div class="profile-panel-head">
+        <div>
+          <h3>Category Breakdown</h3>
+          <div class="profile-subcopy">How your logs are spread across the four skill areas.</div>
+        </div>
+      </div>
+      <div class="profile-category-grid" id="profile-category-grid"></div>
+    </section>
+
+    <section class="profile-panel">
+      <div class="profile-panel-head">
+        <div>
+          <h3>Lesson Usage</h3>
+          <div class="profile-subcopy">Every lesson you have logged, ranked by how often you use it.</div>
+        </div>
+      </div>
+      <div class="profile-list" id="profile-lesson-list"></div>
+    </section>
+  </div>
 </div>
 
 <!-- ========== SCREEN: ADMIN ========== -->
@@ -2483,6 +2530,14 @@
       grid-template-columns: 1fr;
       flex-direction: column;
     }
+    .profile-summary-grid,
+    .profile-category-grid {
+      grid-template-columns: 1fr;
+    }
+    .header-actions {
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
   }
 </style>
 
@@ -2578,6 +2633,7 @@ const API = {
 
 let currentUser = null;
 let currentStats = null;
+let currentStudentLogs = [];
 
 let roleMode = "student";        // "student" | "parent"
 let loginMode = "signin";        // "signin" | "create"
@@ -2646,6 +2702,9 @@ function showScreen(screenId) {
   if (screenId === "screen-badges") {
     renderBadges();
   }
+  if (screenId === "screen-profile") {
+    renderProfileScreen();
+  }
   if (screenId === "screen-admin") {
     loadAdminDashboard();
   }
@@ -2654,6 +2713,7 @@ function showScreen(screenId) {
 function setNavActive(screenId) {
   const map = {
     "screen-dashboard": "nav-dash",
+    "screen-profile": "nav-dash",
     "screen-log": "nav-log",
     "screen-badges": "nav-badges",
   };
@@ -2676,6 +2736,7 @@ function logoutAll() {
   API._token = null;
   currentUser = null;
   currentStats = null;
+  currentStudentLogs = [];
   showToast("Logged out");
   showScreen("screen-login");
 }
@@ -3747,12 +3808,100 @@ function catCountFromStats(stats, key) {
   return stats?.category_counts?.[cat] ?? 0;
 }
 
+function getStudentLessonBreakdown(logs) {
+  const totals = {};
+  (logs || []).forEach((log) => {
+    const lessonName = getStructuredLogValue(log.notes, "Selected Lesson") || "Unknown";
+    totals[lessonName] = (totals[lessonName] || 0) + 1;
+  });
+
+  return Object.entries(totals)
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}
+
+function renderProfileScreen() {
+  if (!currentUser || currentUser.role !== "student") return;
+
+  const stats = currentStats || {};
+  const logs = currentStudentLogs || [];
+  const totalLogs = Number(stats.total_logs || logs.length || 0);
+  const categoriesCompleted = Number(stats.categories_completed || 0);
+  const streakDays = Number(stats.streak_days || 0);
+  const level = Number(stats.level || 1);
+  const categoryItems = [
+    { name: "Financial Literacy", icon: "💰", count: catCountFromStats(stats, "fin") },
+    { name: "Emotional Intelligence", icon: "🧠", count: catCountFromStats(stats, "eq") },
+    { name: "Leadership", icon: "⚡", count: catCountFromStats(stats, "lead") },
+    { name: "Dinner Talk", icon: "🗣️", count: catCountFromStats(stats, "din") },
+  ];
+  const lessonItems = getStudentLessonBreakdown(logs);
+  const maxCategory = Math.max(...categoryItems.map((item) => item.count), 1);
+  const maxLesson = Math.max(...lessonItems.map((item) => item.count), 1);
+
+  setText("profile-name", currentUser.name || "Your progress at a glance");
+  setText("profile-copy", `${totalLogs} logged lessons so far, with ${categoriesCompleted} of 4 skill areas active.`);
+
+  const summaryGrid = $("profile-summary-grid");
+  if (summaryGrid) {
+    summaryGrid.innerHTML = [
+      { label: "Total Lessons", value: totalLogs },
+      { label: "Current Level", value: level },
+      { label: "Skills Active", value: `${categoriesCompleted}/4` },
+      { label: "Streak", value: `${streakDays} day${streakDays === 1 ? "" : "s"}` },
+    ].map((item) => `
+      <div class="profile-stat-card">
+        <div class="profile-stat-label">${escapeHtml(item.label)}</div>
+        <strong class="profile-stat-value">${escapeHtml(String(item.value))}</strong>
+      </div>
+    `).join("");
+  }
+
+  const categoryGrid = $("profile-category-grid");
+  if (categoryGrid) {
+    categoryGrid.innerHTML = categoryItems.map((item) => `
+      <div class="profile-category-card">
+        <div class="profile-category-top">
+          <div class="profile-category-name">${item.icon} ${escapeHtml(item.name)}</div>
+          <div class="profile-category-count">${item.count} logs</div>
+        </div>
+        <div class="profile-bar">
+          <div class="profile-bar-fill" style="width:${Math.max((item.count / maxCategory) * 100, item.count ? 8 : 0)}%"></div>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  const lessonList = $("profile-lesson-list");
+  if (lessonList) {
+    if (!lessonItems.length) {
+      lessonList.innerHTML = `<div class="profile-empty">No lessons logged yet. Your lesson usage will appear here after your first entry.</div>`;
+    } else {
+      lessonList.innerHTML = lessonItems.map((item) => {
+        const percent = totalLogs ? (item.count / totalLogs) * 100 : 0;
+        return `
+          <div class="profile-list-row">
+            <div class="profile-list-top">
+              <div class="profile-list-name">${escapeHtml(item.name)}</div>
+              <div class="profile-list-count">${item.count} logs • ${percent.toFixed(percent >= 10 ? 0 : 1)}%</div>
+            </div>
+            <div class="profile-bar">
+              <div class="profile-bar-fill" style="width:${Math.max((item.count / maxLesson) * 100, item.count ? 8 : 0)}%"></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+  }
+}
+
 async function refreshDashboard() {
   if (!currentUser || currentUser.role !== "student") return;
 
   try {
     const { logs, stats } = await API.getLogs();
     currentStats = stats;
+    currentStudentLogs = logs || [];
 
     // header
     setText("dash-name", currentUser.name || "--");
