@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>OUTSMART THE SYSTEM</title>
+<link rel="icon" type="image/png" href="assets/branding/ots-favicon-256.png">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -108,6 +109,19 @@
 
   .login-wordmark {
     margin-bottom: 10px;
+  }
+  .login-logo-frame {
+    width: min(520px, 100%);
+    margin: 0 auto 12px;
+    border-radius: 28px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 26px 60px rgba(0,0,0,0.32);
+  }
+  .login-logo-image {
+    display: block;
+    width: 100%;
+    height: auto;
   }
 
   .login-wordmark .tagline {
@@ -527,10 +541,35 @@
   }
 
   .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     font-family: 'DM Serif Display', serif;
     font-size: 20px;
     color: #f0f8ff;
     letter-spacing: -0.3px;
+  }
+  .header-brand-logo {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+    flex-shrink: 0;
+  }
+  .header-brand-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    line-height: 1;
+  }
+  .header-brand-kicker {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(220,232,245,0.48);
   }
   .header-brand span { color: #63b3ed; font-style: italic; }
 
@@ -1429,7 +1468,9 @@
 
     <div class="login-wordmark">
       <div class="tagline">Strategy Log</div>
-      <h1>Outsmart<br><em>the System</em></h1>
+      <div class="login-logo-frame">
+        <img class="login-logo-image" src="assets/branding/ots-logo-dark.png" alt="Outsmart the System logo">
+      </div>
       <div class="subtitle">Log your wins. Track your growth. Level up your life.</div>
     </div>
 
@@ -1503,7 +1544,6 @@
   <div class="app-header">
     <div class="header-brand">Outsmart <span>the System</span></div>
     <div class="header-actions">
-      <button class="theme-btn" onclick="openThemePicker()">🎨 Theme</button>
       <button class="header-action-btn" onclick="logoutAll()">Logout</button>
       <div class="header-user">
         <div class="level-badge">Level <strong id="h-level">0</strong></div>
