@@ -282,101 +282,12 @@ app.get("/", (req, res) => {
 
 // Student register
 app.post("/auth/student/register", async (req, res, next) => {
-  try {
-    const { name, email, password, parentEmail } = req.body;
-
-    if (!name || !email || !password) {
-      return res.status(400).json({ error: "name, email, password required" });
-    }
-    if (String(password).length < 4) {
-      return res.status(400).json({ error: "password must be at least 4 characters" });
-    }
-
-    const hash = await bcrypt.hash(password, 10);
-
-    const { rows } = await pool.query(
-      `INSERT INTO users (name, email, password_hash, role, approved)
-       VALUES ($1, $2, $3, 'student', FALSE)
-       RETURNING id, name, email, role, theme, approved`,
-      [name.trim(), email.trim().toLowerCase(), hash]
-    );
-
-    const user = rows[0];
-
-    // If student provided parentEmail, we store it in users table (optional)
-    // Only if column exists. If you don't have parent_email column, it's ignored.
-    if (parentEmail) {
-      try {
-        await pool.query(
-          `UPDATE users SET parent_email = $1 WHERE id = $2`,
-          [String(parentEmail).trim().toLowerCase(), user.id]
-        );
-      } catch {
-        // ignore if column doesn't exist
-      }
-    }
-
-    res.status(201).json({
-      user,
-      requiresApproval: true,
-      message: "Account created. The owner must approve access before this account can sign in.",
-    });
-  } catch (e) {
-    // handle duplicate email
-    if (String(e.message || "").toLowerCase().includes("duplicate")) {
-      return res.status(400).json({ error: "Email already exists" });
-    }
-    next(e);
-  }
+  return res.status(403).json({ error: "Account creation is managed by the owner in admin mode." });
 });
 
 // Parent register (requires childEmail to link)
 app.post("/auth/parent/register", async (req, res, next) => {
-  try {
-    const { name, email, password, childEmail } = req.body;
-
-    if (!name || !email || !password || !childEmail) {
-      return res.status(400).json({ error: "name, email, password, childEmail required" });
-    }
-
-    const child = await pool.query(
-      `SELECT id FROM users WHERE email = $1 AND role = 'student'`,
-      [String(childEmail).trim().toLowerCase()]
-    );
-    if (!child.rows[0]) {
-      return res.status(400).json({ error: "No student found with that childEmail" });
-    }
-
-    const hash = await bcrypt.hash(password, 10);
-
-    const { rows } = await pool.query(
-      `INSERT INTO users (name, email, password_hash, role, approved)
-       VALUES ($1, $2, $3, 'parent', FALSE)
-       RETURNING id, name, email, role, approved`,
-      [name.trim(), email.trim().toLowerCase(), hash]
-    );
-
-    const parent = rows[0];
-
-    // link parent -> child
-    await pool.query(
-      `INSERT INTO parent_children (parent_id, student_id)
-       VALUES ($1, $2)
-       ON CONFLICT DO NOTHING`,
-      [parent.id, child.rows[0].id]
-    );
-
-    res.status(201).json({
-      user: parent,
-      requiresApproval: true,
-      message: "Parent account created. The owner must approve access before this account can sign in.",
-    });
-  } catch (e) {
-    if (String(e.message || "").toLowerCase().includes("duplicate")) {
-      return res.status(400).json({ error: "Email already exists" });
-    }
-    next(e);
-  }
+  return res.status(403).json({ error: "Account creation is managed by the owner in admin mode." });
 });
 
 // Login (student or parent)
@@ -628,6 +539,35 @@ app.post("/admin/users/:id/access", auth, adminOnly, async (req, res, next) => {
 
     res.json({ user: rows[0] });
   } catch (e) {
+    next(e);
+  }
+});
+
+app.post("/admin/students", auth, adminOnly, async (req, res, next) => {
+  try {
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: "Name, email, and password are required." });
+    }
+    if (String(password).length < 4) {
+      return res.status(400).json({ error: "Password must be at least 4 characters." });
+    }
+
+    const hash = await bcrypt.hash(String(password), 10);
+
+    const { rows } = await pool.query(
+      `INSERT INTO users (name, email, password_hash, role, approved)
+       VALUES ($1, $2, $3, 'student', TRUE)
+       RETURNING id, name, email, role, approved, theme, created_at`,
+      [String(name).trim(), String(email).trim().toLowerCase(), hash]
+    );
+
+    res.status(201).json({ user: rows[0] });
+  } catch (e) {
+    if (String(e.message || "").toLowerCase().includes("duplicate")) {
+      return res.status(400).json({ error: "Email already exists" });
+    }
     next(e);
   }
 });

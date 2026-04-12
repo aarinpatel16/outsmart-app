@@ -1531,8 +1531,7 @@
     <div class="login-card">
       <div id="student-area">
         <div class="login-mode-selector" style="margin-bottom:24px;">
-          <button class="login-mode-btn active" id="tab-signin" onclick="switchLoginMode('signin')">Sign In</button>
-          <button class="login-mode-btn" id="tab-create" onclick="switchLoginMode('create')">Join</button>
+          <button class="login-mode-btn active" id="tab-signin">Sign In</button>
         </div>
 
         <div id="mode-signin">
@@ -1541,17 +1540,7 @@
           <label class="fl-label">Password</label>
           <input class="fl-input" id="si-pass" type="password" placeholder="Your password">
           <button class="fl-btn fl-btn-primary" onclick="signIn()">Sign In -></button>
-          <div class="fl-switch">New here? <a onclick="switchLoginMode('create')">Create your account</a></div>
-        </div>
-
-        <div id="mode-create" style="display:none;">
-          <label class="fl-label">First and last name</label>
-          <input class="fl-input" id="ca-name" type="text" placeholder="Enter your first and last name" autocomplete="name">
-          <label class="fl-label">Email</label>
-          <input class="fl-input" id="ca-email" type="email" placeholder="you@email.com">
-          <label class="fl-label">Create a password</label>
-          <input class="fl-input" id="ca-pass" type="password" placeholder="Min 4 characters">
-          <button class="fl-btn fl-btn-primary" onclick="createAccount()">Create Account</button>
+          <div class="fl-switch">Need access? Contact the owner to have your student account created.</div>
         </div>
 
         <div class="trust-row">
@@ -2060,10 +2049,25 @@
         <div class="admin-panel-head">
           <div>
             <h3>User Directory</h3>
-            <p>Browse every account in a dedicated user-management view.</p>
+            <p>Create student accounts and manage access from one place.</p>
           </div>
           <input class="admin-search" id="admin-user-search-users" type="text" placeholder="Search by name, email, or role" oninput="syncAdminSearch(this.value)">
         </div>
+        <div class="admin-form-grid" style="margin-bottom:18px;">
+          <div>
+            <label class="fl-label">Student name</label>
+            <input class="fl-input" id="admin-student-name" type="text" placeholder="Enter the student's full name">
+          </div>
+          <div>
+            <label class="fl-label">Student email</label>
+            <input class="fl-input" id="admin-student-email" type="email" placeholder="student@email.com">
+          </div>
+          <div>
+            <label class="fl-label">Temporary password</label>
+            <input class="fl-input" id="admin-student-password" type="text" placeholder="Create a starter password">
+          </div>
+        </div>
+        <button class="fl-btn fl-btn-primary admin-primary-btn" style="margin-bottom:18px;" onclick="createAdminStudent()">Create Student Account</button>
         <div class="admin-main-grid">
           <div id="admin-users-list-users" class="admin-user-list"></div>
           <div id="admin-user-detail-users" class="admin-user-detail"></div>
@@ -2915,6 +2919,10 @@ const API = {
     return this._post(`/admin/users/${userId}/access`, { approved });
   },
 
+  createAdminStudent(name, email, password) {
+    return this._post("/admin/students", { name, email, password });
+  },
+
   createAdminLesson(name, category) {
     return this._post("/admin/lessons", { name, category });
   },
@@ -3091,25 +3099,7 @@ function switchParentMode(mode) {
 
 // STUDENT CREATE
 async function createAccount() {
-  try {
-    const name = $("ca-name")?.value?.trim();
-    const email = $("ca-email")?.value?.trim();
-    const password = $("ca-pass")?.value;
-    const parentEmail = $("ca-parent-email")?.value?.trim() || null;
-
-    if (!name || !email || !password) return showToast("Enter your first and last name, email, and password.");
-
-    await API.studentRegister(name, email, password, parentEmail);
-
-    if ($("ca-name")) $("ca-name").value = "";
-    if ($("ca-email")) $("ca-email").value = "";
-    if ($("ca-pass")) $("ca-pass").value = "";
-
-    switchLoginMode("signin");
-    showToast("Account created. It will unlock after the owner approves access.");
-  } catch (e) {
-    showToast(e.message);
-  }
+  showToast("Account creation is managed by the owner in admin mode.");
 }
 
 // STUDENT LOGIN
@@ -3141,29 +3131,7 @@ async function signIn() {
 
 // PARENT CREATE
 async function createParentAccount() {
-  try {
-    const name = $("pc-name")?.value?.trim();
-    const email = $("pc-email")?.value?.trim();
-    const password = $("pc-pass")?.value;
-
-    if (!name || !email || !password) return showToast("Fill name, email, and password.");
-
-    // Your HTML does NOT include childEmail field, but backend needs it.
-    // We'll ask once via a simple prompt.
-    const childEmail = prompt("Enter your child's STUDENT email (the email they used to register):");
-    if (!childEmail) return showToast("Parent account requires child email to link.");
-
-    await API.parentRegister(name, email, password, childEmail);
-
-    if ($("pc-name")) $("pc-name").value = "";
-    if ($("pc-email")) $("pc-email").value = "";
-    if ($("pc-pass")) $("pc-pass").value = "";
-
-    switchParentMode("parent-signin");
-    showToast("Parent account created. It will unlock after the owner approves access.");
-  } catch (e) {
-    showToast(e.message);
-  }
+  showToast("Account creation is managed by the owner in admin mode.");
 }
 
 // PARENT LOGIN
@@ -3635,6 +3603,30 @@ function renderAdminUserDetail() {
 function renderAdminUsers() {
   renderAdminUsersInto("admin-users-list-users", "admin-user-detail-users");
   renderAdminUserDetail();
+}
+
+async function createAdminStudent() {
+  try {
+    const name = $("admin-student-name")?.value?.trim();
+    const email = $("admin-student-email")?.value?.trim();
+    const password = $("admin-student-password")?.value?.trim();
+
+    if (!name || !email || !password) {
+      return showToast("Enter the student's name, email, and password.");
+    }
+
+    const { user } = await API.createAdminStudent(name, email, password);
+
+    if ($("admin-student-name")) $("admin-student-name").value = "";
+    if ($("admin-student-email")) $("admin-student-email").value = "";
+    if ($("admin-student-password")) $("admin-student-password").value = "";
+
+    selectedAdminUserId = Number(user.id);
+    showToast("Student account created.");
+    await loadAdminDashboard();
+  } catch (e) {
+    showToast(e.message);
+  }
 }
 
 async function toggleUserAccess(userId, approved) {
