@@ -2384,17 +2384,13 @@
             <label class="fl-label">Student</label>
             <select class="fl-input" id="admin-report-student" onchange="renderParentReport()"></select>
           </div>
-          <div>
-            <label class="fl-label">Parent Email</label>
-            <input class="fl-input" id="admin-report-parent-email" type="email" placeholder="parent@email.com">
-          </div>
         </div>
         <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px;">
           <div style="flex:1 1 220px;">
             <button class="fl-btn fl-btn-primary admin-primary-btn" onclick="renderParentReport()">Generate Report</button>
           </div>
           <div style="flex:1 1 220px;">
-            <button class="fl-btn admin-primary-btn" style="background:linear-gradient(135deg,#44566f,#5d7390);" onclick="emailParentReport()">Email Report</button>
+            <button class="fl-btn admin-primary-btn" style="background:linear-gradient(135deg,#44566f,#5d7390);" onclick="downloadParentReportDoc()">Download Word Doc</button>
           </div>
         </div>
         <div id="admin-report-output" class="admin-report-journal"></div>
@@ -3438,7 +3434,7 @@ let selectedAdminUserId = null;
 let activeAdminBreakdown = "";
 let activeAdminTab = "overview";
 let availableLessons = [];
-let generatedParentReportEmail = "";
+let generatedParentReportDoc = "";
 let currentLogStep = 0;
 
 const LOG_STEPS = [
@@ -4036,39 +4032,71 @@ function populateAdminReportStudentOptions() {
     : `<option value="">No students available</option>`;
 }
 
-function buildParentReportEmailBody(student, logs, monthLabel) {
-  const lines = [
-    `Outsmart the System Parent Journal`,
-    `${student.name}`,
-    `${monthLabel}`,
-    ``,
-    `This report covers the last 30 days of lesson logs.`,
-    `Total entries this month: ${logs.length}`,
-    `Total lifetime logs: ${Number(student.total_logs || 0)}`,
-    ``,
-  ];
+function buildParentReportDoc(student, logs, monthLabel) {
+  const entriesHtml = logs.length
+    ? logs.map((log) => {
+        const sections = parseStructuredLogNotes(log.notes);
+        const lessonName = getStructuredLogValue(log.notes, "Selected Lesson") || log.lesson_name || "";
+        return `
+          <div class="entry">
+            <h3>${escapeHtml(log.title)}</h3>
+            <div class="meta">${escapeHtml(formatAdminDate(log.created_at))} • ${escapeHtml(log.category || "Unknown")}${lessonName ? ` • Lesson: ${escapeHtml(lessonName)}` : ""}</div>
+            ${sections.length
+              ? sections.map((section) => `
+                  <div class="section">
+                    <strong>${escapeHtml(section.label)}</strong>
+                    <p>${escapeHtml(section.value)}</p>
+                  </div>
+                `).join("")
+              : `<p>${escapeHtml(log.notes || "")}</p>`}
+          </div>
+        `;
+      }).join("")
+    : `<p>No lesson entries were logged during this period.</p>`;
 
-  if (!logs.length) {
-    lines.push(`No lesson entries were logged during this period.`);
-    return lines.join("\n");
-  }
+  return `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office"
+          xmlns:w="urn:schemas-microsoft-com:office:word"
+          xmlns="http://www.w3.org/TR/REC-html40">
+      <head>
+        <meta charset="utf-8">
+        <title>Outsmart the System Parent Journal</title>
+        <style>
+          body { font-family: Georgia, serif; color: #1f2937; margin: 36px; line-height: 1.7; }
+          .cover { border-bottom: 2px solid #d2b48c; padding-bottom: 18px; margin-bottom: 24px; }
+          .kicker { font-size: 11pt; text-transform: uppercase; letter-spacing: 2px; color: #8b6f47; margin-bottom: 8px; }
+          h1 { font-size: 24pt; margin: 0 0 6px; color: #111827; }
+          .subcopy { font-size: 11.5pt; color: #4b5563; }
+          .snapshot { margin: 22px 0; padding: 16px 18px; background: #f7f3ec; border: 1px solid #e3d6c3; }
+          .snapshot p { margin: 4px 0; }
+          h2 { font-size: 16pt; color: #7c5c35; margin: 26px 0 12px; }
+          .entry { margin-top: 14px; padding: 16px 18px; border: 1px solid #e5e7eb; background: #fbfbfa; }
+          .entry h3 { margin: 0 0 6px; font-size: 13pt; color: #111827; }
+          .meta { font-size: 10pt; color: #6b7280; margin-bottom: 10px; }
+          .section { margin-top: 10px; }
+          .section strong { display: block; margin-bottom: 4px; color: #374151; }
+          .section p { margin: 0; }
+        </style>
+      </head>
+      <body>
+        <div class="cover">
+          <div class="kicker">Outsmart the System Parent Journal</div>
+          <h1>${escapeHtml(student.name)}</h1>
+          <div class="subcopy">Monthly journal report for ${escapeHtml(monthLabel)} based on the student’s last 30 days of lesson entries.</div>
+        </div>
 
-  logs.forEach((log, index) => {
-    const sections = parseStructuredLogNotes(log.notes);
-    lines.push(`${index + 1}. ${log.title}`);
-    lines.push(`Date: ${formatAdminDate(log.created_at)}`);
-    lines.push(`Category: ${log.category || "Unknown"}`);
-    const lessonName = getStructuredLogValue(log.notes, "Selected Lesson") || log.lesson_name || "";
-    if (lessonName) {
-      lines.push(`Lesson: ${lessonName}`);
-    }
-    sections.forEach((section) => {
-      lines.push(`${section.label}: ${section.value}`);
-    });
-    lines.push(``);
-  });
+        <div class="snapshot">
+          <p><strong>Total entries this month:</strong> ${logs.length}</p>
+          <p><strong>Total lifetime logs:</strong> ${Number(student.total_logs || 0)}</p>
+          <p><strong>Skill areas completed:</strong> ${Number(student.categories_completed || 0)}</p>
+          <p><strong>Joined:</strong> ${escapeHtml(formatAdminDate(student.created_at, "Unknown"))}</p>
+        </div>
 
-  return lines.join("\n");
+        <h2>Journal Entries</h2>
+        ${entriesHtml}
+      </body>
+    </html>
+  `;
 }
 
 function renderParentReport() {
@@ -4100,7 +4128,7 @@ function renderParentReport() {
   }, {});
   const topLesson = Object.entries(lessonTotals).sort((a, b) => b[1] - a[1])[0];
   const highlight = logs[0];
-  generatedParentReportEmail = buildParentReportEmailBody(student, logs, monthLabel);
+  generatedParentReportDoc = buildParentReportDoc(student, logs, monthLabel);
 
   output.innerHTML = `
     <div class="admin-report-cover">
@@ -4187,27 +4215,28 @@ function renderParentReport() {
   `;
 }
 
-function emailParentReport() {
-  const parentEmail = $("admin-report-parent-email")?.value?.trim();
+function downloadParentReportDoc() {
   const studentId = Number($("admin-report-student")?.value);
   const student = adminUsers.find((user) => Number(user.id) === studentId && user.role === "student");
 
   if (!student) {
     return showToast("Choose a student first.");
   }
-  if (!parentEmail) {
-    return showToast("Enter the parent email first.");
-  }
 
-  if (!generatedParentReportEmail) {
+  if (!generatedParentReportDoc) {
     renderParentReport();
   }
 
   const monthLabel = new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" });
-  const subject = `Outsmart the System Journal - ${student.name} - ${monthLabel}`;
-  const body = generatedParentReportEmail || buildParentReportEmailBody(student, getStudentReportLogs(student.id), monthLabel);
-  const mailto = `mailto:${encodeURIComponent(parentEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  window.location.href = mailto;
+  const docHtml = generatedParentReportDoc || buildParentReportDoc(student, getStudentReportLogs(student.id), monthLabel);
+  const blob = new Blob([docHtml], { type: "application/msword" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `${String(student.name || "student").replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "") || "student"}-${monthLabel.replace(/\s+/g, "-").toLowerCase()}-journal.doc`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
 }
 
 async function resetAdminData() {
