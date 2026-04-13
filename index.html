@@ -2266,6 +2266,22 @@
         </div>
         <div id="admin-overview-insights" class="admin-insight-grid admin-insight-grid-wide"></div>
       </section>
+
+      <section class="admin-panel" style="margin-top:18px;">
+        <div class="admin-panel-head">
+          <div>
+            <h3>Launch Reset</h3>
+            <p>Clear user data before launch while keeping the admin account and lesson library intact.</p>
+          </div>
+        </div>
+        <div class="admin-subsection">
+          <h4>Clear All User Data</h4>
+          <p class="admin-panel-subtext">This removes all student and parent accounts, every lesson log, and any linked relationships. Admin accounts and lessons stay in place.</p>
+          <button class="fl-btn admin-primary-btn" style="margin-top:16px;background:linear-gradient(135deg,#7f1d1d,#b91c1c);box-shadow:0 10px 28px rgba(185,28,28,0.26);" onclick="resetAdminData()">
+            Clear Launch Data
+          </button>
+        </div>
+      </section>
     </div>
 
     <div class="admin-tab-panel" id="admin-panel-users">
@@ -2300,34 +2316,16 @@
     </div>
 
     <div class="admin-tab-panel" id="admin-panel-students">
-      <div class="admin-bottom-grid">
-        <section class="admin-panel">
-          <div class="admin-panel-head">
-            <div>
-              <h3>Student Activity</h3>
-              <p>Platform-wide student totals and every lesson log, sorted newest first.</p>
-            </div>
+      <section class="admin-panel">
+        <div class="admin-panel-head">
+          <div>
+            <h3>Student Activity</h3>
+            <p>Platform-wide student totals and every lesson log, sorted newest first.</p>
           </div>
-          <div id="admin-student-summary" class="admin-insight-grid"></div>
-          <div id="admin-student-log-feed" class="admin-student-board" style="margin-top:18px;"></div>
-        </section>
-
-        <section class="admin-panel">
-          <div class="admin-panel-head">
-            <div>
-              <h3>Launch Reset</h3>
-              <p>Clear user data before launch while keeping the admin account and lesson library intact.</p>
-            </div>
-          </div>
-          <div class="admin-subsection">
-            <h4>Clear All User Data</h4>
-            <p class="admin-panel-subtext">This removes all student and parent accounts, every lesson log, and any linked relationships. Admin accounts and lessons stay in place.</p>
-            <button class="fl-btn admin-primary-btn" style="margin-top:16px;background:linear-gradient(135deg,#7f1d1d,#b91c1c);box-shadow:0 10px 28px rgba(185,28,28,0.26);" onclick="resetAdminData()">
-              Clear Launch Data
-            </button>
-          </div>
-        </section>
-      </div>
+        </div>
+        <div id="admin-student-summary" class="admin-insight-grid"></div>
+        <div id="admin-student-log-feed" class="admin-student-board" style="margin-top:18px;"></div>
+      </section>
     </div>
 
     <div class="admin-tab-panel" id="admin-panel-lessons">
@@ -3752,8 +3750,9 @@ function renderAdminOverview() {
       .map((log) => Number(log.user_id))
   ).size;
   const monthlyBuckets = getMonthlyLogBuckets(adminRecentLogs, 6, launchResetAt);
-  const avgLessonsPerMonth = monthlyBuckets.length
-    ? totalLogs / monthlyBuckets.length
+  const analyticsMonthCount = getAnalyticsMonthCount(adminRecentLogs, launchResetAt);
+  const avgLessonsPerMonth = analyticsMonthCount
+    ? totalLogs / analyticsMonthCount
     : 0;
   const avgLessonsPerStudent = studentCount ? totalLogs / studentCount : 0;
   const categoryTotals = getCategoryTotals(adminRecentLogs);
@@ -3811,8 +3810,8 @@ function renderAdminOverview() {
         title: "Average Lessons / Month",
         value: avgLessonsPerMonth.toFixed(avgLessonsPerMonth >= 10 ? 0 : 1),
         body: launchResetAt
-          ? `Average lesson logs created per month since the reset on ${formatAdminDate(adminAppState.launch_reset_at, "launch reset")}.`
-          : "Average lesson logs created across the last six months of activity.",
+          ? `Average lesson logs created per month since the reset on ${formatAdminDate(adminAppState.launch_reset_at, "launch reset")}, based on ${analyticsMonthCount} month${analyticsMonthCount === 1 ? "" : "s"} of activity.`
+          : `Average lesson logs created per month across the ${analyticsMonthCount} month${analyticsMonthCount === 1 ? "" : "s"} the app has been active.`,
       },
       {
         title: "30-Day Active Users",
@@ -3931,6 +3930,26 @@ function getMonthlyLogBuckets(logs, monthsBack = 6, startAt = null) {
   });
 
   return buckets;
+}
+
+function getAnalyticsMonthCount(logs, startAt = null) {
+  const now = new Date();
+  const baseline = startAt instanceof Date && !Number.isNaN(startAt.getTime())
+    ? new Date(startAt.getFullYear(), startAt.getMonth(), 1)
+    : logs.length
+      ? (() => {
+          const oldest = logs.reduce((min, log) => {
+            const created = new Date(log.created_at);
+            if (Number.isNaN(created.getTime())) return min;
+            return !min || created < min ? created : min;
+          }, null);
+          return oldest ? new Date(oldest.getFullYear(), oldest.getMonth(), 1) : new Date(now.getFullYear(), now.getMonth(), 1);
+        })()
+      : new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const diffMonths = (currentMonth.getFullYear() - baseline.getFullYear()) * 12 + (currentMonth.getMonth() - baseline.getMonth());
+  return Math.max(diffMonths + 1, 1);
 }
 
 function getCategoryTotals(logs) {
