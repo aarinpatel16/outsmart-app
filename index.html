@@ -2228,6 +2228,7 @@
     <div class="admin-tab-strip">
       <button class="admin-tab-btn active" id="admin-tab-overview" onclick="switchAdminTab('overview')">Overview</button>
       <button class="admin-tab-btn" id="admin-tab-users" onclick="switchAdminTab('users')">Users</button>
+      <button class="admin-tab-btn" id="admin-tab-students" onclick="switchAdminTab('students')">Students</button>
       <button class="admin-tab-btn" id="admin-tab-lessons" onclick="switchAdminTab('lessons')">Lessons</button>
     </div>
 
@@ -2290,15 +2291,42 @@
         </div>
         <button class="fl-btn fl-btn-primary admin-primary-btn" style="margin-bottom:18px;" onclick="createAdminStudent()">Create Student Account</button>
         <input class="admin-search" id="admin-user-search-users" type="text" placeholder="Search by name or email" oninput="syncAdminSearch(this.value)" style="margin-bottom:18px;">
-        <div style="display:flex;justify-content:flex-end;margin:-4px 0 18px;">
-          <button class="admin-secondary-btn" id="admin-student-board-toggle" onclick="toggleAdminStudentBoard()">View All Students</button>
-        </div>
         <div class="admin-main-grid">
           <div id="admin-users-list-users" class="admin-user-list"></div>
           <div id="admin-user-detail-users" class="admin-user-detail"></div>
         </div>
-        <div id="admin-student-overview" class="admin-student-board" style="display:none;"></div>
       </section>
+    </div>
+
+    <div class="admin-tab-panel" id="admin-panel-students">
+      <div class="admin-bottom-grid">
+        <section class="admin-panel">
+          <div class="admin-panel-head">
+            <div>
+              <h3>Student Activity</h3>
+              <p>Platform-wide student totals and every lesson log, sorted newest first.</p>
+            </div>
+          </div>
+          <div id="admin-student-summary" class="admin-insight-grid"></div>
+          <div id="admin-student-log-feed" class="admin-student-board" style="margin-top:18px;"></div>
+        </section>
+
+        <section class="admin-panel">
+          <div class="admin-panel-head">
+            <div>
+              <h3>Launch Reset</h3>
+              <p>Clear user data before launch while keeping the admin account and lesson library intact.</p>
+            </div>
+          </div>
+          <div class="admin-subsection">
+            <h4>Clear All User Data</h4>
+            <p class="admin-panel-subtext">This removes all student and parent accounts, every lesson log, and any linked relationships. Admin accounts and lessons stay in place.</p>
+            <button class="fl-btn admin-primary-btn" style="margin-top:16px;background:linear-gradient(135deg,#7f1d1d,#b91c1c);box-shadow:0 10px 28px rgba(185,28,28,0.26);" onclick="resetAdminData()">
+              Clear Launch Data
+            </button>
+          </div>
+        </section>
+      </div>
     </div>
 
     <div class="admin-tab-panel" id="admin-panel-lessons">
@@ -3220,6 +3248,10 @@ const API = {
     return this._delete(`/admin/users/${userId}`);
   },
 
+  resetAdminData() {
+    return this._post("/admin/reset-data", {});
+  },
+
   createAdminLesson(name, category) {
     return this._post("/admin/lessons", { name, category });
   },
@@ -3248,7 +3280,6 @@ let adminCategoryBreakdown = [];
 let selectedAdminUserId = null;
 let activeAdminBreakdown = "";
 let activeAdminTab = "overview";
-let adminStudentBoardOpen = false;
 let availableLessons = [];
 let currentLogStep = 0;
 
@@ -3726,27 +3757,7 @@ function syncAdminSearch(value) {
   renderAdminUsers();
 }
 
-function toggleAdminStudentBoard(forceOpen) {
-  adminStudentBoardOpen = typeof forceOpen === "boolean" ? forceOpen : !adminStudentBoardOpen;
-  const board = $("admin-student-overview");
-  const button = $("admin-student-board-toggle");
-  const isOpen = Boolean(adminStudentBoardOpen);
-
-  if (board) {
-    board.style.display = isOpen ? "flex" : "none";
-  }
-  if (button) {
-    button.textContent = isOpen ? "Hide All Students" : "View All Students";
-  }
-  if (isOpen) {
-    renderAdminStudentBoard();
-  }
-}
-
 function renderAdminStudentBoard() {
-  const board = $("admin-student-overview");
-  if (!board) return;
-
   const studentUsers = adminUsers
     .filter((user) => user.role === "student")
     .sort((a, b) => {
@@ -3754,57 +3765,132 @@ function renderAdminStudentBoard() {
       return diff || String(a.name || "").localeCompare(String(b.name || ""));
     });
 
-  if (!studentUsers.length) {
-    board.innerHTML = `<div class="admin-empty-state">No student accounts yet.</div>`;
+  const studentLogs = adminRecentLogs.filter((log) => log.user_role === "student");
+  const summary = $("admin-student-summary");
+  const feed = $("admin-student-log-feed");
+
+  if (summary) {
+    const activeStudents = studentUsers.filter((user) => Number(user.total_logs || 0) > 0).length;
+    const avgLogs = studentUsers.length
+      ? (studentUsers.reduce((sum, user) => sum + Number(user.total_logs || 0), 0) / studentUsers.length)
+      : 0;
+    summary.innerHTML = [
+      {
+        title: "Student Accounts",
+        value: studentUsers.length,
+        body: "Total student profiles currently in the app.",
+      },
+      {
+        title: "Lessons Logged",
+        value: studentLogs.length,
+        body: "Every lesson entry submitted by students across the platform.",
+      },
+      {
+        title: "Active Students",
+        value: activeStudents,
+        body: "Students with at least one lesson log recorded.",
+      },
+      {
+        title: "Avg Logs / Student",
+        value: avgLogs.toFixed(avgLogs >= 10 ? 0 : 1),
+        body: "Average number of lesson logs per student account.",
+      },
+      {
+        title: "Latest Student Activity",
+        value: studentLogs[0] ? formatAdminDate(studentLogs[0].created_at, "No activity") : "No activity",
+        body: "Most recent student-submitted lesson in the app.",
+      },
+      {
+        title: "Students With No Logs",
+        value: studentUsers.filter((user) => Number(user.total_logs || 0) === 0).length,
+        body: "Students who have not logged a lesson yet.",
+      },
+    ].map((item) => `
+      <div class="admin-analytic-card">
+        <h4>${escapeHtml(item.title)}</h4>
+        <strong>${escapeHtml(String(item.value))}</strong>
+        <p>${escapeHtml(item.body)}</p>
+      </div>
+    `).join("");
+  }
+
+  if (!feed) return;
+
+  if (!studentLogs.length) {
+    feed.innerHTML = `<div class="admin-empty-state">No student lesson logs yet.</div>`;
     return;
   }
 
-  board.innerHTML = studentUsers.map((user) => {
-    const logs = getLogsForUser(user.id).slice(0, 5);
+  feed.innerHTML = studentLogs.map((log) => {
+    const user = studentUsers.find((entry) => Number(entry.id) === Number(log.user_id));
+    const logs = getLogsForUser(user?.id || log.user_id).slice(0, 5);
     return `
       <div class="admin-student-board-card">
         <div class="admin-student-board-head">
           <div>
-            <div class="admin-detail-name">${escapeHtml(user.name)}</div>
-            <div class="admin-user-email">${escapeHtml(user.email)}</div>
-            <div class="admin-student-board-copy">Joined ${escapeHtml(formatAdminDate(user.created_at, "Unknown"))}</div>
+            <div class="admin-detail-name">${escapeHtml(log.user_name || user?.name || "Unknown Student")}</div>
+            <div class="admin-user-email">${escapeHtml(log.user_email || user?.email || "")}</div>
+            <div class="admin-student-board-copy">
+              ${escapeHtml(formatAdminDate(log.created_at))}
+              ${log.lesson_name ? ` • Lesson: ${escapeHtml(log.lesson_name)}` : ""}
+            </div>
           </div>
           <div class="admin-role-pill student">student</div>
         </div>
 
         <div class="admin-student-board-metrics">
           <div class="admin-detail-metric">
-            <strong>${Number(user.total_logs || 0)}</strong>
+            <strong>${Number(user?.total_logs || 0)}</strong>
             <span>Total Logs</span>
           </div>
           <div class="admin-detail-metric">
-            <strong>${Number(user.categories_completed || 0)}</strong>
+            <strong>${Number(user?.categories_completed || 0)}</strong>
             <span>Skill Areas</span>
           </div>
           <div class="admin-detail-metric">
-            <strong>${escapeHtml(formatAdminDate(user.last_activity, "None"))}</strong>
-            <span>Last Active</span>
+            <strong>${escapeHtml(log.category || "Unknown")}</strong>
+            <span>Category</span>
           </div>
         </div>
 
         <div class="admin-subsection">
-          <h4>Recent Entries</h4>
-          <p class="admin-panel-subtext">Latest lesson logs submitted by this student.</p>
+          <h4>Selected Entry</h4>
+          <p class="admin-panel-subtext">This student lesson log appears in the global activity feed.</p>
+          <div class="admin-student-board-logs">
+            <div class="admin-student-board-log">
+              <div class="admin-student-board-log-head">
+                <div>
+                  <div class="admin-student-board-log-title">${escapeHtml(log.title)}</div>
+                  <div class="admin-student-board-log-meta">
+                    ${escapeHtml(formatAdminDate(log.created_at))}
+                    ${getStructuredLogValue(log.notes, "Selected Lesson") ? ` • Lesson: ${escapeHtml(getStructuredLogValue(log.notes, "Selected Lesson"))}` : ""}
+                  </div>
+                </div>
+                <div class="admin-category-pill">${escapeHtml(log.category)}</div>
+              </div>
+              ${renderStructuredNotesDetails(log.notes, "admin", `student-feed-${log.id}`)}
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-subsection">
+          <h4>More From This Student</h4>
+          <p class="admin-panel-subtext">Most recent lesson logs from the same student.</p>
           <div class="admin-student-board-logs">
             ${logs.length
-              ? logs.map((log) => `
+              ? logs.map((entry) => `
                   <div class="admin-student-board-log">
                     <div class="admin-student-board-log-head">
                       <div>
-                        <div class="admin-student-board-log-title">${escapeHtml(log.title)}</div>
+                        <div class="admin-student-board-log-title">${escapeHtml(entry.title)}</div>
                         <div class="admin-student-board-log-meta">
-                          ${escapeHtml(formatAdminDate(log.created_at))}
-                          ${getStructuredLogValue(log.notes, "Selected Lesson") ? ` • Lesson: ${escapeHtml(getStructuredLogValue(log.notes, "Selected Lesson"))}` : ""}
+                          ${escapeHtml(formatAdminDate(entry.created_at))}
+                          ${getStructuredLogValue(entry.notes, "Selected Lesson") ? ` • Lesson: ${escapeHtml(getStructuredLogValue(entry.notes, "Selected Lesson"))}` : ""}
                         </div>
                       </div>
-                      <div class="admin-category-pill">${escapeHtml(log.category)}</div>
+                      <div class="admin-category-pill">${escapeHtml(entry.category)}</div>
                     </div>
-                    ${renderStructuredNotesDetails(log.notes, "admin", `student-board-${log.id}`)}
+                    ${renderStructuredNotesDetails(entry.notes, "admin", `student-board-${entry.id}`)}
                   </div>
                 `).join("")
               : `<div class="admin-empty-state">No lesson entries yet for this student.</div>`}
@@ -3813,6 +3899,23 @@ function renderAdminStudentBoard() {
       </div>
     `;
   }).join("");
+}
+
+async function resetAdminData() {
+  try {
+    const firstConfirm = window.confirm("Clear all user data before launch? This will remove every student and parent account plus all lesson logs.");
+    if (!firstConfirm) return;
+
+    const secondConfirm = window.confirm("Final check: admin accounts and lessons will stay, but all user data will be permanently erased. Continue?");
+    if (!secondConfirm) return;
+
+    const result = await API.resetAdminData();
+    selectedAdminUserId = null;
+    showToast(`Launch data cleared. Removed ${Number(result.deleted_users || 0)} users and ${Number(result.deleted_logs || 0)} logs.`);
+    await loadAdminDashboard();
+  } catch (e) {
+    showToast(e.message);
+  }
 }
 
 function renderAdminUsersInto(listId, detailId) {
@@ -3960,9 +4063,6 @@ function renderAdminUserDetail() {
 function renderAdminUsers() {
   renderAdminUsersInto("admin-users-list-users", "admin-user-detail-users");
   renderAdminUserDetail();
-  if (adminStudentBoardOpen) {
-    renderAdminStudentBoard();
-  }
 }
 
 async function createAdminStudent() {
@@ -4081,7 +4181,7 @@ async function loadAdminDashboard() {
 
     renderAdminOverview();
     renderAdminUsers();
-    toggleAdminStudentBoard(adminStudentBoardOpen);
+    renderAdminStudentBoard();
     renderAdminLessons(lessons);
   } catch (e) {
     showToast(e.message);
@@ -4467,7 +4567,7 @@ function resetLogForm() {
 
 function switchAdminTab(tab) {
   activeAdminTab = tab;
-  ["overview", "users", "lessons"].forEach((name) => {
+  ["overview", "users", "students", "lessons"].forEach((name) => {
     $("admin-tab-" + name)?.classList.toggle("active", name === tab);
     $("admin-panel-" + name)?.classList.toggle("active", name === tab);
   });

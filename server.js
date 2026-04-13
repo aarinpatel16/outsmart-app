@@ -543,6 +543,39 @@ app.delete("/admin/users/:id", auth, adminOnly, async (req, res, next) => {
   }
 });
 
+app.post("/admin/reset-data", auth, adminOnly, async (req, res, next) => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    const logsResult = await client.query(
+      `DELETE FROM lesson_logs
+       WHERE user_id IN (
+         SELECT id FROM users WHERE role <> 'admin'
+       )
+       RETURNING id`
+    );
+
+    const usersResult = await client.query(
+      `DELETE FROM users
+       WHERE role <> 'admin'
+       RETURNING id`
+    );
+
+    await client.query("COMMIT");
+    res.json({
+      ok: true,
+      deleted_logs: logsResult.rowCount || 0,
+      deleted_users: usersResult.rowCount || 0,
+    });
+  } catch (e) {
+    await client.query("ROLLBACK");
+    next(e);
+  } finally {
+    client.release();
+  }
+});
+
 app.get("/admin/lessons", auth, adminOnly, async (req, res, next) => {
   try {
     const { rows } = await pool.query(
