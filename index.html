@@ -2204,24 +2204,24 @@
 
     <div class="admin-summary-grid">
       <div class="admin-stat-card">
-        <span class="admin-stat-label">Total Accounts</span>
-        <strong class="admin-stat-value" id="admin-total-users">0</strong>
-        <span class="admin-stat-meta">All registered users</span>
+        <span class="admin-stat-label" id="admin-summary-label-1">Total Accounts</span>
+        <strong class="admin-stat-value" id="admin-summary-value-1">0</strong>
+        <span class="admin-stat-meta" id="admin-summary-meta-1">All registered users</span>
       </div>
       <div class="admin-stat-card">
-        <span class="admin-stat-label">Students</span>
-        <strong class="admin-stat-value" id="admin-total-students">0</strong>
-        <span class="admin-stat-meta">Learner accounts</span>
+        <span class="admin-stat-label" id="admin-summary-label-2">Lessons Logged</span>
+        <strong class="admin-stat-value" id="admin-summary-value-2">0</strong>
+        <span class="admin-stat-meta" id="admin-summary-meta-2">Total learning entries across the app</span>
       </div>
       <div class="admin-stat-card">
-        <span class="admin-stat-label">Parents</span>
-        <strong class="admin-stat-value" id="admin-total-parents">0</strong>
-        <span class="admin-stat-meta">Linked guardians</span>
+        <span class="admin-stat-label" id="admin-summary-label-3">Active Students</span>
+        <strong class="admin-stat-value" id="admin-summary-value-3">0</strong>
+        <span class="admin-stat-meta" id="admin-summary-meta-3">Students with at least one log this month</span>
       </div>
       <div class="admin-stat-card">
-        <span class="admin-stat-label">Admins</span>
-        <strong class="admin-stat-value" id="admin-total-admins">0</strong>
-        <span class="admin-stat-meta">Privileged operators</span>
+        <span class="admin-stat-label" id="admin-summary-label-4">Latest Activity</span>
+        <strong class="admin-stat-value" id="admin-summary-value-4">0</strong>
+        <span class="admin-stat-meta" id="admin-summary-meta-4">Most recent lesson logged in the app</span>
       </div>
     </div>
 
@@ -3740,11 +3740,6 @@ function openAdminBreakdown(type) {
 
 function renderAdminOverview() {
   const overview = adminOverview || {};
-  setText("admin-total-users", overview.total_users || 0);
-  setText("admin-total-students", overview.total_students || 0);
-  setText("admin-total-parents", overview.total_parents || 0);
-  setText("admin-total-admins", overview.total_admins || 0);
-
   const studentCount = adminUsers.filter((user) => user.role === "student").length;
   const totalLogs = adminRecentLogs.length;
   const launchResetAt = adminAppState?.launch_reset_at ? new Date(adminAppState.launch_reset_at) : null;
@@ -3767,6 +3762,47 @@ function renderAdminOverview() {
     : Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0];
   const topLessonEntry = adminLessonBreakdown[0] || null;
   const mostRecentLog = adminRecentLogs[0]?.created_at || null;
+  const activeStudentsThisMonth = new Set(
+    adminRecentLogs
+      .filter((log) => {
+        const created = new Date(log.created_at);
+        if (Number.isNaN(created.getTime())) return false;
+        const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+        return created >= monthStart;
+      })
+      .filter((log) => log.user_role === "student")
+      .map((log) => Number(log.user_id))
+  ).size;
+
+  const summaryCards = [
+    {
+      label: "Total Accounts",
+      value: overview.total_users || 0,
+      meta: "All registered users currently in the app",
+    },
+    {
+      label: "Lessons Logged",
+      value: totalLogs,
+      meta: "Total learning entries across the platform",
+    },
+    {
+      label: "Active Students",
+      value: activeStudentsThisMonth,
+      meta: "Students with at least one lesson logged this month",
+    },
+    {
+      label: "Latest Activity",
+      value: mostRecentLog ? formatAdminDate(mostRecentLog, "No activity") : "No activity",
+      meta: "Most recent lesson logged anywhere in the app",
+    },
+  ];
+
+  summaryCards.forEach((card, index) => {
+    const slot = index + 1;
+    setText(`admin-summary-label-${slot}`, card.label);
+    setText(`admin-summary-value-${slot}`, card.value);
+    setText(`admin-summary-meta-${slot}`, card.meta);
+  });
 
   const metricsEl = $("admin-overview-metrics");
   if (metricsEl) {
