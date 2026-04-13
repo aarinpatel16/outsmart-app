@@ -32,6 +32,19 @@ const pool = new Pool({
 
 async function ensureDatabaseSchema() {
   await pool.query(`
+    CREATE TABLE IF NOT EXISTS admin_app_state (
+      id INTEGER PRIMARY KEY DEFAULT 1,
+      launch_reset_at TIMESTAMPTZ
+    );
+  `);
+
+  await pool.query(`
+    INSERT INTO admin_app_state (id, launch_reset_at)
+    VALUES (1, NULL)
+    ON CONFLICT (id) DO NOTHING;
+  `);
+
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS lessons (
       id SERIAL PRIMARY KEY,
       name TEXT NOT NULL UNIQUE,
@@ -472,12 +485,19 @@ app.get("/admin/users", auth, adminOnly, async (req, res, next) => {
        ORDER BY COUNT(*) DESC, 1 ASC`
     );
 
+    const appStateResult = await pool.query(
+      `SELECT launch_reset_at
+       FROM admin_app_state
+       WHERE id = 1`
+    );
+
     res.json({
       overview: overviewResult.rows[0],
       users: usersResult.rows,
       recentLogs: logsResult.rows,
       categoryBreakdown: categoryBreakdownResult.rows,
       lessonBreakdown: lessonBreakdownResult.rows,
+      appState: appStateResult.rows[0] || { launch_reset_at: null },
     });
   } catch (e) {
     next(e);
@@ -547,6 +567,12 @@ app.post("/admin/reset-data", auth, adminOnly, async (req, res, next) => {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
+    const resetResult = await client.query(
+      `UPDATE admin_app_state
+       SET launch_reset_at = NOW()
+       WHERE id = 1
+       RETURNING launch_reset_at`
+    );
 
     const logsResult = await client.query(
       `DELETE FROM lesson_logs
@@ -567,6 +593,7 @@ app.post("/admin/reset-data", auth, adminOnly, async (req, res, next) => {
       ok: true,
       deleted_logs: logsResult.rowCount || 0,
       deleted_users: usersResult.rowCount || 0,
+      launch_reset_at: resetResult.rows[0]?.launch_reset_at || null,
     });
   } catch (e) {
     await client.query("ROLLBACK");

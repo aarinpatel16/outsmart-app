@@ -3430,6 +3430,7 @@ let adminUsers = [];
 let adminRecentLogs = [];
 let adminLessonBreakdown = [];
 let adminCategoryBreakdown = [];
+let adminAppState = { launch_reset_at: null };
 let selectedAdminUserId = null;
 let activeAdminBreakdown = "";
 let activeAdminTab = "overview";
@@ -3746,6 +3747,7 @@ function renderAdminOverview() {
 
   const studentCount = adminUsers.filter((user) => user.role === "student").length;
   const totalLogs = adminRecentLogs.length;
+  const launchResetAt = adminAppState?.launch_reset_at ? new Date(adminAppState.launch_reset_at) : null;
   const uniqueActiveUsers30d = new Set(
     adminRecentLogs
       .filter((log) => {
@@ -3754,7 +3756,7 @@ function renderAdminOverview() {
       })
       .map((log) => Number(log.user_id))
   ).size;
-  const monthlyBuckets = getMonthlyLogBuckets(adminRecentLogs, 6);
+  const monthlyBuckets = getMonthlyLogBuckets(adminRecentLogs, 6, launchResetAt);
   const avgLessonsPerMonth = monthlyBuckets.length
     ? totalLogs / monthlyBuckets.length
     : 0;
@@ -3772,7 +3774,9 @@ function renderAdminOverview() {
       {
         title: "Average Lessons / Month",
         value: avgLessonsPerMonth.toFixed(avgLessonsPerMonth >= 10 ? 0 : 1),
-        body: "Average lesson logs created across the last six months of activity.",
+        body: launchResetAt
+          ? `Average lesson logs created per month since the reset on ${formatAdminDate(adminAppState.launch_reset_at, "launch reset")}.`
+          : "Average lesson logs created across the last six months of activity.",
       },
       {
         title: "30-Day Active Users",
@@ -3864,18 +3868,22 @@ function renderAdminOverview() {
   }
 }
 
-function getMonthlyLogBuckets(logs, monthsBack = 6) {
+function getMonthlyLogBuckets(logs, monthsBack = 6, startAt = null) {
   const now = new Date();
   const buckets = [];
+  const startDate = startAt instanceof Date && !Number.isNaN(startAt.getTime())
+    ? new Date(startAt.getFullYear(), startAt.getMonth(), 1)
+    : new Date(now.getFullYear(), now.getMonth() - (monthsBack - 1), 1);
 
-  for (let offset = monthsBack - 1; offset >= 0; offset--) {
-    const date = new Date(now.getFullYear(), now.getMonth() - offset, 1);
-    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+  let cursor = new Date(now.getFullYear(), now.getMonth(), 1);
+  while (cursor >= startDate) {
+    const key = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}`;
     buckets.push({
       key,
-      label: date.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
+      label: cursor.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
       count: 0,
     });
+    cursor = new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1);
   }
 
   const byKey = new Map(buckets.map((bucket) => [bucket.key, bucket]));
@@ -4248,8 +4256,9 @@ async function resetAdminData() {
     if (!secondConfirm) return;
 
     const result = await API.resetAdminData();
+    adminAppState = { launch_reset_at: result.launch_reset_at || new Date().toISOString() };
     selectedAdminUserId = null;
-    showToast(`Launch data cleared. Removed ${Number(result.deleted_users || 0)} users and ${Number(result.deleted_logs || 0)} logs.`);
+    showToast(`Launch data cleared. Removed ${Number(result.deleted_users || 0)} users and ${Number(result.deleted_logs || 0)} logs. Analytics now start fresh from this month.`);
     await loadAdminDashboard();
   } catch (e) {
     showToast(e.message);
@@ -4518,7 +4527,7 @@ async function loadAdminLessons() {
 async function loadAdminDashboard() {
   try {
     await testAdminRoute();
-    const [{ overview, users, recentLogs, categoryBreakdown, lessonBreakdown }, { lessons }] = await Promise.all([
+    const [{ overview, users, recentLogs, categoryBreakdown, lessonBreakdown, appState }, { lessons }] = await Promise.all([
       API.getAdminUsers(),
       API.getAdminLessons(),
     ]);
@@ -4528,6 +4537,7 @@ async function loadAdminDashboard() {
     adminRecentLogs = recentLogs;
     adminCategoryBreakdown = categoryBreakdown || [];
     adminLessonBreakdown = lessonBreakdown || [];
+    adminAppState = appState || { launch_reset_at: null };
 
     const studentUsers = adminUsers.filter((user) => user.role === "student");
     if (!studentUsers.some((user) => Number(user.id) === Number(selectedAdminUserId))) {

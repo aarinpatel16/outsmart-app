@@ -15,6 +15,15 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 
+CREATE TABLE IF NOT EXISTS admin_app_state (
+  id              INTEGER PRIMARY KEY DEFAULT 1,
+  launch_reset_at TIMESTAMPTZ
+);
+
+INSERT INTO admin_app_state (id, launch_reset_at)
+VALUES (1, NULL)
+ON CONFLICT (id) DO NOTHING;
+
 -- ── Lesson logs ──────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS lesson_logs (
   id         SERIAL PRIMARY KEY,
