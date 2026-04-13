@@ -2273,7 +2273,6 @@
             <h3>User Directory</h3>
             <p>Create student accounts, review activity, and remove users from one place.</p>
           </div>
-          <input class="admin-search" id="admin-user-search-users" type="text" placeholder="Search by name, email, or role" oninput="syncAdminSearch(this.value)">
         </div>
         <div class="admin-form-grid" style="margin-bottom:18px;">
           <div>
@@ -2290,6 +2289,7 @@
           </div>
         </div>
         <button class="fl-btn fl-btn-primary admin-primary-btn" style="margin-bottom:18px;" onclick="createAdminStudent()">Create Student Account</button>
+        <input class="admin-search" id="admin-user-search-users" type="text" placeholder="Search by name or email" oninput="syncAdminSearch(this.value)" style="margin-bottom:18px;">
         <div style="display:flex;justify-content:flex-end;margin:-4px 0 18px;">
           <button class="admin-secondary-btn" id="admin-student-board-toggle" onclick="toggleAdminStudentBoard()">View All Students</button>
         </div>
@@ -3243,12 +3243,12 @@ let selectedCatKey = null; // fin | eq | lead | din
 let adminOverview = null;
 let adminUsers = [];
 let adminRecentLogs = [];
-let adminLinks = [];
 let adminLessonBreakdown = [];
 let adminCategoryBreakdown = [];
 let selectedAdminUserId = null;
 let activeAdminBreakdown = "";
 let activeAdminTab = "overview";
+let adminStudentBoardOpen = false;
 let availableLessons = [];
 let currentLogStep = 0;
 
@@ -3474,21 +3474,6 @@ function formatAdminDate(value, fallback = "No activity yet") {
 
 function adminRoleClass(role) {
   return role === "admin" ? "admin" : role === "parent" ? "parent" : "student";
-}
-
-function getLinkedRecordsForUser(user) {
-  if (!user) return [];
-  if (user.role === "parent") {
-    return adminLinks
-      .filter((link) => Number(link.parent_id) === Number(user.id))
-      .map((link) => ({ label: `${link.student_name} (${link.student_email})`, type: "Student" }));
-  }
-  if (user.role === "student") {
-    return adminLinks
-      .filter((link) => Number(link.student_id) === Number(user.id))
-      .map((link) => ({ label: `${link.parent_name} (${link.parent_email})`, type: "Parent" }));
-  }
-  return [];
 }
 
 function getLogsForUser(userId) {
@@ -3741,6 +3726,95 @@ function syncAdminSearch(value) {
   renderAdminUsers();
 }
 
+function toggleAdminStudentBoard(forceOpen) {
+  adminStudentBoardOpen = typeof forceOpen === "boolean" ? forceOpen : !adminStudentBoardOpen;
+  const board = $("admin-student-overview");
+  const button = $("admin-student-board-toggle");
+  const isOpen = Boolean(adminStudentBoardOpen);
+
+  if (board) {
+    board.style.display = isOpen ? "flex" : "none";
+  }
+  if (button) {
+    button.textContent = isOpen ? "Hide All Students" : "View All Students";
+  }
+  if (isOpen) {
+    renderAdminStudentBoard();
+  }
+}
+
+function renderAdminStudentBoard() {
+  const board = $("admin-student-overview");
+  if (!board) return;
+
+  const studentUsers = adminUsers
+    .filter((user) => user.role === "student")
+    .sort((a, b) => {
+      const diff = Number(b.total_logs || 0) - Number(a.total_logs || 0);
+      return diff || String(a.name || "").localeCompare(String(b.name || ""));
+    });
+
+  if (!studentUsers.length) {
+    board.innerHTML = `<div class="admin-empty-state">No student accounts yet.</div>`;
+    return;
+  }
+
+  board.innerHTML = studentUsers.map((user) => {
+    const logs = getLogsForUser(user.id).slice(0, 5);
+    return `
+      <div class="admin-student-board-card">
+        <div class="admin-student-board-head">
+          <div>
+            <div class="admin-detail-name">${escapeHtml(user.name)}</div>
+            <div class="admin-user-email">${escapeHtml(user.email)}</div>
+            <div class="admin-student-board-copy">Joined ${escapeHtml(formatAdminDate(user.created_at, "Unknown"))}</div>
+          </div>
+          <div class="admin-role-pill student">student</div>
+        </div>
+
+        <div class="admin-student-board-metrics">
+          <div class="admin-detail-metric">
+            <strong>${Number(user.total_logs || 0)}</strong>
+            <span>Total Logs</span>
+          </div>
+          <div class="admin-detail-metric">
+            <strong>${Number(user.categories_completed || 0)}</strong>
+            <span>Skill Areas</span>
+          </div>
+          <div class="admin-detail-metric">
+            <strong>${escapeHtml(formatAdminDate(user.last_activity, "None"))}</strong>
+            <span>Last Active</span>
+          </div>
+        </div>
+
+        <div class="admin-subsection">
+          <h4>Recent Entries</h4>
+          <p class="admin-panel-subtext">Latest lesson logs submitted by this student.</p>
+          <div class="admin-student-board-logs">
+            ${logs.length
+              ? logs.map((log) => `
+                  <div class="admin-student-board-log">
+                    <div class="admin-student-board-log-head">
+                      <div>
+                        <div class="admin-student-board-log-title">${escapeHtml(log.title)}</div>
+                        <div class="admin-student-board-log-meta">
+                          ${escapeHtml(formatAdminDate(log.created_at))}
+                          ${getStructuredLogValue(log.notes, "Selected Lesson") ? ` • Lesson: ${escapeHtml(getStructuredLogValue(log.notes, "Selected Lesson"))}` : ""}
+                        </div>
+                      </div>
+                      <div class="admin-category-pill">${escapeHtml(log.category)}</div>
+                    </div>
+                    ${renderStructuredNotesDetails(log.notes, "admin", `student-board-${log.id}`)}
+                  </div>
+                `).join("")
+              : `<div class="admin-empty-state">No lesson entries yet for this student.</div>`}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
 function renderAdminUsersInto(listId, detailId) {
   const list = $(listId);
   const detail = $(detailId);
@@ -3762,7 +3836,7 @@ function renderAdminUsersInto(listId, detailId) {
         <div class="admin-detail-empty">
           <div>
             <h4>No matching account</h4>
-            <p>Try a different search to review account access, details, and recent activity.</p>
+            <p>Try a different search to review account details and recent activity.</p>
           </div>
         </div>
       `;
@@ -3794,8 +3868,8 @@ function renderAdminUsersInto(listId, detailId) {
           <span>Skills</span>
         </div>
         <div class="admin-mini-metric">
-          <strong>${getLinkedRecordsForUser(user).length}</strong>
-          <span>Links</span>
+          <strong>${escapeHtml(formatAdminDate(user.last_activity, "None"))}</strong>
+          <span>Last Active</span>
         </div>
       </div>
     </div>
@@ -3815,7 +3889,6 @@ function buildAdminUserDetailMarkup() {
     `;
   }
 
-  const links = getLinkedRecordsForUser(user);
   const logs = getLogsForUser(user.id);
 
   return `
@@ -3848,16 +3921,6 @@ function buildAdminUserDetailMarkup() {
         <div class="admin-detail-metric">
           <strong>${logs.length}</strong>
           <span>Recent Entries</span>
-        </div>
-      </div>
-
-      <div class="admin-subsection">
-        <h4>Linked Accounts</h4>
-        <p class="admin-panel-subtext">Family relationships connected to this account.</p>
-        <div class="admin-links">
-          ${links.length
-            ? links.map((link) => `<div class="admin-link-pill">${escapeHtml(link.type)}: ${escapeHtml(link.label)}</div>`).join("")
-            : `<div class="admin-empty-state">No linked accounts for this user.</div>`}
         </div>
       </div>
 
@@ -3897,6 +3960,9 @@ function renderAdminUserDetail() {
 function renderAdminUsers() {
   renderAdminUsersInto("admin-users-list-users", "admin-user-detail-users");
   renderAdminUserDetail();
+  if (adminStudentBoardOpen) {
+    renderAdminStudentBoard();
+  }
 }
 
 async function createAdminStudent() {
@@ -3997,7 +4063,7 @@ async function loadAdminLessons() {
 async function loadAdminDashboard() {
   try {
     await testAdminRoute();
-    const [{ overview, users, recentLogs, links, categoryBreakdown, lessonBreakdown }, { lessons }] = await Promise.all([
+    const [{ overview, users, recentLogs, categoryBreakdown, lessonBreakdown }, { lessons }] = await Promise.all([
       API.getAdminUsers(),
       API.getAdminLessons(),
     ]);
@@ -4005,7 +4071,6 @@ async function loadAdminDashboard() {
     adminOverview = overview;
     adminUsers = users;
     adminRecentLogs = recentLogs;
-    adminLinks = links;
     adminCategoryBreakdown = categoryBreakdown || [];
     adminLessonBreakdown = lessonBreakdown || [];
 
@@ -4016,6 +4081,7 @@ async function loadAdminDashboard() {
 
     renderAdminOverview();
     renderAdminUsers();
+    toggleAdminStudentBoard(adminStudentBoardOpen);
     renderAdminLessons(lessons);
   } catch (e) {
     showToast(e.message);

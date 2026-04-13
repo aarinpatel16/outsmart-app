@@ -472,25 +472,10 @@ app.get("/admin/users", auth, adminOnly, async (req, res, next) => {
        ORDER BY COUNT(*) DESC, 1 ASC`
     );
 
-    const linksResult = await pool.query(
-      `SELECT
-         pc.parent_id,
-         p.name AS parent_name,
-         p.email AS parent_email,
-         pc.student_id,
-         s.name AS student_name,
-         s.email AS student_email
-       FROM parent_children pc
-       JOIN users p ON p.id = pc.parent_id
-       JOIN users s ON s.id = pc.student_id
-       ORDER BY LOWER(p.name), LOWER(s.name)`
-    );
-
     res.json({
       overview: overviewResult.rows[0],
       users: usersResult.rows,
       recentLogs: logsResult.rows,
-      links: linksResult.rows,
       categoryBreakdown: categoryBreakdownResult.rows,
       lessonBreakdown: lessonBreakdownResult.rows,
     });
