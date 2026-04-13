@@ -2382,10 +2382,19 @@
         <div class="admin-form-grid" style="margin-bottom:18px;">
           <div>
             <label class="fl-label">Student</label>
-            <select class="fl-input" id="admin-report-student"></select>
+            <select class="fl-input" id="admin-report-student" onchange="renderParentReport()"></select>
           </div>
-          <div style="display:flex;align-items:flex-end;">
+          <div>
+            <label class="fl-label">Parent Email</label>
+            <input class="fl-input" id="admin-report-parent-email" type="email" placeholder="parent@email.com">
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px;">
+          <div style="flex:1 1 220px;">
             <button class="fl-btn fl-btn-primary admin-primary-btn" onclick="renderParentReport()">Generate Report</button>
+          </div>
+          <div style="flex:1 1 220px;">
+            <button class="fl-btn admin-primary-btn" style="background:linear-gradient(135deg,#44566f,#5d7390);" onclick="emailParentReport()">Email Report</button>
           </div>
         </div>
         <div id="admin-report-output" class="admin-report-journal"></div>
@@ -3234,6 +3243,21 @@
     font-size: 12px;
     color: rgba(236,229,216,0.56);
   }
+  .admin-feed-item {
+    border-radius: 22px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.025);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .admin-feed-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+  }
   @media (max-width: 980px) {
     .admin-summary-grid,
     .admin-main-grid,
@@ -3414,6 +3438,7 @@ let selectedAdminUserId = null;
 let activeAdminBreakdown = "";
 let activeAdminTab = "overview";
 let availableLessons = [];
+let generatedParentReportEmail = "";
 let currentLogStep = 0;
 
 const LOG_STEPS = [
@@ -3957,8 +3982,8 @@ function renderAdminStudentBoard() {
   feed.innerHTML = studentLogs.map((log) => {
     const user = studentUsers.find((entry) => Number(entry.id) === Number(log.user_id));
     return `
-      <div class="admin-student-board-card">
-        <div class="admin-student-board-head">
+      <div class="admin-feed-item">
+        <div class="admin-feed-head">
           <div>
             <div class="admin-detail-name">${escapeHtml(log.user_name || user?.name || "Unknown Student")}</div>
             <div class="admin-user-email">${escapeHtml(log.user_email || user?.email || "")}</div>
@@ -3969,40 +3994,19 @@ function renderAdminStudentBoard() {
           </div>
           <div class="admin-role-pill student">student</div>
         </div>
-
-        <div class="admin-student-board-metrics">
-          <div class="admin-detail-metric">
-            <strong>${Number(user?.total_logs || 0)}</strong>
-            <span>Total Logs</span>
-          </div>
-          <div class="admin-detail-metric">
-            <strong>${Number(user?.categories_completed || 0)}</strong>
-            <span>Skill Areas</span>
-          </div>
-          <div class="admin-detail-metric">
-            <strong>${escapeHtml(log.category || "Unknown")}</strong>
-            <span>Category</span>
-          </div>
-        </div>
-
-        <div class="admin-subsection">
-          <h4>Entry Details</h4>
-          <p class="admin-panel-subtext">This is the newest-first global student activity feed.</p>
-          <div class="admin-student-board-logs">
-            <div class="admin-student-board-log">
-              <div class="admin-student-board-log-head">
-                <div>
-                  <div class="admin-student-board-log-title">${escapeHtml(log.title)}</div>
-                  <div class="admin-student-board-log-meta">
-                    ${escapeHtml(formatAdminDate(log.created_at))}
-                    ${getStructuredLogValue(log.notes, "Selected Lesson") ? ` • Lesson: ${escapeHtml(getStructuredLogValue(log.notes, "Selected Lesson"))}` : ""}
-                  </div>
-                </div>
-                <div class="admin-category-pill">${escapeHtml(log.category)}</div>
+        <div class="admin-student-board-log">
+          <div class="admin-student-board-log-head">
+            <div>
+              <div class="admin-student-board-log-title">${escapeHtml(log.title)}</div>
+              <div class="admin-student-board-log-meta">
+                ${escapeHtml(log.category || "Unknown")}
+                ${getStructuredLogValue(log.notes, "Selected Lesson") ? ` • Lesson: ${escapeHtml(getStructuredLogValue(log.notes, "Selected Lesson"))}` : ""}
+                ${user ? ` • ${Number(user.total_logs || 0)} total logs` : ""}
               </div>
-              ${renderStructuredNotesDetails(log.notes, "admin", `student-feed-${log.id}`)}
             </div>
+            <div class="admin-category-pill">${escapeHtml(log.category)}</div>
           </div>
+          ${renderStructuredNotesDetails(log.notes, "admin", `student-feed-${log.id}`)}
         </div>
       </div>
     `;
@@ -4030,6 +4034,41 @@ function populateAdminReportStudentOptions() {
   select.innerHTML = students.length
     ? students.map((user) => `<option value="${Number(user.id)}">${escapeHtml(user.name)} (${escapeHtml(user.email)})</option>`).join("")
     : `<option value="">No students available</option>`;
+}
+
+function buildParentReportEmailBody(student, logs, monthLabel) {
+  const lines = [
+    `Outsmart the System Parent Journal`,
+    `${student.name}`,
+    `${monthLabel}`,
+    ``,
+    `This report covers the last 30 days of lesson logs.`,
+    `Total entries this month: ${logs.length}`,
+    `Total lifetime logs: ${Number(student.total_logs || 0)}`,
+    ``,
+  ];
+
+  if (!logs.length) {
+    lines.push(`No lesson entries were logged during this period.`);
+    return lines.join("\n");
+  }
+
+  logs.forEach((log, index) => {
+    const sections = parseStructuredLogNotes(log.notes);
+    lines.push(`${index + 1}. ${log.title}`);
+    lines.push(`Date: ${formatAdminDate(log.created_at)}`);
+    lines.push(`Category: ${log.category || "Unknown"}`);
+    const lessonName = getStructuredLogValue(log.notes, "Selected Lesson") || log.lesson_name || "";
+    if (lessonName) {
+      lines.push(`Lesson: ${lessonName}`);
+    }
+    sections.forEach((section) => {
+      lines.push(`${section.label}: ${section.value}`);
+    });
+    lines.push(``);
+  });
+
+  return lines.join("\n");
 }
 
 function renderParentReport() {
@@ -4061,13 +4100,14 @@ function renderParentReport() {
   }, {});
   const topLesson = Object.entries(lessonTotals).sort((a, b) => b[1] - a[1])[0];
   const highlight = logs[0];
+  generatedParentReportEmail = buildParentReportEmailBody(student, logs, monthLabel);
 
   output.innerHTML = `
     <div class="admin-report-cover">
       <div class="admin-report-kicker">Monthly Parent Journal</div>
       <div class="admin-report-title">${escapeHtml(student.name)}</div>
       <div class="admin-report-subcopy">
-        A journal-style progress report for ${escapeHtml(monthLabel)} built from the student’s last 30 days of lesson activity.
+        A monthly journal built directly from the student’s entry logs across the last 30 days, ready to share with a parent.
       </div>
     </div>
 
@@ -4087,16 +4127,16 @@ function renderParentReport() {
     </div>
 
     <div class="admin-report-section">
-      <h4>Editor’s Note</h4>
+      <h4>Monthly Reading Note</h4>
       <div class="admin-report-copy">
         ${logs.length
-          ? `${escapeHtml(student.name)} logged ${logs.length} lesson${logs.length === 1 ? "" : "s"} this month, showing growth across ${Object.keys(categoryTotals).length || 0} skill area${Object.keys(categoryTotals).length === 1 ? "" : "s"}. ${topCategory ? `${escapeHtml(topCategory[0])} was the strongest rhythm of engagement` : "This month focused on building early momentum"}, and ${topLesson ? `${escapeHtml(topLesson[0])} appeared most often in the learning cycle.` : "new habits are still taking shape."}`
-          : `${escapeHtml(student.name)} has not logged a lesson in the last 30 days, so this month’s journal is a clean baseline before momentum begins.`}
+          ? `${escapeHtml(student.name)} logged ${logs.length} entry${logs.length === 1 ? "" : "ies"} this month. This journal is centered on the student’s own words, actions, results, and next moves so parents can read the actual learning trail instead of only seeing summary metrics. ${topLesson ? `The most repeated lesson was ${escapeHtml(topLesson[0])}.` : ""}`
+          : `${escapeHtml(student.name)} has not logged a lesson in the last 30 days, so there are no journal entries to share for this period.`}
       </div>
     </div>
 
     <div class="admin-report-section">
-      <h4>Monthly Snapshot</h4>
+      <h4>Quick Snapshot</h4>
       <div class="admin-report-list">
         Joined: ${escapeHtml(formatAdminDate(student.created_at, "Unknown"))}<br>
         Total lifetime logs: ${Number(student.total_logs || 0)}<br>
@@ -4106,7 +4146,7 @@ function renderParentReport() {
     </div>
 
     <div class="admin-report-section">
-      <h4>Journal Highlight</h4>
+      <h4>Latest Entry</h4>
       ${highlight ? `
         <div class="admin-report-entry">
           <div class="admin-report-entry-head">
@@ -4125,7 +4165,7 @@ function renderParentReport() {
     </div>
 
     <div class="admin-report-section">
-      <h4>All Entries This Month</h4>
+      <h4>Journal Entries</h4>
       ${logs.length
         ? logs.map((log) => `
             <div class="admin-report-entry">
@@ -4145,6 +4185,29 @@ function renderParentReport() {
         : `<div class="admin-report-empty">No monthly journal entries are available for this student yet.</div>`}
     </div>
   `;
+}
+
+function emailParentReport() {
+  const parentEmail = $("admin-report-parent-email")?.value?.trim();
+  const studentId = Number($("admin-report-student")?.value);
+  const student = adminUsers.find((user) => Number(user.id) === studentId && user.role === "student");
+
+  if (!student) {
+    return showToast("Choose a student first.");
+  }
+  if (!parentEmail) {
+    return showToast("Enter the parent email first.");
+  }
+
+  if (!generatedParentReportEmail) {
+    renderParentReport();
+  }
+
+  const monthLabel = new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  const subject = `Outsmart the System Journal - ${student.name} - ${monthLabel}`;
+  const body = generatedParentReportEmail || buildParentReportEmailBody(student, getStudentReportLogs(student.id), monthLabel);
+  const mailto = `mailto:${encodeURIComponent(parentEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.location.href = mailto;
 }
 
 async function resetAdminData() {
