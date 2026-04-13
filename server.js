@@ -611,6 +611,30 @@ app.post("/admin/lessons", auth, adminOnly, async (req, res, next) => {
   }
 });
 
+app.delete("/admin/lessons/:id", auth, adminOnly, async (req, res, next) => {
+  try {
+    const lessonId = Number(req.params.id);
+    if (!lessonId) {
+      return res.status(400).json({ error: "A valid lesson id is required." });
+    }
+
+    const { rows } = await pool.query(
+      `DELETE FROM lessons
+       WHERE id = $1
+       RETURNING id, name, category`,
+      [lessonId]
+    );
+
+    if (!rows[0]) {
+      return res.status(404).json({ error: "Lesson not found." });
+    }
+
+    res.json({ ok: true, lesson: rows[0] });
+  } catch (e) {
+    next(e);
+  }
+});
+
 app.get("/lessons", auth, async (req, res, next) => {
   try {
     const { rows } = await pool.query(

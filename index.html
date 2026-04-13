@@ -2229,6 +2229,7 @@
       <button class="admin-tab-btn active" id="admin-tab-overview" onclick="switchAdminTab('overview')">Overview</button>
       <button class="admin-tab-btn" id="admin-tab-users" onclick="switchAdminTab('users')">Users</button>
       <button class="admin-tab-btn" id="admin-tab-students" onclick="switchAdminTab('students')">Students</button>
+      <button class="admin-tab-btn" id="admin-tab-reports" onclick="switchAdminTab('reports')">Parent Reports</button>
       <button class="admin-tab-btn" id="admin-tab-lessons" onclick="switchAdminTab('lessons')">Lessons</button>
     </div>
 
@@ -2368,6 +2369,27 @@
           <div id="admin-lessons-output" class="admin-lesson-list"></div>
         </section>
       </div>
+    </div>
+
+    <div class="admin-tab-panel" id="admin-panel-reports">
+      <section class="admin-panel">
+        <div class="admin-panel-head">
+          <div>
+            <h3>Parent Report Journal</h3>
+            <p>Generate a monthly journal-style report for a student using their most recent 30 days of activity.</p>
+          </div>
+        </div>
+        <div class="admin-form-grid" style="margin-bottom:18px;">
+          <div>
+            <label class="fl-label">Student</label>
+            <select class="fl-input" id="admin-report-student"></select>
+          </div>
+          <div style="display:flex;align-items:flex-end;">
+            <button class="fl-btn fl-btn-primary admin-primary-btn" onclick="renderParentReport()">Generate Report</button>
+          </div>
+        </div>
+        <div id="admin-report-output" class="admin-report-journal"></div>
+      </section>
     </div>
   </div>
 </div>
@@ -3105,6 +3127,113 @@
     font-size: 12px;
     color: rgba(220,232,245,0.62);
   }
+  .admin-report-journal {
+    border-radius: 28px;
+    border: 1px solid rgba(214,198,165,0.18);
+    background:
+      linear-gradient(180deg, rgba(41,30,22,0.24) 0%, rgba(25,19,15,0.18) 100%),
+      linear-gradient(180deg, #151b25 0%, #121821 100%);
+    padding: 28px;
+    min-height: 320px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  .admin-report-cover {
+    border-bottom: 1px solid rgba(214,198,165,0.16);
+    padding-bottom: 18px;
+    margin-bottom: 20px;
+  }
+  .admin-report-kicker {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: rgba(214,198,165,0.76);
+    margin-bottom: 10px;
+  }
+  .admin-report-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 38px;
+    line-height: 1;
+    color: #f3ecdf;
+    margin-bottom: 8px;
+  }
+  .admin-report-subcopy {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    color: rgba(236,229,216,0.68);
+    line-height: 1.8;
+    max-width: 54ch;
+  }
+  .admin-report-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .admin-report-stat {
+    border-radius: 18px;
+    border: 1px solid rgba(214,198,165,0.14);
+    background: rgba(255,248,236,0.03);
+    padding: 16px;
+  }
+  .admin-report-stat strong {
+    display: block;
+    font-family: 'DM Serif Display', serif;
+    font-size: 30px;
+    color: #f3ecdf;
+    margin-bottom: 6px;
+  }
+  .admin-report-stat span {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: rgba(214,198,165,0.68);
+  }
+  .admin-report-section {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(214,198,165,0.12);
+  }
+  .admin-report-section h4 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    color: #f3ecdf;
+    margin-bottom: 8px;
+  }
+  .admin-report-copy,
+  .admin-report-list,
+  .admin-report-empty {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.85;
+    color: rgba(236,229,216,0.72);
+  }
+  .admin-report-entry {
+    border-radius: 18px;
+    border: 1px solid rgba(214,198,165,0.12);
+    background: rgba(255,248,236,0.025);
+    padding: 16px;
+    margin-top: 12px;
+  }
+  .admin-report-entry-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .admin-report-entry-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #f7f1e6;
+  }
+  .admin-report-entry-meta {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    color: rgba(236,229,216,0.56);
+  }
   @media (max-width: 980px) {
     .admin-summary-grid,
     .admin-main-grid,
@@ -3250,6 +3379,10 @@ const API = {
 
   resetAdminData() {
     return this._post("/admin/reset-data", {});
+  },
+
+  deleteAdminLesson(lessonId) {
+    return this._delete(`/admin/lessons/${lessonId}`);
   },
 
   createAdminLesson(name, category) {
@@ -3823,7 +3956,6 @@ function renderAdminStudentBoard() {
 
   feed.innerHTML = studentLogs.map((log) => {
     const user = studentUsers.find((entry) => Number(entry.id) === Number(log.user_id));
-    const logs = getLogsForUser(user?.id || log.user_id).slice(0, 5);
     return `
       <div class="admin-student-board-card">
         <div class="admin-student-board-head">
@@ -3854,8 +3986,8 @@ function renderAdminStudentBoard() {
         </div>
 
         <div class="admin-subsection">
-          <h4>Selected Entry</h4>
-          <p class="admin-panel-subtext">This student lesson log appears in the global activity feed.</p>
+          <h4>Entry Details</h4>
+          <p class="admin-panel-subtext">This is the newest-first global student activity feed.</p>
           <div class="admin-student-board-logs">
             <div class="admin-student-board-log">
               <div class="admin-student-board-log-head">
@@ -3872,33 +4004,147 @@ function renderAdminStudentBoard() {
             </div>
           </div>
         </div>
-
-        <div class="admin-subsection">
-          <h4>More From This Student</h4>
-          <p class="admin-panel-subtext">Most recent lesson logs from the same student.</p>
-          <div class="admin-student-board-logs">
-            ${logs.length
-              ? logs.map((entry) => `
-                  <div class="admin-student-board-log">
-                    <div class="admin-student-board-log-head">
-                      <div>
-                        <div class="admin-student-board-log-title">${escapeHtml(entry.title)}</div>
-                        <div class="admin-student-board-log-meta">
-                          ${escapeHtml(formatAdminDate(entry.created_at))}
-                          ${getStructuredLogValue(entry.notes, "Selected Lesson") ? ` • Lesson: ${escapeHtml(getStructuredLogValue(entry.notes, "Selected Lesson"))}` : ""}
-                        </div>
-                      </div>
-                      <div class="admin-category-pill">${escapeHtml(entry.category)}</div>
-                    </div>
-                    ${renderStructuredNotesDetails(entry.notes, "admin", `student-board-${entry.id}`)}
-                  </div>
-                `).join("")
-              : `<div class="admin-empty-state">No lesson entries yet for this student.</div>`}
-          </div>
-        </div>
       </div>
     `;
   }).join("");
+}
+
+function getStudentReportLogs(studentId) {
+  const now = new Date();
+  const cutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  return adminRecentLogs
+    .filter((log) => Number(log.user_id) === Number(studentId))
+    .filter((log) => {
+      const created = new Date(log.created_at);
+      return !Number.isNaN(created.getTime()) && created >= cutoff;
+    });
+}
+
+function populateAdminReportStudentOptions() {
+  const select = $("admin-report-student");
+  if (!select) return;
+  const students = adminUsers
+    .filter((user) => user.role === "student")
+    .sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
+
+  select.innerHTML = students.length
+    ? students.map((user) => `<option value="${Number(user.id)}">${escapeHtml(user.name)} (${escapeHtml(user.email)})</option>`).join("")
+    : `<option value="">No students available</option>`;
+}
+
+function renderParentReport() {
+  const output = $("admin-report-output");
+  const select = $("admin-report-student");
+  if (!output || !select) return;
+
+  const studentId = Number(select.value);
+  const student = adminUsers.find((user) => Number(user.id) === studentId && user.role === "student");
+  if (!student) {
+    output.innerHTML = `<div class="admin-report-empty">Choose a student to generate a parent report.</div>`;
+    return;
+  }
+
+  const logs = getStudentReportLogs(studentId);
+  const monthLabel = new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  const categoryTotals = logs.reduce((acc, log) => {
+    const key = log.category || "Unknown";
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
+  const topCategory = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0];
+  const lessons = logs
+    .map((log) => getStructuredLogValue(log.notes, "Selected Lesson") || log.lesson_name || "Unknown")
+    .filter(Boolean);
+  const lessonTotals = lessons.reduce((acc, lesson) => {
+    acc[lesson] = (acc[lesson] || 0) + 1;
+    return acc;
+  }, {});
+  const topLesson = Object.entries(lessonTotals).sort((a, b) => b[1] - a[1])[0];
+  const highlight = logs[0];
+
+  output.innerHTML = `
+    <div class="admin-report-cover">
+      <div class="admin-report-kicker">Monthly Parent Journal</div>
+      <div class="admin-report-title">${escapeHtml(student.name)}</div>
+      <div class="admin-report-subcopy">
+        A journal-style progress report for ${escapeHtml(monthLabel)} built from the student’s last 30 days of lesson activity.
+      </div>
+    </div>
+
+    <div class="admin-report-grid">
+      <div class="admin-report-stat">
+        <strong>${logs.length}</strong>
+        <span>Logs This Month</span>
+      </div>
+      <div class="admin-report-stat">
+        <strong>${Object.keys(categoryTotals).length}</strong>
+        <span>Skill Areas Touched</span>
+      </div>
+      <div class="admin-report-stat">
+        <strong>${topCategory ? escapeHtml(topCategory[0]) : "None yet"}</strong>
+        <span>Most Active Category</span>
+      </div>
+    </div>
+
+    <div class="admin-report-section">
+      <h4>Editor’s Note</h4>
+      <div class="admin-report-copy">
+        ${logs.length
+          ? `${escapeHtml(student.name)} logged ${logs.length} lesson${logs.length === 1 ? "" : "s"} this month, showing growth across ${Object.keys(categoryTotals).length || 0} skill area${Object.keys(categoryTotals).length === 1 ? "" : "s"}. ${topCategory ? `${escapeHtml(topCategory[0])} was the strongest rhythm of engagement` : "This month focused on building early momentum"}, and ${topLesson ? `${escapeHtml(topLesson[0])} appeared most often in the learning cycle.` : "new habits are still taking shape."}`
+          : `${escapeHtml(student.name)} has not logged a lesson in the last 30 days, so this month’s journal is a clean baseline before momentum begins.`}
+      </div>
+    </div>
+
+    <div class="admin-report-section">
+      <h4>Monthly Snapshot</h4>
+      <div class="admin-report-list">
+        Joined: ${escapeHtml(formatAdminDate(student.created_at, "Unknown"))}<br>
+        Total lifetime logs: ${Number(student.total_logs || 0)}<br>
+        Skill areas completed: ${Number(student.categories_completed || 0)}<br>
+        Most active lesson this month: ${topLesson ? escapeHtml(topLesson[0]) : "None yet"}
+      </div>
+    </div>
+
+    <div class="admin-report-section">
+      <h4>Journal Highlight</h4>
+      ${highlight ? `
+        <div class="admin-report-entry">
+          <div class="admin-report-entry-head">
+            <div>
+              <div class="admin-report-entry-title">${escapeHtml(highlight.title)}</div>
+              <div class="admin-report-entry-meta">
+                ${escapeHtml(formatAdminDate(highlight.created_at))}
+                ${getStructuredLogValue(highlight.notes, "Selected Lesson") ? ` • Lesson: ${escapeHtml(getStructuredLogValue(highlight.notes, "Selected Lesson"))}` : ""}
+              </div>
+            </div>
+            <div class="admin-category-pill">${escapeHtml(highlight.category)}</div>
+          </div>
+          ${renderStructuredNotesDetails(highlight.notes, "admin", `report-${highlight.id}`)}
+        </div>
+      ` : `<div class="admin-report-empty">No lesson entries were logged in the last 30 days.</div>`}
+    </div>
+
+    <div class="admin-report-section">
+      <h4>All Entries This Month</h4>
+      ${logs.length
+        ? logs.map((log) => `
+            <div class="admin-report-entry">
+              <div class="admin-report-entry-head">
+                <div>
+                  <div class="admin-report-entry-title">${escapeHtml(log.title)}</div>
+                  <div class="admin-report-entry-meta">
+                    ${escapeHtml(formatAdminDate(log.created_at))}
+                    ${getStructuredLogValue(log.notes, "Selected Lesson") ? ` • Lesson: ${escapeHtml(getStructuredLogValue(log.notes, "Selected Lesson"))}` : ""}
+                  </div>
+                </div>
+                <div class="admin-category-pill">${escapeHtml(log.category)}</div>
+              </div>
+              ${renderStructuredNotesDetails(log.notes, "admin", `report-list-${log.id}`)}
+            </div>
+          `).join("")
+        : `<div class="admin-report-empty">No monthly journal entries are available for this student yet.</div>`}
+    </div>
+  `;
 }
 
 async function resetAdminData() {
@@ -4133,8 +4379,25 @@ function renderAdminLessons(lessons) {
         </div>
         <div class="admin-category-pill">${escapeHtml(lesson.category)}</div>
       </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:12px;">
+        <button class="admin-secondary-btn" style="border-color:rgba(252,129,129,0.35);color:#ffb6b6;" onclick="deleteAdminLesson(${Number(lesson.id)})">Delete Lesson</button>
+      </div>
     </div>
   `).join("");
+}
+
+async function deleteAdminLesson(lessonId) {
+  try {
+    const confirmed = window.confirm("Delete this lesson from the library? Existing logs will stay, but the lesson will be removed from future selections.");
+    if (!confirmed) return;
+
+    await API.deleteAdminLesson(Number(lessonId));
+    showToast("Lesson deleted.");
+    await loadAdminLessons();
+    await loadAdminDashboard();
+  } catch (e) {
+    showToast(e.message);
+  }
 }
 
 async function testAdminRoute() {
@@ -4182,6 +4445,8 @@ async function loadAdminDashboard() {
     renderAdminOverview();
     renderAdminUsers();
     renderAdminStudentBoard();
+    populateAdminReportStudentOptions();
+    renderParentReport();
     renderAdminLessons(lessons);
   } catch (e) {
     showToast(e.message);
@@ -4567,7 +4832,7 @@ function resetLogForm() {
 
 function switchAdminTab(tab) {
   activeAdminTab = tab;
-  ["overview", "users", "students", "lessons"].forEach((name) => {
+  ["overview", "users", "students", "reports", "lessons"].forEach((name) => {
     $("admin-tab-" + name)?.classList.toggle("active", name === tab);
     $("admin-panel-" + name)?.classList.toggle("active", name === tab);
   });
