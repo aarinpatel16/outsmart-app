@@ -29,8 +29,8 @@
 
   body {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    background: #171816;
-    color: #ece8df;
+    background: #0d1520;
+    color: #e2eaf4;
     min-height: 100vh;
     overflow-x: hidden;
   }
@@ -52,7 +52,7 @@
     background:
       radial-gradient(circle at 12% 18%, rgba(89, 155, 255, 0.22), transparent 24%),
       radial-gradient(circle at 88% 82%, rgba(18, 96, 191, 0.18), transparent 28%),
-      linear-gradient(135deg, #171816 0%, #1a1b18 46%, #20211e 100%);
+      linear-gradient(135deg, #08111c 0%, #0b1522 42%, #101c2b 100%);
     overflow-y: auto;
     overflow-x: hidden;
     position: relative;
@@ -103,8 +103,8 @@
     overflow: hidden;
     padding: 38px 42px 34px;
     background:
-      radial-gradient(circle at top right, rgba(255,255,255,0.07), transparent 30%),
-      linear-gradient(155deg, rgba(24,24,21,0.96) 0%, rgba(29,29,26,0.93) 58%, rgba(21,21,19,0.98) 100%);
+      radial-gradient(circle at top right, rgba(99,179,237,0.2), transparent 30%),
+      linear-gradient(155deg, rgba(10,18,28,0.94) 0%, rgba(12,22,34,0.92) 58%, rgba(10,19,31,0.98) 100%);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -132,15 +132,19 @@
     gap: 14px;
   }
   .login-brand-mark {
-    width: 240px;
-    display: flex;
-    align-items: center;
+    width: 58px;
+    height: 58px;
+    border-radius: 18px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03));
+    border: 1px solid rgba(255,255,255,0.12);
+    display: grid;
+    place-items: center;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
   }
   .login-brand-mark img {
-    width: 100%;
-    height: auto;
+    width: 34px;
+    height: 34px;
     object-fit: contain;
-    filter: drop-shadow(0 12px 20px rgba(0,0,0,0.24));
   }
   .login-brand-copy {
     display: flex;
@@ -199,24 +203,16 @@
     margin-bottom: 20px;
   }
   .login-logo-frame {
-    display: block;
-    width: min(760px, 100%);
-    margin-bottom: 22px;
-  }
-  .login-logo-frame img {
-    width: 100%;
-    height: auto;
-    display: block;
-    filter: drop-shadow(0 18px 30px rgba(0,0,0,0.28));
+    display: none;
   }
   .login-message {
     display: block;
     font-family: 'DM Serif Display', serif;
-    font-size: clamp(34px, 4.8vw, 60px);
-    line-height: 1.02;
+    font-size: clamp(46px, 6.1vw, 88px);
+    line-height: 0.95;
     color: #f6fbff;
     margin-bottom: 18px;
-    max-width: 12ch;
+    max-width: 10.5ch;
   }
   .login-message span {
     color: #8bc4ff;
@@ -704,7 +700,7 @@
 
   /* ========== HEADER ========== */
   .app-header {
-    background: #181917;
+    background: #111c28;
     border-bottom: 1px solid rgba(255,255,255,0.07);
     padding: 14px 20px;
     display: flex;
@@ -725,11 +721,13 @@
     letter-spacing: -0.3px;
   }
   .header-brand-logo {
-    width: 170px;
-    height: auto;
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.25);
     flex-shrink: 0;
-    display: block;
-    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.24));
+    object-fit: contain;
   }
   .header-brand-copy {
     display: flex;
@@ -1648,9 +1646,6 @@
       align-items: flex-start;
       margin-bottom: 26px;
     }
-    .login-brand-mark {
-      width: min(220px, 100%);
-    }
     .login-icon-row {
       justify-content: flex-start;
     }
@@ -1669,9 +1664,6 @@
     .login-card {
       padding: 28px 22px 22px;
     }
-    .header-brand-logo {
-      width: 132px;
-    }
     .trust-row {
       justify-content: flex-start;
     }
@@ -1689,11 +1681,11 @@
       <div class="login-brand-bar">
         <div class="login-brand-lockup">
           <div class="login-brand-mark">
-            <img src="assets/branding/ots-logo-higher-res.png" alt="Outsmart the System logo">
+            <img src="assets/branding/ots-favicon-256.png" alt="Outsmart the System mark">
           </div>
           <div class="login-brand-copy">
             <div class="tagline">Strategy Log</div>
-            <div class="brand-name">Private Student Growth Platform</div>
+            <div class="brand-name">Outsmart <span>the System</span></div>
           </div>
         </div>
 
@@ -1706,9 +1698,7 @@
 
       <div class="login-wordmark">
         <div class="tagline">Strategy Log</div>
-        <div class="login-logo-frame">
-          <img src="assets/branding/ots-logo-higher-res.png" alt="Outsmart the System logo">
-        </div>
+        <div class="login-logo-frame"></div>
         <div class="login-message">Train smarter. <span>Track growth.</span> Build real momentum.</div>
         <div class="subtitle">A sharp, modern space for students to capture lessons, reflect on action, and keep stacking wins across finance, mindset, leadership, and conversation.</div>
       </div>
@@ -1789,10 +1779,10 @@
 <div class="screen" id="screen-dashboard">
   <div class="app-header">
     <div class="header-brand">
-      <img class="header-brand-logo" src="assets/branding/ots-logo-higher-res.png" alt="Outsmart the System logo">
+      <img class="header-brand-logo" src="assets/branding/ots-favicon-256.png" alt="OTS logo">
       <div class="header-brand-copy">
-        <div class="header-brand-kicker">Dashboard</div>
-        <div>Student <span>Home</span></div>
+        <div class="header-brand-kicker">Outsmart</div>
+        <div>the <span>System</span></div>
       </div>
     </div>
     <div class="header-actions">
@@ -1878,10 +1868,10 @@
       ← Back
     </div>
     <div class="header-brand">
-      <img class="header-brand-logo" src="assets/branding/ots-logo-higher-res.png" alt="Outsmart the System logo">
+      <img class="header-brand-logo" src="assets/branding/ots-favicon-256.png" alt="OTS logo">
       <div class="header-brand-copy">
-        <div class="header-brand-kicker">Journal</div>
-        <div>Log <span>Entry</span></div>
+        <div class="header-brand-kicker">Outsmart</div>
+        <div>the <span>System</span></div>
       </div>
     </div>
     <div class="header-actions">
@@ -2001,9 +1991,9 @@
 <div class="screen" id="screen-parent">
   <div class="app-header">
     <div class="header-brand">
-      <img class="header-brand-logo" src="assets/branding/ots-logo-higher-res.png" alt="Outsmart the System logo">
+      <img class="header-brand-logo" src="assets/branding/ots-favicon-256.png" alt="OTS logo">
       <div class="header-brand-copy">
-        <div class="header-brand-kicker">Family View</div>
+        <div class="header-brand-kicker">Outsmart</div>
         <div>Parent <span>Portal</span></div>
       </div>
     </div>
@@ -2084,9 +2074,9 @@
 <div class="screen" id="screen-badges">
   <div class="app-header">
     <div class="header-brand">
-      <img class="header-brand-logo" src="assets/branding/ots-logo-higher-res.png" alt="Outsmart the System logo">
+      <img class="header-brand-logo" src="assets/branding/ots-favicon-256.png" alt="OTS logo">
       <div class="header-brand-copy">
-        <div class="header-brand-kicker">Progress</div>
+        <div class="header-brand-kicker">Outsmart</div>
         <div>My <span>Badges</span></div>
       </div>
     </div>
@@ -2106,9 +2096,9 @@
 <div class="screen" id="screen-profile">
   <div class="app-header">
     <div class="header-brand">
-      <img class="header-brand-logo" src="assets/branding/ots-logo-higher-res.png" alt="Outsmart the System logo">
+      <img class="header-brand-logo" src="assets/branding/ots-favicon-256.png" alt="OTS logo">
       <div class="header-brand-copy">
-        <div class="header-brand-kicker">Student Intel</div>
+        <div class="header-brand-kicker">Outsmart</div>
         <div>My <span>Progress</span></div>
       </div>
     </div>
@@ -2153,9 +2143,9 @@
 <div class="screen" id="screen-leaderboard">
   <div class="app-header">
     <div class="header-brand">
-      <img class="header-brand-logo" src="assets/branding/ots-logo-higher-res.png" alt="Outsmart the System logo">
+      <img class="header-brand-logo" src="assets/branding/ots-favicon-256.png" alt="OTS logo">
       <div class="header-brand-copy">
-        <div class="header-brand-kicker">Competition Mode</div>
+        <div class="header-brand-kicker">Outsmart</div>
         <div>Student <span>Leaderboard</span></div>
       </div>
     </div>
@@ -2195,9 +2185,9 @@
       <div>
         <div class="admin-eyebrow">Operations Console</div>
         <div class="header-brand">
-          <img class="header-brand-logo" src="assets/branding/ots-logo-higher-res.png" alt="Outsmart the System logo">
+          <img class="header-brand-logo" src="assets/branding/ots-favicon-256.png" alt="OTS logo">
           <div class="header-brand-copy">
-            <div class="header-brand-kicker">Owner Tools</div>
+            <div class="header-brand-kicker">Outsmart</div>
             <div>Admin <span>Mode</span></div>
           </div>
         </div>
@@ -4134,7 +4124,7 @@ function buildParentReportDoc(student, logs, monthLabel) {
           xmlns="http://www.w3.org/TR/REC-html40">
       <head>
         <meta charset="utf-8">
-        <title>Parent Journal</title>
+        <title>Outsmart the System Parent Journal</title>
         <style>
           body { font-family: Georgia, serif; color: #1f2937; margin: 36px; line-height: 1.7; }
           .cover { border-bottom: 2px solid #d2b48c; padding-bottom: 18px; margin-bottom: 24px; }
@@ -4154,7 +4144,7 @@ function buildParentReportDoc(student, logs, monthLabel) {
       </head>
       <body>
         <div class="cover">
-          <div class="kicker">Parent Journal</div>
+          <div class="kicker">Outsmart the System Parent Journal</div>
           <h1>${escapeHtml(student.name)}</h1>
           <div class="subcopy">Monthly journal report for ${escapeHtml(monthLabel)} based on the student’s last 30 days of lesson entries.</div>
         </div>
